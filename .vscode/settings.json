@@ -1,0 +1,9 @@
+{
+    "files.exclude": {
+        "**/build": true,
+        "**/Info.plist": true
+    },
+    "files.watcherExclude": {
+        "**/build/**": true
+    }
+}
