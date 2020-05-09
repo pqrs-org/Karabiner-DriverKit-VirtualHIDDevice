@@ -25,3 +25,4 @@
 -   Build without entitlements, inject entitlements at codesigning.
     The driverkit entitlements (e.g., `com.apple.developer.driverkit`) requires a proper provisioning profile which you cannot create it unless you gained DriverKit framework capability from Apple.
     If you want to develop driver extension without the capability, build your code without entitlements and inject entitlements at codesigning stage.
+    See `src/scripts/codesign.sh` for details.
