@@ -1,12 +1,12 @@
 # How to be close to DriverKit
 
-## Doubt macOS before you suspect a problem caused by your code
+## Doubt macOS before you suspect a problem is caused by your code
 
 -   Restart macOS before investigating your issue.
     Replacing extension from OSSystemExtensionManager.submit does not restart your drivekit userspace process.
     The most reliable way to restart your userspace process is reboot.
 -   Execute `systemextensionsctl reset` before investigating your issue.
-    The reset command requires disabling SIP, however it solves various problem.
+    The reset command requires disabling SIP, however it solves various problems.
 
 ## Errors
 
@@ -24,4 +24,4 @@
 
 -   Build without entitlements, inject entitlements at codesigning.
     The driverkit entitlements (e.g., `com.apple.developer.driverkit`) requires a proper provisioning profile which you cannot create it unless you gained DriverKit framework capability from Apple.
-    Developing driver extension without the capability, build your code without entitlements, and inject entitlements at codesigning stage.
+    If you want to develop driver extension without the capability, build your code without entitlements and inject entitlements at codesigning stage.
