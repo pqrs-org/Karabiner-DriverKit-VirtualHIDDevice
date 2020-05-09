@@ -1,0 +1,16 @@
+name: KarabinerDriverKitVirtualHIDDevice
+options:
+  bundleIdPrefix: org.pqrs
+
+targets:
+  KarabinerDriverKitVirtualHIDDevice:
+    type: application
+    platform: macOS
+    deploymentTarget: '10.15'
+    sources:
+      - path: ExtensionManager
+        compilerFlags:
+          - '-Werror'
+        excludes:
+          - 'entitlements.plist'
+          - 'Info.plist.in'
