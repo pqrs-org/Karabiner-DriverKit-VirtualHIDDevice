@@ -4,3 +4,6 @@ all:
 
 clean:
 	rm -rf build
+
+xcode:
+	open KarabinerDriverKitVirtualHIDKeyboard.xcodeproj
