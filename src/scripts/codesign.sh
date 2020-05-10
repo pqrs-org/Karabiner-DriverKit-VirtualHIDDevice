@@ -1,10 +1,10 @@
 #!/bin/bash
 
 # Replace with your identity
-code_sign_identity=2772A6CA4AFC07DF97C2BB1BFD92EA182BF4B2B5
+readonly CODE_SIGN_IDENTITY=2772A6CA4AFC07DF97C2BB1BFD92EA182BF4B2B5
 
 codesign \
-    --sign $code_sign_identity \
+    --sign $CODE_SIGN_IDENTITY \
     --entitlements DriverKit/entitlements.plist \
     --options runtime \
     --verbose \
@@ -12,7 +12,7 @@ codesign \
     build/Release/KarabinerDriverKitVirtualHIDDevice.app/Contents/Library/SystemExtensions/org.pqrs.driverkit.KarabinerDriverKitVirtualHIDKeyboard.dext
 
 codesign \
-    --sign $code_sign_identity \
+    --sign $CODE_SIGN_IDENTITY \
     --entitlements ExtensionManager/entitlements.plist \
     --options runtime \
     --verbose \
