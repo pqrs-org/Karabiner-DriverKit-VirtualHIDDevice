@@ -17,3 +17,5 @@ targets:
         excludes:
           - entitlements.plist
           - Info.plist.in
+
+# DriverKit directory is not managed by project.yml since XcodeGen does not support DriverKit project yet
