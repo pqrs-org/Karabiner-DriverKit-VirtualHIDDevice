@@ -8,6 +8,12 @@
 -   Execute `systemextensionsctl reset` before investigating your issue.
     The reset command requires disabling SIP, however it solves various problems.
 
+## Most reliable way to upgrade your driver extension
+
+1.  Execute `systemextensionsctl reset`.
+2.  Install your driver extension from ExtensionManager. (User approval is always required due to `systemextensionsctl reset`.)
+3.  Restart your macOS.
+
 ## Errors
 
 -   `EXC_CRASH (Code Signature Invalid)`
