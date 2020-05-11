@@ -20,7 +20,11 @@
     -   Reason:
         -   There are extra entitlements which are allowed only Apple. (e.g., `com.apple.developer.hid.virtual.device`)
 -   `sysextd` is crashed by `EXC_BAD_INSTRUCTION (SIGILL)`
-    -   Reason:
+    -   Reason #1:
+        -   `sysextd` will be crashed if there are multiple versions of your driver extension exist.
+        -   Workaround:
+            -   `systemextensionsctl reset`
+    -   Reason #2:
         -   Your driver extension is crashed in `init()` or `Start()`.
 -   `sysextd: (libswiftCore.dylib) Fatal error: Activate found 2 extensions in active state, ID: xxx`
     -   Workaround:
