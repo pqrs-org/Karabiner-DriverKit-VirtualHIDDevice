@@ -22,30 +22,23 @@ bool KarabinerDriverKitVirtualHIDKeyboard::init() {
   return true;
 }
 
-kern_return_t IMPL(KarabinerDriverKitVirtualHIDKeyboard, Start) {
+void KarabinerDriverKitVirtualHIDKeyboard::free() {
   os_log(OS_LOG_DEFAULT, "org.pqrs.driverkit.KarabinerDriverKitVirtualHIDKeyboard %s", __FUNCTION__);
 
-  kern_return_t result;
+  IOSafeDeleteNULL(ivars, KarabinerDriverKitVirtualHIDKeyboard_IVars, 1);
+}
 
-  result = Start(provider, SUPERDISPATCH);
-  if (result != kIOReturnSuccess) {
-    Stop(provider, SUPERDISPATCH);
-    return result;
+bool KarabinerDriverKitVirtualHIDKeyboard::handleStart(IOService* provider) {
+  if (!super::handleStart(provider)) {
+    os_log(OS_LOG_DEFAULT, "org.pqrs.driverkit.KarabinerDriverKitVirtualHIDKeyboard super::handleStart failed");
+    return false;
   }
 
-  RegisterService();
-
-  return result;
+  return true;
 }
 
 kern_return_t IMPL(KarabinerDriverKitVirtualHIDKeyboard, Stop) {
   os_log(OS_LOG_DEFAULT, "org.pqrs.driverkit.KarabinerDriverKitVirtualHIDKeyboard %s", __FUNCTION__);
 
   return Stop(provider, SUPERDISPATCH);
-}
-
-void KarabinerDriverKitVirtualHIDKeyboard::free() {
-  os_log(OS_LOG_DEFAULT, "org.pqrs.driverkit.KarabinerDriverKitVirtualHIDKeyboard %s", __FUNCTION__);
-
-  IOSafeDeleteNULL(ivars, KarabinerDriverKitVirtualHIDKeyboard_IVars, 1);
 }

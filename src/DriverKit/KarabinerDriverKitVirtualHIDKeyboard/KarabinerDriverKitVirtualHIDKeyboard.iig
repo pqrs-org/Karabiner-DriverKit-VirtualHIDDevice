@@ -3,14 +3,19 @@
 
 #include <Availability.h>
 #include <DriverKit/IOService.iig>
+#include <HIDDriverKit/IOUserHIDDevice.iig>
 
-class KarabinerDriverKitVirtualHIDKeyboard: public IOService
+class KarabinerDriverKitVirtualHIDKeyboard: public IOUserHIDDevice
 {
 public:
     virtual bool init() override;
-    virtual kern_return_t Start(IOService *provider) override;
-    virtual kern_return_t Stop(IOService *provider) override;
     virtual void free() override;
+
+    // We must not override IOUserHIDDevice::Start directly.
+    // (See the reference document of IOUserHIDDevice::Start.)
+
+    virtual bool handleStart (IOService* provider) override;
+    virtual kern_return_t Stop(IOService *provider) override;
 };
 
 #endif
