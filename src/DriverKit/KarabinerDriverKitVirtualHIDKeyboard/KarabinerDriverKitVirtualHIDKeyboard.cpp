@@ -1,6 +1,7 @@
 #include <DriverKit/IOLib.h>
 #include <DriverKit/IOUserServer.h>
 #include <DriverKit/OSCollections.h>
+#include <HIDDriverKit/IOHIDDeviceKeys.h>
 #include <os/log.h>
 
 #include "KarabinerDriverKitVirtualHIDKeyboard.h"
@@ -112,7 +113,7 @@ struct KarabinerDriverKitVirtualHIDKeyboard_IVars {
 };
 
 bool KarabinerDriverKitVirtualHIDKeyboard::init() {
-  os_log(OS_LOG_DEFAULT, "org.pqrs.driverkit.KarabinerDriverKitVirtualHIDKeyboard %s", __FUNCTION__);
+  os_log(OS_LOG_DEFAULT, "org.pqrs.driverkit.KarabinerDriverKitVirtualHIDKeyboard init");
 
   auto result = super::init();
   if (!result) {
@@ -128,12 +129,14 @@ bool KarabinerDriverKitVirtualHIDKeyboard::init() {
 }
 
 void KarabinerDriverKitVirtualHIDKeyboard::free() {
-  os_log(OS_LOG_DEFAULT, "org.pqrs.driverkit.KarabinerDriverKitVirtualHIDKeyboard %s", __FUNCTION__);
+  os_log(OS_LOG_DEFAULT, "org.pqrs.driverkit.KarabinerDriverKitVirtualHIDKeyboard free");
 
   IOSafeDeleteNULL(ivars, KarabinerDriverKitVirtualHIDKeyboard_IVars, 1);
 }
 
 bool KarabinerDriverKitVirtualHIDKeyboard::handleStart(IOService* provider) {
+  os_log(OS_LOG_DEFAULT, "org.pqrs.driverkit.KarabinerDriverKitVirtualHIDKeyboard handleStart");
+
   if (!super::handleStart(provider)) {
     os_log(OS_LOG_DEFAULT, "org.pqrs.driverkit.KarabinerDriverKitVirtualHIDKeyboard super::handleStart failed");
     return false;
@@ -143,9 +146,24 @@ bool KarabinerDriverKitVirtualHIDKeyboard::handleStart(IOService* provider) {
 }
 
 kern_return_t IMPL(KarabinerDriverKitVirtualHIDKeyboard, Stop) {
-  os_log(OS_LOG_DEFAULT, "org.pqrs.driverkit.KarabinerDriverKitVirtualHIDKeyboard %s", __FUNCTION__);
+  os_log(OS_LOG_DEFAULT, "org.pqrs.driverkit.KarabinerDriverKitVirtualHIDKeyboard Stop");
 
   return Stop(provider, SUPERDISPATCH);
+}
+
+OSDictionary* KarabinerDriverKitVirtualHIDKeyboard::newDeviceDescription(void) {
+  auto dictionary = OSDictionary::withCapacity(10);
+  if (!dictionary) {
+    os_log(OS_LOG_DEFAULT, "org.pqrs.driverkit.KarabinerDriverKitVirtualHIDKeyboard OSDictionary::withCapacity failed");
+    return nullptr;
+  }
+
+  if (auto manufacturer = OSString::withCString("pqrs.org")) {
+    OSDictionarySetValue(dictionary, kIOHIDManufacturerKey, manufacturer);
+    manufacturer->release();
+  }
+
+  return dictionary;
 }
 
 OSData* KarabinerDriverKitVirtualHIDKeyboard::newReportDescriptor(void) {

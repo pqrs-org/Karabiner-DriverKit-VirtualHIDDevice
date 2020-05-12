@@ -17,7 +17,8 @@ public:
     virtual bool handleStart (IOService* provider) override;
     virtual kern_return_t Stop(IOService *provider) override;
 
-    OSData* newReportDescriptor(void) override;
+    virtual OSDictionary* newDeviceDescription(void) override;
+    virtual OSData* newReportDescriptor(void) override;
 };
 
 #endif
