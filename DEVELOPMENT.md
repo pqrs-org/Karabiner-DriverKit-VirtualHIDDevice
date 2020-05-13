@@ -14,6 +14,23 @@
 2.  Install your driver extension from ExtensionManager. (User approval is always required due to `systemextensionsctl reset`.)
 3.  Restart your macOS.
 
+## Log messages
+
+Using `log` command to show your driver log messages.
+
+```shell
+log show --predicate 'sender == "org.pqrs.driverkit.KarabinerDriverKitVirtualHIDKeyboard"' --info --debug --last 1h
+```
+
+The result:
+
+```text
+Timestamp                       Thread     Type        Activity             PID    TTL
+2020-05-13 08:50:08.983279+0900 0x97b      Default     0x0                  0      0    kernel: (org.pqrs.driverkit.KarabinerDriverKitVirtualHIDKeyboard) org.pqrs.driverkit.KarabinerDriverKitVirtualHIDKeyboard init
+2020-05-13 08:50:08.983378+0900 0x97b      Default     0x0                  0      0    kernel: (org.pqrs.driverkit.KarabinerDriverKitVirtualHIDKeyboard) org.pqrs.driverkit.KarabinerDriverKitVirtualHIDKeyboard handleStart
+2020-05-13 08:50:08.983521+0900 0x97b      Default     0x0                  0      0    kernel: (org.pqrs.driverkit.KarabinerDriverKitVirtualHIDKeyboard) [IOUserHIDDevice.cpp:62][0x100000514] Start failed: 0xe00002c7
+```
+
 ## Errors
 
 -   `EXC_CRASH (Code Signature Invalid)`
