@@ -3,9 +3,11 @@
 ## Status
 
 This project is very early stage.
-There is only a stub driver extension and an extension manager.
+There is only a stub virtual keyboard device which can be detected by macOS and an extension manager.
 
 -   [How to be close to DriverKit](DEVELOPMENT.md)
+
+![System Preferences](docs/images/system-preferences.png)
 
 ---
 
