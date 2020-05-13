@@ -5,7 +5,7 @@ Virtual devices (keyboard and mouse) implementation for macOS using DriverKit.
 ## Status
 
 This project is very early stage.
-There are only a stub virtual keyboard device which can be detected by macOS and an extension manager.
+There are only a stub virtual keyboard device which can be detected by macOS, and an extension manager.
 
 -   [How to be close to DriverKit](DEVELOPMENT.md)
 
