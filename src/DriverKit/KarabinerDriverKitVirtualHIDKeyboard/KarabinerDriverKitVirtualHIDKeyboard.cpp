@@ -181,7 +181,7 @@ OSDictionary* KarabinerDriverKitVirtualHIDKeyboard::newDeviceDescription(void) {
     manufacturer->release();
   }
 
-  if (auto product = OSString::withCString("Karabiner DriverKit VirtualHIDKeyboard")) {
+  if (auto product = OSString::withCString("Karabiner DriverKit VirtualHIDKeyboard " KARABINER_DRIVERKIT_VIRTUALHIDDEVICE_VERSION)) {
     OSDictionarySetValue(dictionary, kIOHIDProductKey, product);
     product->release();
   }
