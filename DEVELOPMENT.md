@@ -19,7 +19,7 @@
 Using `log` command to show your driver log messages.
 
 ```shell
-log show --predicate 'sender == "org.pqrs.driverkit.KarabinerDriverKitVirtualHIDKeyboard"' --info --debug --last 1h
+log show --predicate 'sender == "sysextd" or sender CONTAINS "org.pqrs"' --info --debug --last 1h
 ```
 
 The result:
