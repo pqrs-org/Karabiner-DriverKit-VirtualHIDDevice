@@ -36,7 +36,7 @@ systemextensionsctl-list:
 	systemextensionsctl list
 
 log-show-extension-manager:
-	log show --predicate 'eventMessage CONTAINS "KarabinerDriverKit"' --info --debug --last 1h
+	log show --predicate 'sender == "org.pqrs.driverkit.KarabinerDriverKitVirtualHIDKeyboard"' --info --debug --last 1h
 
 log-stream-extension-manager:
-	log stream --predicate 'eventMessage CONTAINS "KarabinerDriverKit"'
+	log stream --predicate 'sender == "org.pqrs.driverkit.KarabinerDriverKitVirtualHIDKeyboard"'
