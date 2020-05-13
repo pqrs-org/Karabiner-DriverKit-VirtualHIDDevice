@@ -31,7 +31,7 @@
         <key>IOMatchCategory</key>
         <string>org.pqrs.driverkit.KarabinerDriverKitVirtualHIDKeyboard</string>
         <key>IOProviderClass</key>
-        <string>IOHIDInterface</string>
+        <string>IOUserResources</string>
         <key>IOResourceMatch</key>
         <string>IOKit</string>
         <key>IOUserClass</key>
