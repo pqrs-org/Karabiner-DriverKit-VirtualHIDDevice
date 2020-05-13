@@ -1,5 +1,7 @@
 # Karabiner-DriverKit-VirtualHIDDevice
 
+Virtual devices (keyboard and mouse) implementation for macOS using DriverKit.
+
 ## Status
 
 This project is very early stage.
