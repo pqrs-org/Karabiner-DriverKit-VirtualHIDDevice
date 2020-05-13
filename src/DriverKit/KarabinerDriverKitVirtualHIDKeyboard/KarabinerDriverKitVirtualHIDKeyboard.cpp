@@ -156,6 +156,8 @@ bool KarabinerDriverKitVirtualHIDKeyboard::handleStart(IOService* provider) {
     key->release();
   }
 
+  RegisterService();
+
   return true;
 }
 
