@@ -3,7 +3,7 @@
 ## Doubt macOS before you suspect a problem is caused by your code
 
 -   Restart macOS before investigating your issue.
-    Replacing extension from OSSystemExtensionManager.submit does not restart your drivekit userspace process.
+    Replacing extension from `OSSystemExtensionManager.submit` does not restart your drivekit userspace process.
     The most reliable way to restart your userspace process is reboot.
 -   Execute `systemextensionsctl reset` before investigating your issue.
     The reset command requires disabling SIP, however it solves various problems.
