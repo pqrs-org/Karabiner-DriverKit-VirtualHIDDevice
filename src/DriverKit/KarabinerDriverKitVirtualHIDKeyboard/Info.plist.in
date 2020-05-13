@@ -27,11 +27,11 @@
         <key>CFBundleIdentifierKernel</key>
         <string>com.apple.kpi.iokit</string>
         <key>IOClass</key>
-        <string>IOUserService</string>
+        <string>AppleUserHIDDevice</string>
         <key>IOMatchCategory</key>
         <string>org.pqrs.driverkit.KarabinerDriverKitVirtualHIDKeyboard</string>
         <key>IOProviderClass</key>
-        <string>IOUserResources</string>
+        <string>IOHIDInterface</string>
         <key>IOResourceMatch</key>
         <string>IOKit</string>
         <key>IOUserClass</key>
