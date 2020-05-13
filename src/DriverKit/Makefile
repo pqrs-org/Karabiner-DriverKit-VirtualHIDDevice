@@ -1,5 +1,5 @@
 all:
-	bash ../scripts/update-info-plist.sh
+	bash ../scripts/update-version.sh
 	xcodebuild -configuration Release SYMROOT="$(CURDIR)/build"
 
 clean:

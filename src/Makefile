@@ -1,5 +1,5 @@
 all:
-	bash scripts/update-info-plist.sh
+	bash scripts/update-version.sh
 	xcodegen generate
 	xcodebuild -configuration Release SYMROOT="$(CURDIR)/build"
 	$(MAKE) -C DriverKit
@@ -36,7 +36,7 @@ systemextensionsctl-list:
 	systemextensionsctl list
 
 log-show-extension-manager:
-	log show --predicate 'sender == "org.pqrs.driverkit.KarabinerDriverKitVirtualHIDKeyboard"' --info --debug --last 1h
+	log show --predicate 'sender == "sysextd" or sender CONTAINS "org.pqrs"' --info --debug --last 1h
 
 log-stream-extension-manager:
-	log stream --predicate 'sender == "org.pqrs.driverkit.KarabinerDriverKitVirtualHIDKeyboard"'
+	log stream --predicate 'sender == "sysextd" or sender CONTAINS "org.pqrs"'
