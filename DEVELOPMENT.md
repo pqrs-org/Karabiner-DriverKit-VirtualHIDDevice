@@ -38,7 +38,7 @@ Timestamp                       Thread     Type        Activity             PID 
         -   There are extra entitlements which are allowed only Apple. (e.g., `com.apple.developer.hid.virtual.device`)
 -   `sysextd` is crashed by `EXC_BAD_INSTRUCTION (SIGILL)`
     -   Reason #1:
-        -   `sysextd` will be crashed if there are multiple versions of your driver extension exist.
+        -   `sysextd` will be crashed if multiple versions of your driver extension are installed.
         -   Workaround:
             -   `systemextensionsctl reset`
     -   Reason #2:
