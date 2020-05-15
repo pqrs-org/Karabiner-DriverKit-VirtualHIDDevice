@@ -3,7 +3,7 @@
 ## Doubt macOS before you suspect a problem is caused by your code
 
 -   Restart macOS before investigating your issue.
-    Replacing extension from `OSSystemExtensionManager.submit` does not restart your drivekit userspace process.
+    Replacing extension from `OSSystemExtensionManager.submit` does not restart your driverkit userspace process.
     The most reliable way to restart your userspace process is reboot.
 -   Execute `systemextensionsctl reset` before investigating your issue.
     The reset command requires disabling SIP, however it solves various problems.
@@ -43,6 +43,7 @@ Timestamp                       Thread     Type        Activity             PID 
             -   `systemextensionsctl reset`
     -   Reason #2:
         -   Your driver extension is crashed in `init()` or `Start()`.
+            Add log messages to investigate the problem.
 -   `sysextd: (libswiftCore.dylib) Fatal error: Activate found 2 extensions in active state, ID: xxx`
     -   Workaround:
         -   Execute `systemextensionsctl reset`, then install your system extension again.
