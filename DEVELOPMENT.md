@@ -31,6 +31,14 @@ Timestamp                       Thread     Type        Activity             PID 
 2020-05-13 08:50:08.983521+0900 0x97b      Default     0x0                  0      0    kernel: (org.pqrs.driverkit.KarabinerDriverKitVirtualHIDKeyboard) [IOUserHIDDevice.cpp:62][0x100000514] Start failed: 0xe00002c7
 ```
 
+## Inspect installed driver extensions
+
+See `db.plist`.
+
+```shell
+plutil -convert xml1 -o - /Library/SystemExtensions/db.plist
+```
+
 ## Errors
 
 -   `EXC_CRASH (Code Signature Invalid)`
