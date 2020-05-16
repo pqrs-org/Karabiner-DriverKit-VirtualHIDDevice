@@ -7,7 +7,7 @@ class ExtensionManager: NSObject, OSSystemExtensionRequestDelegate {
     let driverIdentifier = "org.pqrs.driverkit.KarabinerDriverKitVirtualHIDKeyboard"
 
     func activate() {
-        os_log("%@ activate", driverIdentifier)
+        os_log("%{public}@ activate", driverIdentifier)
 
         let request = OSSystemExtensionRequest.activationRequest(
             forExtensionWithIdentifier: driverIdentifier,
@@ -19,7 +19,7 @@ class ExtensionManager: NSObject, OSSystemExtensionRequestDelegate {
     }
 
     func deactivate() {
-        os_log("%@ deactivate", driverIdentifier)
+        os_log("%{public}@ deactivate", driverIdentifier)
 
         let request = OSSystemExtensionRequest.deactivationRequest(
             forExtensionWithIdentifier: driverIdentifier,
@@ -36,12 +36,12 @@ class ExtensionManager: NSObject, OSSystemExtensionRequestDelegate {
 
     func request(_: OSSystemExtensionRequest,
                  didFinishWithResult result: OSSystemExtensionRequest.Result) {
-        os_log("ExtensionManager request didFinishWithResult:%@", result.rawValue)
+        os_log("ExtensionManager request didFinishWithResult:%{public}@", result.rawValue)
     }
 
     func request(_: OSSystemExtensionRequest,
                  didFailWithError error: Error) {
-        os_log("ExtensionManager request didFailWithError:%@", error.localizedDescription)
+        os_log("ExtensionManager request didFailWithError:%{public}@", error.localizedDescription)
     }
 
     func requestNeedsUserApproval(_: OSSystemExtensionRequest) {
@@ -51,7 +51,7 @@ class ExtensionManager: NSObject, OSSystemExtensionRequestDelegate {
     func request(_: OSSystemExtensionRequest,
                  actionForReplacingExtension existing: OSSystemExtensionProperties,
                  withExtension ext: OSSystemExtensionProperties) -> OSSystemExtensionRequest.ReplacementAction {
-        os_log("ExtensionManager request actionForReplacingExtension:%@ withExtension:%@", existing, ext)
+        os_log("ExtensionManager request actionForReplacingExtension:%{public}@ withExtension:%{public}@", existing, ext)
 
         return .replace
     }
