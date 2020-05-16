@@ -41,6 +41,6 @@
       </dict>
     </dict>
     <key>OSBundleUsageDescription</key>
-    <string></string>
+    <string>Karabiner Virtual HID Keyboard using DriverKit</string>
   </dict>
 </plist>
