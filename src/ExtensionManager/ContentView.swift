@@ -3,19 +3,34 @@ import SystemExtensions
 
 struct ContentView: View {
     let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as! String
+    let driverIdentifier = "org.pqrs.driverkit.KarabinerDriverKitVirtualHIDKeyboard"
+
+    @State private var logMessages: [String] = []
 
     var body: some View {
         VStack {
             Text("KarabinerDriverKitVirtualHIDDevice version " + self.version)
             HStack {
-                Button(action: ExtensionManager.shared.activate) {
+                Button(action: { ExtensionManager.shared.activate(self.driverIdentifier) }) {
                     Text("Activate")
                 }
-                Button(action: ExtensionManager.shared.deactivate) {
+                Button(action: { ExtensionManager.shared.deactivate(self.driverIdentifier) }) {
                     Text("Deactivate")
                 }
             }
-        }.frame(maxWidth: .infinity, maxHeight: .infinity)
+            ScrollView {
+                VStack(alignment: .leading, spacing: 10) {
+                    ForEach(logMessages, id: \.self) { logMessage in
+                        Text(logMessage)
+                    }
+                }
+            }
+            .overlay(RoundedRectangle(cornerRadius: 5).stroke(lineWidth: 1))
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity).padding()
+        .onReceive(NotificationCenter.default.publisher(for: ExtensionManager.stateChanged)) { obj in
+            self.logMessages.append((obj.object as! ExtensionManager.NotificationObject).message)
+        }
     }
 }
 
