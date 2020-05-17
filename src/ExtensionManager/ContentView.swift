@@ -24,6 +24,8 @@ struct ContentView: View {
                         Text(logMessage)
                     }
                 }
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                .padding()
             }
             .overlay(RoundedRectangle(cornerRadius: 5).stroke(lineWidth: 1))
         }
