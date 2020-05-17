@@ -126,7 +126,7 @@ class ExtensionManager: NSObject, OSSystemExtensionRequestDelegate {
         let existingVersion = existing.bundleVersion
         let extVersion = ext.bundleVersion
 
-        if extVersion.compare(existingVersion, options: .numeric) == .orderedAscending {
+        if extVersion.compare(existingVersion, options: .numeric) == .orderedDescending {
             NotificationCenter.default.post(
                 name: ExtensionManager.stateChanged,
                 object: NotificationObject(
@@ -144,7 +144,7 @@ class ExtensionManager: NSObject, OSSystemExtensionRequestDelegate {
             object: NotificationObject(
                 bundleIdentifier: request.identifier,
                 state: .replacingCanceled,
-                message: "request of \(request.identifier) is canceled"
+                message: "request of \(request.identifier) is canceled because newer version (\(existingVersion)) is already installed"
             )
         )
 
