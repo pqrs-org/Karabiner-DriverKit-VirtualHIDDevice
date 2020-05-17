@@ -32,7 +32,7 @@ verify:
 install:
 	rsync -a --delete build/Release/KarabinerDriverKitVirtualHIDDevice.app /Applications
 
-run:
+run: install
 	open /Applications/KarabinerDriverKitVirtualHIDDevice.app
 
 systemextensionsctl-list:
