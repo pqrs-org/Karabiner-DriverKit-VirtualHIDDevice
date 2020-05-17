@@ -11,6 +11,8 @@ There are only a stub virtual keyboard device which can be detected by macOS, an
 
 ![System Preferences](docs/images/system-preferences.png)
 
+![Extension Manager](docs/images/extension-manager.png)
+
 ---
 
 ## For developers
