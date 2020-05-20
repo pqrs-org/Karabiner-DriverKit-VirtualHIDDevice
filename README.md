@@ -30,8 +30,18 @@ System requirements to build Karabiner-Elements:
 
 1.  Replace `CODE_SIGN_IDENTITY` at `src/scripts/codesign.sh` with yours.
     (The codesign identity is required even if you disabled SIP in order to inject entitlements into your driver extension.)
-2.  (Optional) Replace `G43BCU2T37` with your team identifier.
-3.  (Optional) Replace `org.pqrs` with your domain.
+2.  (Optional) Search `G43BCU2T37` and replace them with your team identifier.
+
+    ```shell
+    git grep G43BCU2T37 src/
+    ```
+
+3.  (Optional) Search `org.pqrs` and replace them with your domain.
+
+    ```shell
+    git grep org.pqrs src/
+    ```
+
 4.  Build by the following command in terminal.
 
     ```shell
