@@ -40,6 +40,3 @@ systemextensionsctl-list:
 
 log-show-extension-manager:
 	log show --predicate 'sender == "sysextd" or sender == "KarabinerDriverKitVirtualHIDDevice" or sender CONTAINS "org.pqrs"' --info --debug --last 1h
-
-log-stream-extension-manager:
-	log stream --predicate 'sender == "sysextd" or sender == "KarabinerDriverKitVirtualHIDDevice" or sender CONTAINS "org.pqrs"'
