@@ -43,7 +43,7 @@ plutil -convert xml1 -o - /Library/SystemExtensions/db.plist
 
 -   `EXC_CRASH (Code Signature Invalid)`
     -   Reason:
-        -   There are extra entitlements which are allowed only Apple:
+        -   There are extra entitlements which are not allowed for us:
             -   `com.apple.developer.hid.virtual.device`
             -   `com.apple.developer.system-extension.redistributable` (Bug?)
 -   `sysextd` is crashed by `EXC_BAD_INSTRUCTION (SIGILL)`
