@@ -32,7 +32,7 @@ System requirements to build Karabiner-Elements:
 1.  Replace `CODE_SIGN_IDENTITY` at `src/scripts/codesign.sh` with yours.
     (The codesign identity is required even if you disabled SIP in order to inject entitlements into your driver extension.)
 
-    Find your codesign identity.
+    Find your codesign identity by executing the following command in Terminal.
 
     ```shell
     security find-identity -p codesigning -v
