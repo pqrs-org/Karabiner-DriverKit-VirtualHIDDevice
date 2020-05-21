@@ -31,6 +31,30 @@ System requirements to build Karabiner-Elements:
 
 1.  Replace `CODE_SIGN_IDENTITY` at `src/scripts/codesign.sh` with yours.
     (The codesign identity is required even if you disabled SIP in order to inject entitlements into your driver extension.)
+
+    Find your codesign identity.
+
+    ```shell
+    security find-identity -p codesigning -v
+    ```
+
+    The result is as follows.
+
+    ```text
+    1) 8D660191481C98F5C56630847A6C39D95C166F22 "Developer ID Application: Fumihiko Takayama (G43BCU2T37)"
+    2) 6B9AF0D3B3147A69C5E713773ADD9707CB3480D9 "Apple Development: Fumihiko Takayama (YVB3SM6ECS)"
+    3) 637B86ED1C06AE99854E9F5A5DCE02DA58F2BBF4 "Mac Developer: Fumihiko Takayama (YVB3SM6ECS)"
+    4) 987BC26C6474DF0C0AF8BEA797354873EC83DC96 "Apple Distribution: Fumihiko Takayama (G43BCU2T37)"
+        4 valid identities found
+    ```
+
+    Choose one of them (e.g., `6B9AF0D3B3147A69C5E713773ADD9707CB3480D9`) and replace existing `CODE_SIGN_IDENTITY` with yours as follows.
+
+    ```shell
+    # Replace with your identity
+    readonly CODE_SIGN_IDENTITY=6B9AF0D3B3147A69C5E713773ADD9707CB3480D9
+    ```
+
 2.  (Optional) Search `G43BCU2T37` and replace them with your team identifier if you want to test your driver with SIP enabled environments.
 
     ```shell
