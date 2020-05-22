@@ -1,4 +1,5 @@
 #include <DriverKit/IOLib.h>
+#include <DriverKit/IOUserClient.h>
 #include <DriverKit/IOUserServer.h>
 #include <DriverKit/OSCollections.h>
 #include <HIDDriverKit/IOHIDDeviceKeys.h>
@@ -165,6 +166,27 @@ kern_return_t IMPL(KarabinerDriverKitVirtualHIDKeyboard, Stop) {
   os_log(OS_LOG_DEFAULT, LOG_PREFIX " Stop");
 
   return Stop(provider, SUPERDISPATCH);
+}
+
+kern_return_t IMPL(KarabinerDriverKitVirtualHIDKeyboard, NewUserClient) {
+  os_log(OS_LOG_DEFAULT, LOG_PREFIX " NewUserClient type:%d", type);
+
+  IOService* client;
+
+  auto kr = Create(this, "UserClientProperties", &client);
+  if (kr != kIOReturnSuccess) {
+    os_log(OS_LOG_DEFAULT, LOG_PREFIX " IOService::Create failed: 0x%x", kr);
+    return kr;
+  }
+
+  *userClient = OSDynamicCast(IOUserClient, client);
+  if (!*userClient) {
+    os_log(OS_LOG_DEFAULT, LOG_PREFIX " OSDynamicCast failed");
+    client->release();
+    return kIOReturnError;
+  }
+
+  return kIOReturnSuccess;
 }
 
 OSDictionary* KarabinerDriverKitVirtualHIDKeyboard::newDeviceDescription(void) {

@@ -38,6 +38,21 @@
         <string>KarabinerDriverKitVirtualHIDKeyboard</string>
         <key>IOUserServerName</key>
         <string>org.pqrs.driverkit.KarabinerDriverKitVirtualHIDKeyboard</string>
+        <key>UserClientProperties</key>
+        <dict>
+          <key>IOClass</key>
+          <string>AppleUserHIDDevice</string>
+          <key>IOServiceDEXTEntitlements</key>
+          <array>
+            <string>com.apple.developer.driverkit</string>
+            <string>com.apple.developer.driverkit.family.hid.device</string>
+            <string>com.apple.developer.driverkit.family.hid.eventservice</string>
+            <string>com.apple.developer.driverkit.family.hid.virtual.device</string>
+            <string>com.apple.developer.driverkit.transport.hid</string>
+          </array>
+          <key>IOUserClass</key>
+          <string>KarabinerDriverKitVirtualHIDKeyboard</string>
+        </dict>
       </dict>
     </dict>
     <key>OSBundleUsageDescription</key>
