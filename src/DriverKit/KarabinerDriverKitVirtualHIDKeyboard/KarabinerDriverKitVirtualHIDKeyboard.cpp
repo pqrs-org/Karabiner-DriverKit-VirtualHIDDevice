@@ -9,7 +9,7 @@
 #include "KarabinerDriverKitVirtualHIDKeyboard.h"
 #include "version.hpp"
 
-#define LOG_PREFIX "org.pqrs.driverkit.KarabinerDriverKitVirtualHIDKeyboard " KARABINER_DRIVERKIT_VIRTUALHIDDEVICE_VERSION
+#define LOG_PREFIX "KarabinerDriverKitVirtualHIDKeyboard " KARABINER_DRIVERKIT_VIRTUALHIDDEVICE_VERSION
 
 namespace {
 const uint8_t reportDescriptor_[] = {
