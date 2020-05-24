@@ -115,6 +115,7 @@ const uint8_t reportDescriptor_[] = {
 }
 
 struct KarabinerDriverKitVirtualHIDKeyboard_IVars {
+  OSDictionaryPtr properties;
 };
 
 bool KarabinerDriverKitVirtualHIDKeyboard::init() {
@@ -136,6 +137,8 @@ bool KarabinerDriverKitVirtualHIDKeyboard::init() {
 void KarabinerDriverKitVirtualHIDKeyboard::free() {
   os_log(OS_LOG_DEFAULT, LOG_PREFIX " free");
 
+  OSSafeReleaseNULL(ivars->properties);
+
   IOSafeDeleteNULL(ivars, KarabinerDriverKitVirtualHIDKeyboard_IVars, 1);
 }
 
@@ -155,6 +158,27 @@ bool KarabinerDriverKitVirtualHIDKeyboard::handleStart(IOService* provider) {
   if (auto key = OSString::withCString("AppleVendorSupported")) {
     setProperty(key, kOSBooleanTrue);
     key->release();
+  }
+
+  // Debug output
+
+  {
+    auto kr = CopyProperties(&(ivars->properties));
+    if (kr != kIOReturnSuccess) {
+      os_log(OS_LOG_DEFAULT, LOG_PREFIX " CopyProperties failed:0x%x", kr);
+      return false;
+    }
+
+    if (ivars->properties) {
+      if (auto userClientProperties = OSDynamicCast(OSDictionary, OSDictionaryGetValue(ivars->properties, "UserClientProperties"))) {
+        if (auto s = OSDynamicCast(OSString, OSDictionaryGetValue(userClientProperties, "IOClass"))) {
+          os_log(OS_LOG_DEFAULT, LOG_PREFIX " UserClientProperties::IOClass %{public}s", s->getCStringNoCopy());
+        }
+        if (auto s = OSDynamicCast(OSString, OSDictionaryGetValue(userClientProperties, "IOUserClass"))) {
+          os_log(OS_LOG_DEFAULT, LOG_PREFIX " UserClientProperties::IOUserClass %{public}s", s->getCStringNoCopy());
+        }
+      }
+    }
   }
 
   RegisterService();
