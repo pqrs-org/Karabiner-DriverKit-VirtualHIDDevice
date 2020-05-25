@@ -14,7 +14,7 @@ public:
     // We must not override IOUserHIDDevice::Start directly.
     // (See the reference document of IOUserHIDDevice::Start.)
 
-    virtual bool handleStart (IOService* provider) override;
+    virtual bool handleStart(IOService* provider) override;
     virtual kern_return_t Stop(IOService* provider) override;
 
     virtual kern_return_t NewUserClient(uint32_t type, IOUserClient** userClient) override;
