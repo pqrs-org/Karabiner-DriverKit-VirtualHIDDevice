@@ -41,7 +41,7 @@
         <key>UserClientProperties</key>
         <dict>
           <key>IOClass</key>
-          <string>IOHIDUserClient</string>
+          <string>IOUserUserClient</string>
           <key>IOServiceDEXTEntitlements</key>
           <array>
             <string>com.apple.developer.driverkit</string>
