@@ -9,7 +9,7 @@
 #include "KarabinerDriverKitVirtualHIDKeyboard.h"
 #include "version.hpp"
 
-#define LOG_PREFIX "KarabinerDriverKitVirtualHIDKeyboard " KARABINER_DRIVERKIT_VIRTUALHIDDEVICE_VERSION
+#define LOG_PREFIX "KarabinerDriverKitVirtualHIDKeyboard " KARABINER_DRIVERKIT_VERSION
 
 namespace {
 const uint8_t reportDescriptor_[] = {
@@ -203,6 +203,8 @@ kern_return_t IMPL(KarabinerDriverKitVirtualHIDKeyboard, NewUserClient) {
     return kr;
   }
 
+  os_log(OS_LOG_DEFAULT, LOG_PREFIX " IOUserUserClient is created");
+
   *userClient = OSDynamicCast(IOUserClient, client);
   if (!*userClient) {
     os_log(OS_LOG_DEFAULT, LOG_PREFIX " OSDynamicCast failed");
@@ -227,7 +229,7 @@ OSDictionary* KarabinerDriverKitVirtualHIDKeyboard::newDeviceDescription(void) {
     manufacturer->release();
   }
 
-  if (auto product = OSString::withCString("Karabiner DriverKit VirtualHIDKeyboard " KARABINER_DRIVERKIT_VIRTUALHIDDEVICE_VERSION)) {
+  if (auto product = OSString::withCString("Karabiner DriverKit VirtualHIDKeyboard " KARABINER_DRIVERKIT_VERSION)) {
     OSDictionarySetValue(dictionary, kIOHIDProductKey, product);
     product->release();
   }
