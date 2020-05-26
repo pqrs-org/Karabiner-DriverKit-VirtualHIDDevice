@@ -95,8 +95,9 @@ plutil -convert xml1 -o - /Library/SystemExtensions/db.plist
 
 4.  Implement `org_pqrs_KarabinerDriverKitVirtualHIDKeyboard::NewUserClient` method.
 5.  Implement `org_pqrs_KarabinerDriverKitVirtualHIDKeyboardUserClient::Start` and `Stop`.
-    Save `provider` argument to ivars at `Start`.
 
-    ```cpp
-    ivars->keyboard = OSDynamicCast(org_pqrs_KarabinerDriverKitVirtualHIDKeyboard, provider);
-    ```
+    -   Save `provider` argument to ivars at `Start`.
+
+        ```cpp
+        ivars->keyboard = OSDynamicCast(org_pqrs_KarabinerDriverKitVirtualHIDKeyboard, provider);
+        ```
