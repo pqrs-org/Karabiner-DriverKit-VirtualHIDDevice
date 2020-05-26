@@ -50,6 +50,14 @@ kern_return_t IMPL(org_pqrs_KarabinerDriverKitVirtualHIDKeyboardUserClient, Star
   }
 
   ivars->keyboard = OSDynamicCast(KarabinerDriverKitVirtualHIDKeyboard, provider);
+  if (ivars->keyboard) {
+    os_log(OS_LOG_DEFAULT, LOG_PREFIX " provider == KarabinerDriverKitVirtualHIDKeyboard");
+  } else {
+    os_log(OS_LOG_DEFAULT, LOG_PREFIX " provider != KarabinerDriverKitVirtualHIDKeyboard");
+    return false;
+  }
+
+  RegisterService();
 
   return true;
 }
@@ -60,4 +68,12 @@ kern_return_t IMPL(org_pqrs_KarabinerDriverKitVirtualHIDKeyboardUserClient, Stop
   ivars->keyboard = nullptr;
 
   return Stop(provider, SUPERDISPATCH);
+}
+
+kern_return_t org_pqrs_KarabinerDriverKitVirtualHIDKeyboardUserClient::ExternalMethod(uint64_t selector,
+                                                                                      IOUserClientMethodArguments* arguments,
+                                                                                      const IOUserClientMethodDispatch* dispatch,
+                                                                                      OSObject* target,
+                                                                                      void* reference) {
+  return kIOReturnSuccess;
 }

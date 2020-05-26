@@ -205,6 +205,8 @@ kern_return_t IMPL(KarabinerDriverKitVirtualHIDKeyboard, NewUserClient) {
     return kr;
   }
 
+  os_log(OS_LOG_DEFAULT, LOG_PREFIX " UserClient is created");
+
   *userClient = OSDynamicCast(IOUserClient, client);
   if (!*userClient) {
     os_log(OS_LOG_DEFAULT, LOG_PREFIX " OSDynamicCast failed");
