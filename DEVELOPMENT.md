@@ -66,3 +66,37 @@ plutil -convert xml1 -o - /Library/SystemExtensions/db.plist
     -   Workaround:
         -   If you want to develop driver extension without the capability, build your code without entitlements and inject entitlements at codesigning stage.
             See `src/scripts/codesign.sh` for details.
+
+---
+
+## How to communicate with your driver extension from user space (WIP)
+
+1.  Provide your driver extension. (e.g., org_pqrs_KarabinerDriverKitVirtualHIDKeyboard)
+2.  Add a subclass of IOUserClient. (e.g., org_pqrs_KarabinerDriverKitVirtualHIDKeyboardUserClient)
+3.  Put UserClientProperties into Info.plist.
+
+    ```xml
+    <key>UserClientProperties</key>
+    <dict>
+        <key>IOClass</key>
+        <string>IOUserUserClient</string>
+        <key>IOServiceDEXTEntitlements</key>
+        <array>
+        <string>com.apple.developer.driverkit</string>
+        <string>com.apple.developer.driverkit.family.hid.device</string>
+        <string>com.apple.developer.driverkit.family.hid.eventservice</string>
+        <string>com.apple.developer.driverkit.family.hid.virtual.device</string>
+        <string>com.apple.developer.driverkit.transport.hid</string>
+        </array>
+        <key>IOUserClass</key>
+        <string>org_pqrs_KarabinerDriverKitVirtualHIDKeyboardUserClient</string>
+    </dict>
+    ```
+
+4.  Implement `org_pqrs_KarabinerDriverKitVirtualHIDKeyboard::NewUserClient` method.
+5.  Implement `org_pqrs_KarabinerDriverKitVirtualHIDKeyboardUserClient::Start` and `Stop`.
+    Save `provider` argument to ivars at `Start`.
+
+    ```cpp
+    ivars->keyboard = OSDynamicCast(org_pqrs_KarabinerDriverKitVirtualHIDKeyboard, provider);
+    ```
