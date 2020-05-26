@@ -58,6 +58,7 @@ struct ContentView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity).padding()
         .onReceive(NotificationCenter.default.publisher(for: ExtensionManager.stateChanged)) { obj in
             self.logMessages.append((obj.object as! ExtensionManager.NotificationObject).message)
+            self.runList()
         }
         .onAppear { self.runList() }
     }
