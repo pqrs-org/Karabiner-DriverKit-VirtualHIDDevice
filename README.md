@@ -61,10 +61,11 @@ System requirements to build Karabiner-Elements:
     git grep G43BCU2T37 src/
     ```
 
-3.  (Optional) Search `org.pqrs` and replace them with your domain if you want to test your driver with SIP enabled environments.
+3.  (Optional) Search `org.pqrs` and `org_pqrs`, then replace them with your domain if you want to test your driver with SIP enabled environments.
 
     ```shell
     git grep org.pqrs src/
+    git grep org_pqrs src/
     ```
 
 4.  Build by the following command in terminal.
