@@ -140,6 +140,8 @@ void KarabinerDriverKitVirtualHIDKeyboard::free() {
   OSSafeReleaseNULL(ivars->properties);
 
   IOSafeDeleteNULL(ivars, KarabinerDriverKitVirtualHIDKeyboard_IVars, 1);
+
+  super::free();
 }
 
 bool KarabinerDriverKitVirtualHIDKeyboard::handleStart(IOService* provider) {

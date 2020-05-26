@@ -5,7 +5,7 @@ all:
 	$(MAKE) -C DriverKit
 	mkdir -p build/Release/KarabinerDriverKitVirtualHIDDevice.app/Contents/Library/SystemExtensions
 	rsync -a --delete \
-		DriverKit/build/Release-driverkit/org.pqrs.driverkit.KarabinerDriverKitVirtualHIDKeyboard.dext \
+		DriverKit/build/Release-driverkit/org.pqrs.driverkit.KarabinerDriverKitService.dext \
 		build/Release/KarabinerDriverKitVirtualHIDDevice.app/Contents/Library/SystemExtensions
 	$(MAKE) codesign
 
@@ -25,9 +25,9 @@ verify:
 	@echo "\n"
 	codesign --display --entitlements :- build/Release/KarabinerDriverKitVirtualHIDDevice.app
 	@echo "\n"
-	codesign -vvv -display build/Release/KarabinerDriverKitVirtualHIDDevice.app/Contents/Library/SystemExtensions/org.pqrs.driverkit.KarabinerDriverKitVirtualHIDKeyboard.dext
+	codesign -vvv -display build/Release/KarabinerDriverKitVirtualHIDDevice.app/Contents/Library/SystemExtensions/org.pqrs.driverkit.KarabinerDriverKitService.dext
 	@echo "\n"
-	codesign --display --entitlements :- build/Release/KarabinerDriverKitVirtualHIDDevice.app/Contents/Library/SystemExtensions/org.pqrs.driverkit.KarabinerDriverKitVirtualHIDKeyboard.dext
+	codesign --display --entitlements :- build/Release/KarabinerDriverKitVirtualHIDDevice.app/Contents/Library/SystemExtensions/org.pqrs.driverkit.KarabinerDriverKitService.dext
 
 install:
 	rsync -a --delete build/Release/KarabinerDriverKitVirtualHIDDevice.app /Applications
@@ -39,4 +39,4 @@ systemextensionsctl-list:
 	systemextensionsctl list
 
 log-show-extension-manager:
-	log show --predicate 'sender == "sysextd" or sender == "KarabinerDriverKitVirtualHIDDevice" or sender CONTAINS "org.pqrs"' --info --debug --last 1h
+	log show --predicate 'sender == "sysextd" or sender CONTAINS "org.pqrs"' --info --debug --last 1h

@@ -35,14 +35,19 @@ void KarabinerDriverKitService::free() {
   OSSafeReleaseNULL(ivars->properties);
 
   IOSafeDeleteNULL(ivars, KarabinerDriverKitService_IVars, 1);
+
+  super::free();
 }
 
 kern_return_t IMPL(KarabinerDriverKitService, Start) {
   os_log(OS_LOG_DEFAULT, LOG_PREFIX " Start");
 
-  if (!Start(provider, SUPERDISPATCH)) {
-    os_log(OS_LOG_DEFAULT, LOG_PREFIX " Start failed");
-    return false;
+  {
+    auto kr = Start(provider, SUPERDISPATCH);
+    if (kr != kIOReturnSuccess) {
+      os_log(OS_LOG_DEFAULT, LOG_PREFIX " Start failed");
+      return false;
+    }
   }
 
   // Debug output

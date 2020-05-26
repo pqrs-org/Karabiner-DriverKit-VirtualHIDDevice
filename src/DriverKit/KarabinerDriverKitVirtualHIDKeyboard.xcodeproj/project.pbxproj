@@ -21,7 +21,7 @@
 		348C4E69247BF3550069BC91 /* KarabinerDriverKitService.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = KarabinerDriverKitService.cpp; sourceTree = "<group>"; };
 		348C4E6A247BF3550069BC91 /* KarabinerDriverKitService.iig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.iig; path = KarabinerDriverKitService.iig; sourceTree = "<group>"; };
 		349E2264246BED03005D3A87 /* version.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = version.hpp; sourceTree = "<group>"; };
-		34F4352E2467151C00ABFBC1 /* org.pqrs.driverkit.KarabinerDriverKitVirtualHIDKeyboard.dext */ = {isa = PBXFileReference; explicitFileType = "wrapper.driver-extension"; includeInIndex = 0; path = org.pqrs.driverkit.KarabinerDriverKitVirtualHIDKeyboard.dext; sourceTree = BUILT_PRODUCTS_DIR; };
+		34F4352E2467151C00ABFBC1 /* org.pqrs.driverkit.KarabinerDriverKitService.dext */ = {isa = PBXFileReference; explicitFileType = "wrapper.driver-extension"; includeInIndex = 0; path = org.pqrs.driverkit.KarabinerDriverKitService.dext; sourceTree = BUILT_PRODUCTS_DIR; };
 		34F435312467151C00ABFBC1 /* DriverKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DriverKit.framework; path = Library/Frameworks/DriverKit.framework; sourceTree = DEVELOPER_DIR; };
 		34F435342467151C00ABFBC1 /* KarabinerDriverKitVirtualHIDKeyboard.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = KarabinerDriverKitVirtualHIDKeyboard.cpp; sourceTree = "<group>"; };
 		34F435362467151C00ABFBC1 /* KarabinerDriverKitVirtualHIDKeyboard.iig */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.iig; path = KarabinerDriverKitVirtualHIDKeyboard.iig; sourceTree = "<group>"; };
@@ -54,7 +54,7 @@
 		34F4352F2467151C00ABFBC1 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				34F4352E2467151C00ABFBC1 /* org.pqrs.driverkit.KarabinerDriverKitVirtualHIDKeyboard.dext */,
+				34F4352E2467151C00ABFBC1 /* org.pqrs.driverkit.KarabinerDriverKitService.dext */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -96,9 +96,9 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
-		34F4352D2467151C00ABFBC1 /* KarabinerDriverKitVirtualHIDKeyboard */ = {
+		34F4352D2467151C00ABFBC1 /* KarabinerDriverKitService */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 34F4353C2467151C00ABFBC1 /* Build configuration list for PBXNativeTarget "KarabinerDriverKitVirtualHIDKeyboard" */;
+			buildConfigurationList = 34F4353C2467151C00ABFBC1 /* Build configuration list for PBXNativeTarget "KarabinerDriverKitService" */;
 			buildPhases = (
 				34F435292467151C00ABFBC1 /* Headers */,
 				34F4352A2467151C00ABFBC1 /* Sources */,
@@ -109,9 +109,9 @@
 			);
 			dependencies = (
 			);
-			name = KarabinerDriverKitVirtualHIDKeyboard;
-			productName = KarabinerDriverKitVirtualHIDKeyboard;
-			productReference = 34F4352E2467151C00ABFBC1 /* org.pqrs.driverkit.KarabinerDriverKitVirtualHIDKeyboard.dext */;
+			name = KarabinerDriverKitService;
+			productName = KarabinerDriverKitService;
+			productReference = 34F4352E2467151C00ABFBC1 /* org.pqrs.driverkit.KarabinerDriverKitService.dext */;
 			productType = "com.apple.product-type.driver-extension";
 		};
 /* End PBXNativeTarget section */
@@ -128,7 +128,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 34F435282467151C00ABFBC1 /* Build configuration list for PBXProject "KarabinerDriverKitVirtualHIDKeyboard" */;
+			buildConfigurationList = 34F435282467151C00ABFBC1 /* Build configuration list for PBXProject "KarabinerDriverKitService" */;
 			compatibilityVersion = "Xcode 9.3";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -141,7 +141,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				34F4352D2467151C00ABFBC1 /* KarabinerDriverKitVirtualHIDKeyboard */,
+				34F4352D2467151C00ABFBC1 /* KarabinerDriverKitService */,
 			);
 		};
 /* End PBXProject section */
@@ -292,7 +292,7 @@
 					"$(SDKROOT)/System/DriverKit/System/Library/Frameworks",
 				);
 				INFOPLIST_FILE = KarabinerDriverKitVirtualHIDKeyboard/Info.plist;
-				PRODUCT_BUNDLE_IDENTIFIER = org.pqrs.driverkit.KarabinerDriverKitVirtualHIDKeyboard;
+				PRODUCT_BUNDLE_IDENTIFIER = org.pqrs.driverkit.KarabinerDriverKitService;
 				PRODUCT_NAME = "$(inherited)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
@@ -311,7 +311,7 @@
 					"$(SDKROOT)/System/DriverKit/System/Library/Frameworks",
 				);
 				INFOPLIST_FILE = KarabinerDriverKitVirtualHIDKeyboard/Info.plist;
-				PRODUCT_BUNDLE_IDENTIFIER = org.pqrs.driverkit.KarabinerDriverKitVirtualHIDKeyboard;
+				PRODUCT_BUNDLE_IDENTIFIER = org.pqrs.driverkit.KarabinerDriverKitService;
 				PRODUCT_NAME = "$(inherited)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SKIP_INSTALL = YES;
@@ -321,7 +321,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		34F435282467151C00ABFBC1 /* Build configuration list for PBXProject "KarabinerDriverKitVirtualHIDKeyboard" */ = {
+		34F435282467151C00ABFBC1 /* Build configuration list for PBXProject "KarabinerDriverKitService" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				34F4353A2467151C00ABFBC1 /* Debug */,
@@ -330,7 +330,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		34F4353C2467151C00ABFBC1 /* Build configuration list for PBXNativeTarget "KarabinerDriverKitVirtualHIDKeyboard" */ = {
+		34F4353C2467151C00ABFBC1 /* Build configuration list for PBXNativeTarget "KarabinerDriverKitService" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				34F4353D2467151C00ABFBC1 /* Debug */,
