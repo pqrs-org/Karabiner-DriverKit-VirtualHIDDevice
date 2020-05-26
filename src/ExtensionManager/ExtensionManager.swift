@@ -1,4 +1,5 @@
 import Foundation
+import SwiftShell
 import SystemExtensions
 
 class ExtensionManager: NSObject, OSSystemExtensionRequestDelegate {
@@ -26,6 +27,10 @@ class ExtensionManager: NSObject, OSSystemExtensionRequestDelegate {
         let state: State
         let message: String
     }
+
+    //
+    // Actions
+    //
 
     func activate(_ bundleIdentifier: String) {
         let request = OSSystemExtensionRequest.activationRequest(
@@ -63,6 +68,16 @@ class ExtensionManager: NSObject, OSSystemExtensionRequestDelegate {
                 message: "deactivation of \(bundleIdentifier) is requested"
             )
         )
+    }
+
+    func list() -> String {
+        let runOutput = run("/usr/bin/systemextensionsctl", "list")
+        return runOutput.stdout
+    }
+
+    func reset() -> String {
+        let runOutput = run("/usr/bin/systemextensionsctl", "reset")
+        return runOutput.stdout
     }
 
     //

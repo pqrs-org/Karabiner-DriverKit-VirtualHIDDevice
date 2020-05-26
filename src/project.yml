@@ -1,5 +1,10 @@
 name: KarabinerDriverKitVirtualHIDDevice
 
+packages:
+  SwiftShell:
+    url: https://github.com/kareman/SwiftShell
+    from: 5.0.1
+
 targets:
   KarabinerDriverKitVirtualHIDDevice:
     settings:
@@ -17,5 +22,7 @@ targets:
         excludes:
           - entitlements.plist
           - Info.plist.in
+    dependencies:
+      - package: SwiftShell
 
 # DriverKit directory is not managed by project.yml since XcodeGen does not support DriverKit project yet
