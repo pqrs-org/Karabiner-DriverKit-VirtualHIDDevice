@@ -6,7 +6,6 @@
 #include <HIDDriverKit/IOHIDUsageTables.h>
 #include <os/log.h>
 
-#include "KarabinerDriverKitService.h"
 #include "KarabinerDriverKitVirtualHIDKeyboard.h"
 #include "version.hpp"
 
@@ -148,13 +147,6 @@ void KarabinerDriverKitVirtualHIDKeyboard::free() {
 bool KarabinerDriverKitVirtualHIDKeyboard::handleStart(IOService* provider) {
   os_log(OS_LOG_DEFAULT, LOG_PREFIX " handleStart");
 
-  auto service = OSDynamicCast(KarabinerDriverKitService, provider);
-  if (service) {
-    os_log(OS_LOG_DEFAULT, LOG_PREFIX " provider == KarabinerDriverKitService");
-  } else {
-    os_log(OS_LOG_DEFAULT, LOG_PREFIX " provider != KarabinerDriverKitService");
-  }
-
   if (!super::handleStart(provider)) {
     os_log(OS_LOG_DEFAULT, LOG_PREFIX " super::handleStart failed");
     return false;
@@ -212,8 +204,6 @@ kern_return_t IMPL(KarabinerDriverKitVirtualHIDKeyboard, NewUserClient) {
     os_log(OS_LOG_DEFAULT, LOG_PREFIX " IOService::Create failed: 0x%x", kr);
     return kr;
   }
-
-  os_log(OS_LOG_DEFAULT, LOG_PREFIX " IOUserUserClient is created");
 
   *userClient = OSDynamicCast(IOUserClient, client);
   if (!*userClient) {

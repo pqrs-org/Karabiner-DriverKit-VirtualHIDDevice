@@ -3,7 +3,7 @@ import SystemExtensions
 
 struct ContentView: View {
     let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as! String
-    let driverIdentifier = "org.pqrs.driverkit.KarabinerDriverKitService"
+    let driverIdentifier = "org.pqrs.driverkit.KarabinerDriverKitVirtualHIDKeyboard"
 
     @State private var logMessages: [String] = []
     @State private var controlResult: String = ""

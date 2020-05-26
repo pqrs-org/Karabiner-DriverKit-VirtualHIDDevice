@@ -11,7 +11,7 @@ codesign \
     --options runtime \
     --verbose \
     --force \
-    build/Release/KarabinerDriverKitVirtualHIDDevice.app/Contents/Library/SystemExtensions/org.pqrs.driverkit.KarabinerDriverKitService.dext
+    build/Release/KarabinerDriverKitVirtualHIDDevice.app/Contents/Library/SystemExtensions/org.pqrs.driverkit.KarabinerDriverKitVirtualHIDKeyboard.dext
 
 codesign \
     --sign $CODE_SIGN_IDENTITY \

@@ -20,24 +20,24 @@
     <string>@VERSION@</string>
     <key>IOKitPersonalities</key>
     <dict>
-      <key>KarabinerDriverKitService</key>
+      <key>KarabinerDriverKitVirtualHIDKeyboard</key>
       <dict>
         <key>CFBundleIdentifier</key>
         <string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
         <key>CFBundleIdentifierKernel</key>
         <string>com.apple.kpi.iokit</string>
         <key>IOClass</key>
-        <string>IOUserService</string>
+        <string>AppleUserHIDDevice</string>
         <key>IOMatchCategory</key>
-        <string>org.pqrs.driverkit.KarabinerDriverKitService</string>
+        <string>org.pqrs.driverkit.KarabinerDriverKitVirtualHIDKeyboard</string>
         <key>IOProviderClass</key>
         <string>IOUserResources</string>
         <key>IOResourceMatch</key>
         <string>IOKit</string>
         <key>IOUserClass</key>
-        <string>KarabinerDriverKitService</string>
+        <string>KarabinerDriverKitVirtualHIDKeyboard</string>
         <key>IOUserServerName</key>
-        <string>org.pqrs.driverkit.KarabinerDriverKitService</string>
+        <string>org.pqrs.driverkit.KarabinerDriverKitVirtualHIDKeyboard</string>
         <key>UserClientProperties</key>
         <dict>
           <key>IOClass</key>
@@ -51,7 +51,7 @@
             <string>com.apple.developer.driverkit.transport.hid</string>
           </array>
           <key>IOUserClass</key>
-          <string>KarabinerDriverKitVirtualHIDKeyboard</string>
+          <string>org_pqrs_KarabinerDriverKitVirtualHIDKeyboardUserClient</string>
         </dict>
       </dict>
     </dict>
