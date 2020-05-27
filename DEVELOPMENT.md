@@ -71,6 +71,8 @@ plutil -convert xml1 -o - /Library/SystemExtensions/db.plist
 
 ## How to communicate with your driver extension from user space (WIP)
 
+### Driver extension
+
 1.  Provide your driver extension. (e.g., org_pqrs_KarabinerDriverKitVirtualHIDKeyboard)
 2.  Add a subclass of IOUserClient. (e.g., org_pqrs_KarabinerDriverKitVirtualHIDKeyboardUserClient)
 3.  Put UserClientProperties into Info.plist.
@@ -80,16 +82,9 @@ plutil -convert xml1 -o - /Library/SystemExtensions/db.plist
     <dict>
         <key>IOClass</key>
         <string>IOUserUserClient</string>
-        <key>IOServiceDEXTEntitlements</key>
-        <array>
-        <string>com.apple.developer.driverkit</string>
-        <string>com.apple.developer.driverkit.family.hid.device</string>
-        <string>com.apple.developer.driverkit.family.hid.eventservice</string>
-        <string>com.apple.developer.driverkit.family.hid.virtual.device</string>
-        <string>com.apple.developer.driverkit.transport.hid</string>
-        </array>
         <key>IOUserClass</key>
         <string>org_pqrs_KarabinerDriverKitVirtualHIDKeyboardUserClient</string>
+        <!-- <key>IOServiceDEXTEntitlements</key> -->
     </dict>
     ```
 
@@ -101,3 +96,39 @@ plutil -convert xml1 -o - /Library/SystemExtensions/db.plist
         ```cpp
         ivars->keyboard = OSDynamicCast(org_pqrs_KarabinerDriverKitVirtualHIDKeyboard, provider);
         ```
+
+### Client
+
+1.  Make C++ code.
+
+    ```cpp
+      io_connect_t connect = IO_OBJECT_NULL;
+      auto service = IOServiceGetMatchingService(kIOMasterPortDefault, IOServiceNameMatching("org_pqrs_KarabinerDriverKitVirtualHIDKeyboard"));
+      if (!service) {
+        std::cerr << "IOServiceGetMatchingService error" << std::endl;
+        goto finish;
+      }
+
+      {
+        pqrs::osx::iokit_return ir = IOServiceOpen(service, mach_task_self(), kIOHIDServerConnectType, &connect);
+        if (!ir) {
+          std::cerr << "IOServiceOpen error: " << ir << std::endl;
+          goto finish;
+        }
+      }
+    ```
+
+2.  Inject entitlements to your app.
+
+    ```xml
+    <?xml version="1.0" encoding="UTF-8"?>
+    <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+    <plist version="1.0">
+        <dict>
+            <key>com.apple.developer.driverkit.userclient-access</key>
+            <array>
+            <string>org.pqrs.driverkit.org_pqrs_KarabinerDriverKitVirtualHIDKeyboard</string>
+            </array>
+        </dict>
+    </plist>
+    ```
