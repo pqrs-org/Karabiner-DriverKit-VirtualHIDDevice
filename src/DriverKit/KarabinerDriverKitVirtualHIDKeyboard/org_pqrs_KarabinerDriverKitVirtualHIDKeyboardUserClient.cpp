@@ -17,8 +17,7 @@ struct org_pqrs_KarabinerDriverKitVirtualHIDKeyboardUserClient_IVars {
 bool org_pqrs_KarabinerDriverKitVirtualHIDKeyboardUserClient::init() {
   os_log(OS_LOG_DEFAULT, LOG_PREFIX " init");
 
-  auto result = super::init();
-  if (!result) {
+  if (!super::init()) {
     return false;
   }
 
@@ -45,7 +44,7 @@ kern_return_t IMPL(org_pqrs_KarabinerDriverKitVirtualHIDKeyboardUserClient, Star
     auto kr = Start(provider, SUPERDISPATCH);
     if (kr != kIOReturnSuccess) {
       os_log(OS_LOG_DEFAULT, LOG_PREFIX " Start failed");
-      return false;
+      return kr;
     }
   }
 
@@ -54,12 +53,10 @@ kern_return_t IMPL(org_pqrs_KarabinerDriverKitVirtualHIDKeyboardUserClient, Star
     os_log(OS_LOG_DEFAULT, LOG_PREFIX " provider == KarabinerDriverKitVirtualHIDKeyboard");
   } else {
     os_log(OS_LOG_DEFAULT, LOG_PREFIX " provider != KarabinerDriverKitVirtualHIDKeyboard");
-    return false;
+    return kIOReturnBadArgument;
   }
 
-  RegisterService();
-
-  return true;
+  return kIOReturnSuccess;
 }
 
 kern_return_t IMPL(org_pqrs_KarabinerDriverKitVirtualHIDKeyboardUserClient, Stop) {
