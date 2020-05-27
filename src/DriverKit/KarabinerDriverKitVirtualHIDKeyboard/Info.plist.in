@@ -42,16 +42,9 @@
         <dict>
           <key>IOClass</key>
           <string>IOUserUserClient</string>
-          <key>IOServiceDEXTEntitlements</key>
-          <array>
-            <string>com.apple.developer.driverkit</string>
-            <string>com.apple.developer.driverkit.family.hid.device</string>
-            <string>com.apple.developer.driverkit.family.hid.eventservice</string>
-            <string>com.apple.developer.driverkit.family.hid.virtual.device</string>
-            <string>com.apple.developer.driverkit.transport.hid</string>
-          </array>
           <key>IOUserClass</key>
           <string>org_pqrs_KarabinerDriverKitVirtualHIDKeyboardUserClient</string>
+          <!-- <key>IOServiceDEXTEntitlements</key> -->
         </dict>
       </dict>
     </dict>
