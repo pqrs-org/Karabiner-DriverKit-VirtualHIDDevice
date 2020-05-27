@@ -115,14 +115,14 @@ const uint8_t reportDescriptor_[] = {
 }
 
 struct KarabinerDriverKitVirtualHIDKeyboard_IVars {
+  IOService* provider;
   OSDictionaryPtr properties;
 };
 
 bool KarabinerDriverKitVirtualHIDKeyboard::init() {
   os_log(OS_LOG_DEFAULT, LOG_PREFIX " init");
 
-  auto result = super::init();
-  if (!result) {
+  if (!super::init()) {
     return false;
   }
 
@@ -146,6 +146,8 @@ void KarabinerDriverKitVirtualHIDKeyboard::free() {
 
 bool KarabinerDriverKitVirtualHIDKeyboard::handleStart(IOService* provider) {
   os_log(OS_LOG_DEFAULT, LOG_PREFIX " handleStart");
+
+  ivars->provider = provider;
 
   if (!super::handleStart(provider)) {
     os_log(OS_LOG_DEFAULT, LOG_PREFIX " super::handleStart failed");
@@ -190,6 +192,8 @@ bool KarabinerDriverKitVirtualHIDKeyboard::handleStart(IOService* provider) {
 
 kern_return_t IMPL(KarabinerDriverKitVirtualHIDKeyboard, Stop) {
   os_log(OS_LOG_DEFAULT, LOG_PREFIX " Stop");
+
+  ivars->provider = nullptr;
 
   return Stop(provider, SUPERDISPATCH);
 }
