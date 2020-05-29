@@ -1,3 +1,6 @@
+[![Build Status](https://github.com/pqrs-org/Karabiner-DriverKit-VirtualHIDDevice/workflows/CI/badge.svg)](https://github.com/pqrs-org/Karabiner-DriverKit-VirtualHIDDevice/actions)
+[![License](https://img.shields.io/badge/license-Public%20Domain-blue.svg)](https://github.com/pqrs-org/Karabiner-DriverKit-VirtualHIDDevice/blob/master/LICENSE.md)
+
 # Karabiner-DriverKit-VirtualHIDDevice
 
 Virtual devices (keyboard and mouse) implementation for macOS using DriverKit.
