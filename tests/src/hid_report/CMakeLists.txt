@@ -16,5 +16,6 @@ add_executable(
   buttons_test.cpp
   keys_test.cpp
   modifiers_test.cpp
+  sizeof_test.cpp
   test.cpp
 )
