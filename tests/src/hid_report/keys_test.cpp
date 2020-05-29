@@ -2,11 +2,11 @@
 
 #include <pqrs/karabiner/driverkit/virtual_hid_device.hpp>
 
-
-#if 0
 TEST_CASE("keys") {
+  using namespace pqrs::karabiner::driverkit::virtual_hid_device;
+
   {
-    pqrs::karabiner_virtual_hid_device::hid_report::keys keys;
+    hid_report::keys keys;
     uint8_t expected[32];
 
     REQUIRE(keys.count() == 0);
@@ -66,7 +66,7 @@ TEST_CASE("keys") {
   {
     // Overflow
 
-    pqrs::karabiner_virtual_hid_device::hid_report::keys keys;
+    hid_report::keys keys;
     REQUIRE(keys.count() == 0);
 
     for (int i = 0; i < 32; ++i) {
@@ -81,36 +81,3 @@ TEST_CASE("keys") {
     REQUIRE(keys.count() == 32);
   }
 }
-
-TEST_CASE("buttons") {
-  {
-    pqrs::karabiner_virtual_hid_device::hid_report::buttons buttons;
-    REQUIRE(buttons.get_raw_value() == 0);
-    REQUIRE(buttons.empty());
-
-    buttons.insert(1);
-    REQUIRE(buttons.get_raw_value() == 0x1);
-    REQUIRE(!buttons.empty());
-
-    buttons.insert(32);
-    REQUIRE(buttons.get_raw_value() == 0x80000001);
-    REQUIRE(!buttons.empty());
-
-    buttons.insert(0);
-    REQUIRE(buttons.get_raw_value() == 0x80000001);
-    REQUIRE(!buttons.empty());
-
-    buttons.insert(33);
-    REQUIRE(buttons.get_raw_value() == 0x80000001);
-    REQUIRE(!buttons.empty());
-
-    buttons.erase(1);
-    REQUIRE(buttons.get_raw_value() == 0x80000000);
-    REQUIRE(!buttons.empty());
-
-    buttons.clear();
-    REQUIRE(buttons.get_raw_value() == 0);
-    REQUIRE(buttons.empty());
-  }
-}
-#endif
