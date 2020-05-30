@@ -9,6 +9,7 @@
 #include <IOKit/hidsystem/ev_keymap.h>
 #include <cmath>
 #include <iostream>
+#include <pqrs/karabiner/driverkit/virtual_hid_device.hpp>
 #include <pqrs/osx/iokit_return.hpp>
 #include <pqrs/osx/kern_return.hpp>
 #include <thread>
@@ -41,6 +42,16 @@ int main(int argc, const char* argv[]) {
       goto finish;
     }
   }
+
+  IOConnectCallStructMethod(connect,
+                            static_cast<uint32_t>(pqrs::karabiner::driverkit::virtual_hid_device::user_client_method::reset_virtual_hid_keyboard),
+                            nullptr, 0,
+                            nullptr, 0);
+
+  IOConnectCallStructMethod(connect,
+                            static_cast<uint32_t>(pqrs::karabiner::driverkit::virtual_hid_device::user_client_method::post_keyboard_input_report),
+                            nullptr, 0,
+                            nullptr, 0);
 
 #if 0
   {

@@ -1,4 +1,4 @@
-CXXFLAGS = -Ivendor/include -std=c++14 -Wall -Werror -O2
+CXXFLAGS = -Ivendor/include -I../../src/DriverKit/include -std=c++17 -Wall -Werror -O2
 
 all: main.o
 	c++ -framework IOKit main.o
