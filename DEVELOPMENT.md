@@ -69,7 +69,7 @@ plutil -convert xml1 -o - /Library/SystemExtensions/db.plist
 
 ---
 
-## How to communicate with your driver extension from user space (WIP)
+## How to communicate with your driver extension from user space
 
 ### Driver extension
 
@@ -132,3 +132,33 @@ plutil -convert xml1 -o - /Library/SystemExtensions/db.plist
         </dict>
     </plist>
     ```
+
+### Implement methods
+
+You can connect to your driver extension from your client by above steps.
+
+Implement the actual processing by the following steps.
+
+1.  Implement `ExternalMethod` method your driverkit user client class.
+
+    ```cpp
+    kern_return_t org_pqrs_KarabinerDriverKitVirtualHIDKeyboardUserClient::ExternalMethod(uint64_t selector,
+                                                                                          IOUserClientMethodArguments* arguments,
+                                                                                          const IOUserClientMethodDispatch* dispatch,
+                                                                                          OSObject* target,
+                                                                                          void* reference) {
+        os_log(OS_LOG_DEFAULT, "ExternalMethod %llu", selector);
+        return kIOReturnSuccess;
+    }
+    ```
+
+2.  Call `IOConnectCallStructMethod` from your client.
+
+    ```cpp
+    IOConnectCallStructMethod(connect,
+                              42,
+                              nullptr, 0,
+                              nullptr, 0);
+    ```
+
+    The `ExternalMethod` will be called.
