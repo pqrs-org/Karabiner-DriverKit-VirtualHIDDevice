@@ -283,3 +283,16 @@ OSData* KarabinerDriverKitVirtualHIDKeyboard::newReportDescriptor(void) {
 
   return OSData::withBytes(reportDescriptor_, sizeof(reportDescriptor_));
 }
+
+kern_return_t IMPL(KarabinerDriverKitVirtualHIDKeyboard, postKeyboardInputReport) {
+  os_log(OS_LOG_DEFAULT, LOG_PREFIX " postKeyboardInputReport %llu", selector);
+
+  return kIOReturnSuccess;
+}
+
+kern_return_t IMPL(KarabinerDriverKitVirtualHIDKeyboard, reset) {
+  //kern_return_t KarabinerDriverKitVirtualHIDKeyboard::reset(void) {
+  os_log(OS_LOG_DEFAULT, LOG_PREFIX " reset");
+
+  return kIOReturnSuccess;
+}

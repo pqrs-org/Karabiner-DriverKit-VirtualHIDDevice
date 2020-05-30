@@ -21,6 +21,9 @@ public:
 
     virtual OSDictionary* newDeviceDescription(void) override;
     virtual OSData* newReportDescriptor(void) override;
+
+    virtual kern_return_t postKeyboardInputReport(uint64_t selector);
+    virtual kern_return_t reset(void);
 };
 
 #endif
