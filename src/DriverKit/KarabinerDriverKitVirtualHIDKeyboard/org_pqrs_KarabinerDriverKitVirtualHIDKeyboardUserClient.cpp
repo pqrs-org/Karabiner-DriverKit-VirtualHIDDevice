@@ -6,6 +6,7 @@
 
 #include "KarabinerDriverKitVirtualHIDKeyboard.h"
 #include "org_pqrs_KarabinerDriverKitVirtualHIDKeyboardUserClient.h"
+#include "pqrs/karabiner/driverkit/virtual_hid_device.hpp"
 #include "version.hpp"
 
 #define LOG_PREFIX "KarabinerDriverKitVirtualHIDKeyboardUserClient " KARABINER_DRIVERKIT_VERSION
@@ -72,5 +73,16 @@ kern_return_t org_pqrs_KarabinerDriverKitVirtualHIDKeyboardUserClient::ExternalM
                                                                                       const IOUserClientMethodDispatch* dispatch,
                                                                                       OSObject* target,
                                                                                       void* reference) {
+  os_log(OS_LOG_DEFAULT, LOG_PREFIX " ExternalMethod %llu", selector);
+
+  switch (pqrs::karabiner::driverkit::virtual_hid_device::user_client_method(selector)) {
+    case pqrs::karabiner::driverkit::virtual_hid_device::user_client_method::post_keyboard_input_report:
+      return ivars->keyboard->postKeyboardInputReport(selector);
+    case pqrs::karabiner::driverkit::virtual_hid_device::user_client_method::reset_virtual_hid_keyboard:
+      return ivars->keyboard->reset();
+    default:
+      break;
+  }
+
   return kIOReturnSuccess;
 }
