@@ -20,7 +20,7 @@
     <string>@VERSION@</string>
     <key>IOKitPersonalities</key>
     <dict>
-      <key>KarabinerDriverKitVirtualHIDKeyboard</key>
+      <key>org_pqrs_KarabinerDriverKitVirtualHIDKeyboard</key>
       <dict>
         <key>CFBundleIdentifier</key>
         <string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
