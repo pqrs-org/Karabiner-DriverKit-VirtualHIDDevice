@@ -289,7 +289,7 @@
 					"$(inherited)",
 					"$(SDKROOT)/System/DriverKit/System/Library/Frameworks",
 				);
-				HEADER_SEARCH_PATHS = include;
+				HEADER_SEARCH_PATHS = ../../include;
 				INFOPLIST_FILE = KarabinerDriverKitVirtualHIDKeyboard/Info.plist;
 				PRODUCT_BUNDLE_IDENTIFIER = org.pqrs.driverkit.KarabinerDriverKitVirtualHIDKeyboard;
 				PRODUCT_NAME = "$(inherited)";
@@ -309,7 +309,7 @@
 					"$(inherited)",
 					"$(SDKROOT)/System/DriverKit/System/Library/Frameworks",
 				);
-				HEADER_SEARCH_PATHS = include;
+				HEADER_SEARCH_PATHS = ../../include;
 				INFOPLIST_FILE = KarabinerDriverKitVirtualHIDKeyboard/Info.plist;
 				PRODUCT_BUNDLE_IDENTIFIER = org.pqrs.driverkit.KarabinerDriverKitVirtualHIDKeyboard;
 				PRODUCT_NAME = "$(inherited)";

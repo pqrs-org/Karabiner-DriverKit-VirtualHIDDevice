@@ -6,7 +6,7 @@ add_compile_options(-Wall)
 add_compile_options(-Werror)
 add_compile_options(-O2)
 
-include_directories(SYSTEM ${CMAKE_CURRENT_LIST_DIR}/../../../src/DriverKit/include)
+include_directories(SYSTEM ${CMAKE_CURRENT_LIST_DIR}/../../../include)
 include_directories(SYSTEM ${CMAKE_CURRENT_LIST_DIR}/../../vendor/include)
 
 project (test)
