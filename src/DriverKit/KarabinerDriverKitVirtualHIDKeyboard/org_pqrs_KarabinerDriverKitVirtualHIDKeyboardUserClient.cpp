@@ -4,7 +4,7 @@
 #include <DriverKit/OSCollections.h>
 #include <os/log.h>
 
-#include "KarabinerDriverKitVirtualHIDKeyboard.h"
+#include "org_pqrs_KarabinerDriverKitVirtualHIDKeyboard.h"
 #include "org_pqrs_KarabinerDriverKitVirtualHIDKeyboardUserClient.h"
 #include "pqrs/karabiner/driverkit/virtual_hid_device.hpp"
 #include "version.hpp"
@@ -12,7 +12,7 @@
 #define LOG_PREFIX "KarabinerDriverKitVirtualHIDKeyboardUserClient " KARABINER_DRIVERKIT_VERSION
 
 struct org_pqrs_KarabinerDriverKitVirtualHIDKeyboardUserClient_IVars {
-  KarabinerDriverKitVirtualHIDKeyboard* keyboard;
+  org_pqrs_KarabinerDriverKitVirtualHIDKeyboard* keyboard;
 };
 
 bool org_pqrs_KarabinerDriverKitVirtualHIDKeyboardUserClient::init() {
@@ -49,7 +49,7 @@ kern_return_t IMPL(org_pqrs_KarabinerDriverKitVirtualHIDKeyboardUserClient, Star
     }
   }
 
-  ivars->keyboard = OSDynamicCast(KarabinerDriverKitVirtualHIDKeyboard, provider);
+  ivars->keyboard = OSDynamicCast(org_pqrs_KarabinerDriverKitVirtualHIDKeyboard, provider);
   if (ivars->keyboard) {
     os_log(OS_LOG_DEFAULT, LOG_PREFIX " provider == KarabinerDriverKitVirtualHIDKeyboard");
   } else {

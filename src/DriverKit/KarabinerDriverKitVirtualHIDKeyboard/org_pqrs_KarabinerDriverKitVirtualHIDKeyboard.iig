@@ -5,7 +5,7 @@
 #include <DriverKit/IOService.iig>
 #include <HIDDriverKit/IOUserHIDDevice.iig>
 
-class KarabinerDriverKitVirtualHIDKeyboard: public IOUserHIDDevice
+class org_pqrs_KarabinerDriverKitVirtualHIDKeyboard: public IOUserHIDDevice
 {
 public:
     virtual bool init() override;

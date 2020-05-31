@@ -35,7 +35,7 @@
         <key>IOResourceMatch</key>
         <string>IOKit</string>
         <key>IOUserClass</key>
-        <string>KarabinerDriverKitVirtualHIDKeyboard</string>
+        <string>org_pqrs_KarabinerDriverKitVirtualHIDKeyboard</string>
         <key>IOUserServerName</key>
         <string>org.pqrs.driverkit.KarabinerDriverKitVirtualHIDKeyboard</string>
         <key>UserClientProperties</key>

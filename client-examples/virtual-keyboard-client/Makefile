@@ -9,7 +9,7 @@ clean:
 	rm -f a.out
 
 run: all
-	./a.out KarabinerDriverKitVirtualHIDKeyboard
+	./a.out org_pqrs_KarabinerDriverKitVirtualHIDKeyboard
 
 update_vendor:
 	rm -rf vendor
