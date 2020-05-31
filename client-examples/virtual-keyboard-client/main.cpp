@@ -9,7 +9,7 @@
 #include <IOKit/hidsystem/ev_keymap.h>
 #include <cmath>
 #include <iostream>
-#include <pqrs/karabiner/driverkit/virtual_hid_device.hpp>
+#include <pqrs/karabiner/driverkit/virtual_hid_keyboard_client.hpp>
 #include <pqrs/osx/iokit_return.hpp>
 #include <pqrs/osx/kern_return.hpp>
 #include <thread>
@@ -21,37 +21,7 @@ int main(int argc, const char* argv[]) {
   }
 #endif
 
-  if (argc == 1) {
-    std::cerr << "Usage: " << argv[0] << " service_name" << std::endl;
-    return 1;
-  }
-
-  std::string service_name = argv[1];
-
-  io_connect_t connect = IO_OBJECT_NULL;
-  auto service = IOServiceGetMatchingService(kIOMasterPortDefault, IOServiceNameMatching(service_name.c_str()));
-  if (!service) {
-    std::cerr << "IOServiceGetMatchingService error" << std::endl;
-    goto finish;
-  }
-
-  {
-    pqrs::osx::iokit_return ir = IOServiceOpen(service, mach_task_self(), kIOHIDServerConnectType, &connect);
-    if (!ir) {
-      std::cerr << "IOServiceOpen error: " << ir << std::endl;
-      goto finish;
-    }
-  }
-
-  IOConnectCallStructMethod(connect,
-                            static_cast<uint32_t>(pqrs::karabiner::driverkit::virtual_hid_device::user_client_method::reset_virtual_hid_keyboard),
-                            nullptr, 0,
-                            nullptr, 0);
-
-  IOConnectCallStructMethod(connect,
-                            static_cast<uint32_t>(pqrs::karabiner::driverkit::virtual_hid_device::user_client_method::post_keyboard_input_report),
-                            nullptr, 0,
-                            nullptr, 0);
+  auto client = std::make_shared<pqrs::karabiner::driverkit::virtual_hid_keyboard_client>;
 
 #if 0
   {
@@ -213,13 +183,7 @@ int main(int argc, const char* argv[]) {
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
   }
 
-finish:
-  if (connect) {
-    IOServiceClose(connect);
-  }
-  if (service) {
-    IOObjectRelease(service);
-  }
+  client = nullptr;
 
   return 0;
 }
