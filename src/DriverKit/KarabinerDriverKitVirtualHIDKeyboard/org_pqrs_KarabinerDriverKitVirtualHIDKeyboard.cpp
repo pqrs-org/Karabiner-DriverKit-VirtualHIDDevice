@@ -1,13 +1,9 @@
-#include <DriverKit/IOLib.h>
-#include <DriverKit/IOUserClient.h>
-#include <DriverKit/IOUserServer.h>
-#include <DriverKit/OSCollections.h>
+#include "org_pqrs_KarabinerDriverKitVirtualHIDKeyboard.h"
+#include "IOBufferMemoryDescriptorUtility.hpp"
+#include "version.hpp"
 #include <HIDDriverKit/IOHIDDeviceKeys.h>
 #include <HIDDriverKit/IOHIDUsageTables.h>
 #include <os/log.h>
-
-#include "org_pqrs_KarabinerDriverKitVirtualHIDKeyboard.h"
-#include "version.hpp"
 
 #define LOG_PREFIX "KarabinerDriverKitVirtualHIDKeyboard " KARABINER_DRIVERKIT_VERSION
 
@@ -285,9 +281,21 @@ OSData* org_pqrs_KarabinerDriverKitVirtualHIDKeyboard::newReportDescriptor(void)
 }
 
 kern_return_t IMPL(org_pqrs_KarabinerDriverKitVirtualHIDKeyboard, postKeyboardInputReport) {
-  os_log(OS_LOG_DEFAULT, LOG_PREFIX " postKeyboardInputReport %llu", selector);
+  if (!report) {
+    return kIOReturnBadArgument;
+  }
 
-  return kIOReturnSuccess;
+  uint64_t reportLength;
+  auto kr = report->GetLength(&reportLength);
+  if (kr != kIOReturnSuccess) {
+    return kr;
+  }
+
+  return handleReport(mach_absolute_time(),
+                      report,
+                      static_cast<uint32_t>(reportLength),
+                      kIOHIDReportTypeInput,
+                      0);
 }
 
 kern_return_t IMPL(org_pqrs_KarabinerDriverKitVirtualHIDKeyboard, reset) {

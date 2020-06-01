@@ -11,9 +11,6 @@ enum class user_client_method {
   //
 
   post_keyboard_input_report,
-  post_consumer_input_report,
-  post_apple_vendor_keyboard_input_report,
-  post_apple_vendor_top_case_input_report,
   reset_virtual_hid_keyboard,
 
   //

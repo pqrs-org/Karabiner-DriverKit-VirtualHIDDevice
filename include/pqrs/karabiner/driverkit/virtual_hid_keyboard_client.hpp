@@ -32,6 +32,24 @@ public:
   }
 
   kern_return_t post_keyboard_input_report(const virtual_hid_device::hid_report::keyboard_input& report) const {
+    return post_keyboard_input_report_(report);
+  }
+
+  kern_return_t post_keyboard_input_report(const virtual_hid_device::hid_report::consumer_input& report) const {
+    return post_keyboard_input_report_(report);
+  }
+
+  kern_return_t post_keyboard_input_report(const virtual_hid_device::hid_report::apple_vendor_keyboard_input& report) const {
+    return post_keyboard_input_report_(report);
+  }
+
+  kern_return_t post_keyboard_input_report(const virtual_hid_device::hid_report::apple_vendor_top_case_input& report) const {
+    return post_keyboard_input_report_(report);
+  }
+
+private:
+  template <typename T>
+  kern_return_t post_keyboard_input_report_(const T& report) const {
     if (!connection_) {
       return kIOReturnNotOpen;
     }
@@ -44,7 +62,6 @@ public:
                                      0);
   }
 
-private:
   io_connect_t connection_;
 };
 

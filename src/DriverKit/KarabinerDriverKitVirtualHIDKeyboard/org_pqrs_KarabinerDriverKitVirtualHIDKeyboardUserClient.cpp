@@ -1,13 +1,9 @@
-#include <DriverKit/IOLib.h>
-#include <DriverKit/IOUserClient.h>
-#include <DriverKit/IOUserServer.h>
-#include <DriverKit/OSCollections.h>
-#include <os/log.h>
-
-#include "org_pqrs_KarabinerDriverKitVirtualHIDKeyboard.h"
 #include "org_pqrs_KarabinerDriverKitVirtualHIDKeyboardUserClient.h"
+#include "IOBufferMemoryDescriptorUtility.hpp"
+#include "org_pqrs_KarabinerDriverKitVirtualHIDKeyboard.h"
 #include "pqrs/karabiner/driverkit/virtual_hid_device.hpp"
 #include "version.hpp"
+#include <os/log.h>
 
 #define LOG_PREFIX "KarabinerDriverKitVirtualHIDKeyboardUserClient " KARABINER_DRIVERKIT_VERSION
 
@@ -73,13 +69,31 @@ kern_return_t org_pqrs_KarabinerDriverKitVirtualHIDKeyboardUserClient::ExternalM
                                                                                       const IOUserClientMethodDispatch* dispatch,
                                                                                       OSObject* target,
                                                                                       void* reference) {
-  os_log(OS_LOG_DEFAULT, LOG_PREFIX " ExternalMethod %llu", selector);
-
   switch (pqrs::karabiner::driverkit::virtual_hid_device::user_client_method(selector)) {
     case pqrs::karabiner::driverkit::virtual_hid_device::user_client_method::post_keyboard_input_report:
-      return ivars->keyboard->postKeyboardInputReport(selector);
+      if (ivars->keyboard) {
+        IOMemoryDescriptor* memory = nullptr;
+
+        if (arguments->structureInput) {
+          auto kr = IOBufferMemoryDescriptorUtility::createWithData(arguments->structureInput, &memory);
+          if (kr != kIOReturnSuccess) {
+            return kr;
+          }
+        } else if (arguments->structureInputDescriptor) {
+          memory = arguments->structureInputDescriptor;
+          memory->retain();
+        }
+
+        auto kr = ivars->keyboard->postKeyboardInputReport(memory);
+
+        OSSafeReleaseNULL(memory);
+
+        return kr;
+      }
+
     case pqrs::karabiner::driverkit::virtual_hid_device::user_client_method::reset_virtual_hid_keyboard:
       return ivars->keyboard->reset();
+
     default:
       break;
   }

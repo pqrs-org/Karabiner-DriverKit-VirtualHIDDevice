@@ -17,12 +17,13 @@ public:
     virtual bool handleStart(IOService* provider) override;
     virtual kern_return_t Stop(IOService* provider) override;
 
-    virtual kern_return_t NewUserClient(uint32_t type, IOUserClient** userClient) override;
+    virtual kern_return_t NewUserClient(uint32_t type,
+                                        IOUserClient** userClient) override;
 
     virtual OSDictionary* newDeviceDescription(void) override;
     virtual OSData* newReportDescriptor(void) override;
 
-    virtual kern_return_t postKeyboardInputReport(uint64_t selector);
+    virtual kern_return_t postKeyboardInputReport(IOMemoryDescriptor* report);
     virtual kern_return_t reset(void);
 };
 

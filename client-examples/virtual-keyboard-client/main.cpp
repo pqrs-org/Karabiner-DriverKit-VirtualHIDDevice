@@ -20,14 +20,46 @@ int main(int argc, const char* argv[]) {
   if (!client->connected()) {
     std::cerr << "virtual_hid_keyboard is not connected: " << std::endl;
   } else {
-    pqrs::karabiner::driverkit::virtual_hid_device::hid_report::keyboard_input report;
+    //
+    // keyboard_input
+    //
 
-    report.modifiers.insert(pqrs::karabiner::driverkit::virtual_hid_device::hid_report::modifier::left_command);
-    report.keys.insert(type_safe::get(pqrs::hid::usage::keyboard_or_keypad::keyboard_tab));
+    {
+      pqrs::karabiner::driverkit::virtual_hid_device::hid_report::keyboard_input report;
 
-    pqrs::osx::iokit_return kr = client->post_keyboard_input_report(report);
-    if (!kr) {
-      std::cerr << "post_keyboard_input_report error: " << kr << std::endl;
+      report.modifiers.insert(pqrs::karabiner::driverkit::virtual_hid_device::hid_report::modifier::left_command);
+      report.keys.insert(type_safe::get(pqrs::hid::usage::keyboard_or_keypad::keyboard_tab));
+
+      pqrs::osx::iokit_return kr = client->post_keyboard_input_report(report);
+      if (!kr) {
+        std::cerr << "post_keyboard_input_report error: " << kr << std::endl;
+      }
+
+      report.modifiers.clear();
+      report.keys.clear();
+
+      kr = client->post_keyboard_input_report(report);
+      if (!kr) {
+        std::cerr << "post_keyboard_input_report error: " << kr << std::endl;
+      }
+    }
+
+    {
+      pqrs::karabiner::driverkit::virtual_hid_device::hid_report::apple_vendor_keyboard_input report;
+
+      report.keys.insert(type_safe::get(pqrs::hid::usage::apple_vendor_keyboard::expose_all));
+
+      pqrs::osx::iokit_return kr = client->post_keyboard_input_report(report);
+      if (!kr) {
+        std::cerr << "post_keyboard_input_report error: " << kr << std::endl;
+      }
+
+      report.keys.clear();
+
+      kr = client->post_keyboard_input_report(report);
+      if (!kr) {
+        std::cerr << "post_keyboard_input_report error: " << kr << std::endl;
+      }
     }
   }
 
