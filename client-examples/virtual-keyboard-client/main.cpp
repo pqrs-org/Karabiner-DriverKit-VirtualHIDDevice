@@ -18,7 +18,7 @@ int main(int argc, const char* argv[]) {
   auto client = std::make_shared<pqrs::karabiner::driverkit::virtual_hid_keyboard_client>();
 
   if (!client->connected()) {
-    std::cerr << "virtual_hid_keyboard is not connected: " << std::endl;
+    std::cerr << "virtual_hid_keyboard is not connected" << std::endl;
   } else {
     //
     // keyboard_input
@@ -34,6 +34,14 @@ int main(int argc, const char* argv[]) {
       if (!kr) {
         std::cerr << "post_keyboard_input_report error: " << kr << std::endl;
       }
+
+      kr = client->reset_virtual_hid_keyboard();
+      if (!kr) {
+        std::cerr << "reset_virtual_hid_keyboard error: " << kr << std::endl;
+      }
+      std::cout << kr << std::endl;
+
+      return 0;
 
       report.modifiers.clear();
       report.keys.clear();

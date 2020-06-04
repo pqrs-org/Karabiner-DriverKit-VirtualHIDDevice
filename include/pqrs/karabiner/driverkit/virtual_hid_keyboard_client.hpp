@@ -23,6 +23,8 @@ public:
 
   ~virtual_hid_keyboard_client(void) {
     if (connection_) {
+      reset_virtual_hid_keyboard();
+
       IOServiceClose(connection_);
     }
   }
@@ -45,6 +47,19 @@ public:
 
   kern_return_t post_keyboard_input_report(const virtual_hid_device::hid_report::apple_vendor_top_case_input& report) const {
     return post_keyboard_input_report_(report);
+  }
+
+  kern_return_t reset_virtual_hid_keyboard(void) const {
+    if (!connection_) {
+      return kIOReturnNotOpen;
+    }
+
+    return IOConnectCallStructMethod(connection_,
+                                     static_cast<uint32_t>(virtual_hid_device::user_client_method::reset_virtual_hid_keyboard),
+                                     nullptr,
+                                     0,
+                                     nullptr,
+                                     0);
   }
 
 private:

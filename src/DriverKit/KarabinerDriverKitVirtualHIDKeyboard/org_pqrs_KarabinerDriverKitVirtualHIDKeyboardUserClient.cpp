@@ -75,7 +75,9 @@ kern_return_t org_pqrs_KarabinerDriverKitVirtualHIDKeyboardUserClient::ExternalM
         IOMemoryDescriptor* memory = nullptr;
 
         if (arguments->structureInput) {
-          auto kr = IOBufferMemoryDescriptorUtility::createWithData(arguments->structureInput, &memory);
+          auto kr = IOBufferMemoryDescriptorUtility::createWithBytes(arguments->structureInput->getBytesNoCopy(),
+                                                                     arguments->structureInput->getLength(),
+                                                                     &memory);
           if (kr != kIOReturnSuccess) {
             return kr;
           }
@@ -90,13 +92,50 @@ kern_return_t org_pqrs_KarabinerDriverKitVirtualHIDKeyboardUserClient::ExternalM
 
         return kr;
       }
+      return kIOReturnError;
 
     case pqrs::karabiner::driverkit::virtual_hid_device::user_client_method::reset_virtual_hid_keyboard:
-      return ivars->keyboard->reset();
+      if (ivars->keyboard) {
+        // keyboard_input
+        {
+          pqrs::karabiner::driverkit::virtual_hid_device::hid_report::keyboard_input report;
+          auto kr = ivars->keyboard->postKeyboardInputReportByBytes(reinterpret_cast<uint8_t*>(&report), sizeof(report));
+          if (kr != kIOReturnSuccess) {
+            return kr;
+          }
+        }
+        // consumer_input
+        {
+          pqrs::karabiner::driverkit::virtual_hid_device::hid_report::consumer_input report;
+          auto kr = ivars->keyboard->postKeyboardInputReportByBytes(reinterpret_cast<uint8_t*>(&report), sizeof(report));
+          if (kr != kIOReturnSuccess) {
+            return kr;
+          }
+        }
+        // apple_vendor_keyboard_input
+        {
+          pqrs::karabiner::driverkit::virtual_hid_device::hid_report::apple_vendor_keyboard_input report;
+          auto kr = ivars->keyboard->postKeyboardInputReportByBytes(reinterpret_cast<uint8_t*>(&report), sizeof(report));
+          if (kr != kIOReturnSuccess) {
+            return kr;
+          }
+        }
+        // apple_vendor_top_case_input
+        {
+          pqrs::karabiner::driverkit::virtual_hid_device::hid_report::apple_vendor_top_case_input report;
+          auto kr = ivars->keyboard->postKeyboardInputReportByBytes(reinterpret_cast<uint8_t*>(&report), sizeof(report));
+          if (kr != kIOReturnSuccess) {
+            return kr;
+          }
+        }
+
+        return kIOReturnSuccess;
+      }
+      return kIOReturnError;
 
     default:
       break;
   }
 
-  return kIOReturnSuccess;
+  return kIOReturnBadArgument;
 }

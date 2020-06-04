@@ -1,6 +1,6 @@
 # How to be close to DriverKit
 
-## Doubt macOS before you suspect a problem is caused by your code
+## Execute `systemextensionsctl reset` and reboot macOS before you suspect a problem is caused by your code
 
 -   Restart macOS before investigating your issue.
     Replacing extension from `OSSystemExtensionManager.submit` does not restart your driverkit userspace process.

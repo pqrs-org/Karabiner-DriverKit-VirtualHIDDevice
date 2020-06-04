@@ -6,24 +6,24 @@
 
 namespace IOBufferMemoryDescriptorUtility {
 
-inline kern_return_t createWithData(OSData* data, IOMemoryDescriptor** memory) {
-  if (!data || !memory) {
+inline kern_return_t createWithBytes(const void* bytes, size_t length, IOMemoryDescriptor** memory) {
+  if (!bytes || !memory) {
     return kIOReturnBadArgument;
   }
 
   IOBufferMemoryDescriptor* m = nullptr;
-  auto kr = IOBufferMemoryDescriptor::Create(kIOMemoryDirectionOut, data->getLength(), 0, &m);
+  auto kr = IOBufferMemoryDescriptor::Create(kIOMemoryDirectionOut, length, 0, &m);
   if (kr == kIOReturnSuccess) {
     uint64_t address;
-    uint64_t length;
-    m->Map(0, 0, 0, 0, &address, &length);
+    uint64_t len;
+    m->Map(0, 0, 0, 0, &address, &len);
 
-    if (data->getLength() != length) {
+    if (length != len) {
       kr = kIOReturnNoMemory;
       goto error;
     }
 
-    memcpy(reinterpret_cast<void*>(address), data->getBytesNoCopy(), length);
+    memcpy(reinterpret_cast<void*>(address), bytes, length);
   }
 
   *memory = m;

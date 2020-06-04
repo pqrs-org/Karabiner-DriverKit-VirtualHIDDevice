@@ -298,9 +298,22 @@ kern_return_t IMPL(org_pqrs_KarabinerDriverKitVirtualHIDKeyboard, postKeyboardIn
                       0);
 }
 
-kern_return_t IMPL(org_pqrs_KarabinerDriverKitVirtualHIDKeyboard, reset) {
-  //kern_return_t KarabinerDriverKitVirtualHIDKeyboard::reset(void) {
-  os_log(OS_LOG_DEFAULT, LOG_PREFIX " reset");
+kern_return_t IMPL(org_pqrs_KarabinerDriverKitVirtualHIDKeyboard, postKeyboardInputReportByBytes) {
+  if (!report) {
+    return kIOReturnBadArgument;
+  }
 
-  return kIOReturnSuccess;
+  IOMemoryDescriptor* memory = nullptr;
+  auto kr = IOBufferMemoryDescriptorUtility::createWithBytes(report,
+                                                             sizeof(size),
+                                                             &memory);
+  if (kr != kIOReturnSuccess) {
+    return kr;
+  }
+
+  kr = postKeyboardInputReport(memory);
+
+  OSSafeReleaseNULL(memory);
+
+  return kr;
 }

@@ -24,7 +24,7 @@ public:
     virtual OSData* newReportDescriptor(void) override;
 
     virtual kern_return_t postKeyboardInputReport(IOMemoryDescriptor* report);
-    virtual kern_return_t reset(void);
+    virtual kern_return_t postKeyboardInputReportByBytes(uint8_t* report, size_t size);
 };
 
 #endif
