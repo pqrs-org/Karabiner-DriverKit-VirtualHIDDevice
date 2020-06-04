@@ -41,8 +41,6 @@ int main(int argc, const char* argv[]) {
       }
       std::cout << kr << std::endl;
 
-      return 0;
-
       report.modifiers.clear();
       report.keys.clear();
 
