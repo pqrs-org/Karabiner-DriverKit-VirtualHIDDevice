@@ -1,5 +1,6 @@
 #include "org_pqrs_KarabinerDriverKitVirtualHIDKeyboard.h"
 #include "IOBufferMemoryDescriptorUtility.hpp"
+#include "pqrs/karabiner/driverkit/virtual_hid_device.hpp"
 #include "version.hpp"
 #include <HIDDriverKit/IOHIDDeviceKeys.h>
 #include <HIDDriverKit/IOHIDUsageTables.h>
@@ -298,22 +299,40 @@ kern_return_t IMPL(org_pqrs_KarabinerDriverKitVirtualHIDKeyboard, postKeyboardIn
                       0);
 }
 
-kern_return_t IMPL(org_pqrs_KarabinerDriverKitVirtualHIDKeyboard, postKeyboardInputReportByBytes) {
-  if (!report) {
-    return kIOReturnBadArgument;
+kern_return_t IMPL(org_pqrs_KarabinerDriverKitVirtualHIDKeyboard, reset) {
+  os_log(OS_LOG_DEFAULT, LOG_PREFIX " reset");
+
+  // Post empty reports
+
+  pqrs::karabiner::driverkit::virtual_hid_device::hid_report::keyboard_input keyboard_input;
+  pqrs::karabiner::driverkit::virtual_hid_device::hid_report::consumer_input consumer_input;
+  pqrs::karabiner::driverkit::virtual_hid_device::hid_report::apple_vendor_keyboard_input apple_vendor_keyboard_input;
+  pqrs::karabiner::driverkit::virtual_hid_device::hid_report::apple_vendor_top_case_input apple_vendor_top_case_input;
+
+  struct input {
+    const void* address;
+    size_t length;
+  } inputs[] = {
+      {&keyboard_input, sizeof(keyboard_input)},
+      {&consumer_input, sizeof(consumer_input)},
+      {&apple_vendor_keyboard_input, sizeof(apple_vendor_keyboard_input)},
+      {&apple_vendor_top_case_input, sizeof(apple_vendor_top_case_input)},
+  };
+
+  for (const auto& input : inputs) {
+    IOMemoryDescriptor* memory = nullptr;
+    auto kr = IOBufferMemoryDescriptorUtility::createWithBytes(input.address,
+                                                               input.length,
+                                                               &memory);
+    if (kr != kIOReturnSuccess) {
+      os_log(OS_LOG_DEFAULT, LOG_PREFIX " reset createWithBytes error: 0x%x", kr);
+      return kr;
+    }
+
+    postKeyboardInputReport(memory);
+
+    OSSafeReleaseNULL(memory);
   }
 
-  IOMemoryDescriptor* memory = nullptr;
-  auto kr = IOBufferMemoryDescriptorUtility::createWithBytes(report,
-                                                             sizeof(size),
-                                                             &memory);
-  if (kr != kIOReturnSuccess) {
-    return kr;
-  }
-
-  kr = postKeyboardInputReport(memory);
-
-  OSSafeReleaseNULL(memory);
-
-  return kr;
+  return kIOReturnSuccess;
 }

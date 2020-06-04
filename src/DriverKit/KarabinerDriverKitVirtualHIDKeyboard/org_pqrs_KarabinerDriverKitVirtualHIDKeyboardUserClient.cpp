@@ -96,40 +96,7 @@ kern_return_t org_pqrs_KarabinerDriverKitVirtualHIDKeyboardUserClient::ExternalM
 
     case pqrs::karabiner::driverkit::virtual_hid_device::user_client_method::reset_virtual_hid_keyboard:
       if (ivars->keyboard) {
-        // keyboard_input
-        {
-          pqrs::karabiner::driverkit::virtual_hid_device::hid_report::keyboard_input report;
-          auto kr = ivars->keyboard->postKeyboardInputReportByBytes(reinterpret_cast<uint8_t*>(&report), sizeof(report));
-          if (kr != kIOReturnSuccess) {
-            return kr;
-          }
-        }
-        // consumer_input
-        {
-          pqrs::karabiner::driverkit::virtual_hid_device::hid_report::consumer_input report;
-          auto kr = ivars->keyboard->postKeyboardInputReportByBytes(reinterpret_cast<uint8_t*>(&report), sizeof(report));
-          if (kr != kIOReturnSuccess) {
-            return kr;
-          }
-        }
-        // apple_vendor_keyboard_input
-        {
-          pqrs::karabiner::driverkit::virtual_hid_device::hid_report::apple_vendor_keyboard_input report;
-          auto kr = ivars->keyboard->postKeyboardInputReportByBytes(reinterpret_cast<uint8_t*>(&report), sizeof(report));
-          if (kr != kIOReturnSuccess) {
-            return kr;
-          }
-        }
-        // apple_vendor_top_case_input
-        {
-          pqrs::karabiner::driverkit::virtual_hid_device::hid_report::apple_vendor_top_case_input report;
-          auto kr = ivars->keyboard->postKeyboardInputReportByBytes(reinterpret_cast<uint8_t*>(&report), sizeof(report));
-          if (kr != kIOReturnSuccess) {
-            return kr;
-          }
-        }
-
-        return kIOReturnSuccess;
+        return ivars->keyboard->reset();
       }
       return kIOReturnError;
 
