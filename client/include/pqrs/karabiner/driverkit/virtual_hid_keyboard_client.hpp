@@ -1,6 +1,6 @@
 #pragma once
 
-#include "virtual_hid_device.hpp"
+#include <pqrs/karabiner/driverkit/virtual_hid_device.hpp>
 #include <os/log.h>
 
 namespace pqrs {
