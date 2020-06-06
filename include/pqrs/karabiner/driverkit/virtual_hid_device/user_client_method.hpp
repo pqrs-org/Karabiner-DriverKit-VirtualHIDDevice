@@ -10,8 +10,8 @@ enum class user_client_method {
   // keyboard
   //
 
-  post_keyboard_input_report,
-  reset_virtual_hid_keyboard,
+  virtual_hid_keyboard_post_report,
+  virtual_hid_keyboard_reset,
 
   //
   // pointing

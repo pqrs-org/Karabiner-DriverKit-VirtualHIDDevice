@@ -70,7 +70,7 @@ kern_return_t org_pqrs_KarabinerDriverKitVirtualHIDKeyboardUserClient::ExternalM
                                                                                       OSObject* target,
                                                                                       void* reference) {
   switch (pqrs::karabiner::driverkit::virtual_hid_device::user_client_method(selector)) {
-    case pqrs::karabiner::driverkit::virtual_hid_device::user_client_method::post_keyboard_input_report:
+    case pqrs::karabiner::driverkit::virtual_hid_device::user_client_method::virtual_hid_keyboard_post_report:
       if (ivars->keyboard) {
         IOMemoryDescriptor* memory = nullptr;
 
@@ -94,7 +94,7 @@ kern_return_t org_pqrs_KarabinerDriverKitVirtualHIDKeyboardUserClient::ExternalM
       }
       return kIOReturnError;
 
-    case pqrs::karabiner::driverkit::virtual_hid_device::user_client_method::reset_virtual_hid_keyboard:
+    case pqrs::karabiner::driverkit::virtual_hid_device::user_client_method::virtual_hid_keyboard_reset:
       if (ivars->keyboard) {
         return ivars->keyboard->reset();
       }
