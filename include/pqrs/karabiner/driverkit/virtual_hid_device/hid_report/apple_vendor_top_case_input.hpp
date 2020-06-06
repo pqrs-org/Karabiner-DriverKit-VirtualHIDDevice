@@ -1,6 +1,7 @@
 #pragma once
 
 #include "keys.hpp"
+#include <cstdint>
 
 namespace pqrs {
 namespace karabiner {

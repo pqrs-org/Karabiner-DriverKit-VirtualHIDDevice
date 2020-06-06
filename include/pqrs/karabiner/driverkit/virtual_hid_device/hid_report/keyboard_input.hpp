@@ -2,6 +2,7 @@
 
 #include "keys.hpp"
 #include "modifiers.hpp"
+#include <cstdint>
 
 namespace pqrs {
 namespace karabiner {

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdint>
+
 namespace pqrs {
 namespace karabiner {
 namespace driverkit {

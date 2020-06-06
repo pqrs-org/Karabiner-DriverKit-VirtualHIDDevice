@@ -1,6 +1,7 @@
 #pragma once
 
 #include "buttons.hpp"
+#include <cstdint>
 
 namespace pqrs {
 namespace karabiner {
