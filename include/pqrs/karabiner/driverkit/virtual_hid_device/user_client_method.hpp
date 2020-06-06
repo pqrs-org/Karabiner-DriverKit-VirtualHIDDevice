@@ -19,8 +19,6 @@ enum class user_client_method {
 
   post_pointing_input_report,
   reset_virtual_hid_pointing,
-
-  end_,
 };
 
 } // namespace virtual_hid_device
