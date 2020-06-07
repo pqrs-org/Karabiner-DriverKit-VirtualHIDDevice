@@ -16,4 +16,8 @@ public final class VirtualHIDDeviceClientExample {
     func postLaunchpad() {
         shared_virtual_hid_keyboard_client_post_launchpad()
     }
+
+    func reset() {
+        shared_virtual_hid_keyboard_client_reset()
+    }
 }

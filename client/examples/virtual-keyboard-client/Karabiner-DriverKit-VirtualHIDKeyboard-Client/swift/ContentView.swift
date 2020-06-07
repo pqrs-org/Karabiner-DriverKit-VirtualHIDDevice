@@ -14,6 +14,10 @@ struct ContentView: View {
             Button(action: { VirtualHIDDeviceClientExample.shared.postLaunchpad() }) {
                 Text("post launchpad")
             }
+
+            Button(action: { VirtualHIDDeviceClientExample.shared.reset() }) {
+                Text("reset")
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity).padding()
     }
