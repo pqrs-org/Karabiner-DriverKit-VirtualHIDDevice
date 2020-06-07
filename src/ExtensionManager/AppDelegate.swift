@@ -19,8 +19,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         window.makeKeyAndOrderFront(self)
     }
 
-    func applicationWillTerminate(_: Notification) {}
-
     func applicationShouldTerminateAfterLastWindowClosed(_: NSApplication) -> Bool {
         return true
     }
