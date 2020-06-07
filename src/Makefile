@@ -18,7 +18,7 @@ xcode:
 	open KarabinerDriverKitVirtualHIDDevice.xcodeproj
 
 codesign:
-	bash scripts/codesign.sh build/Release
+	bash scripts/codesign.sh
 
 verify:
 	codesign -vvv -display build/Release/KarabinerDriverKitVirtualHIDDevice.app
