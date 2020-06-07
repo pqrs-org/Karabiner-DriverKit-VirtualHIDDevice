@@ -1,5 +1,5 @@
 all:
-	bash scripts/update-version.sh
+	bash ../scripts/update-version.sh
 	xcodegen generate
 	xcodebuild -configuration Release SYMROOT="$(CURDIR)/build"
 	$(MAKE) -C DriverKit

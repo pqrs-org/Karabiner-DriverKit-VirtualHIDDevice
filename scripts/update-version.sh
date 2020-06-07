@@ -1,8 +1,11 @@
 #!/bin/bash
 
+set -u # forbid undefined variables
+set -e # forbid command failure
+
 basedir=$(dirname $0)
 
-version=$(cat $basedir/../../version)
+version=$(cat $basedir/../version)
 
 for f in $(find $basedir/.. -name 'Info.plist.in' -o -name 'version.hpp.in'); do
     outfile=$(dirname $f)/$(basename $f .in)
