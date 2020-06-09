@@ -22,6 +22,8 @@ Virtual devices (keyboard and mouse) implementation for macOS using DriverKit.
 
 ![Extension Manager](docs/images/extension-manager.png)
 
+![Client](docs/images/client.png)
+
 ---
 
 ## For developers
