@@ -1,0 +1,27 @@
+#ifndef KarabinerDriverKitVirtualHIDKeyboard_h
+#define KarabinerDriverKitVirtualHIDKeyboard_h
+
+#include <Availability.h>
+#include <DriverKit/IOService.iig>
+#include <HIDDriverKit/IOUserHIDDevice.iig>
+
+class org_pqrs_KarabinerDriverKitVirtualHIDPointing: public IOUserHIDDevice
+{
+public:
+    virtual bool init() override;
+    virtual void free() override;
+
+    // We must not override IOUserHIDDevice::Start directly.
+    // (See the reference document of IOUserHIDDevice::Start.)
+
+    virtual bool handleStart(IOService* provider) override;
+    virtual kern_return_t Stop(IOService* provider) override;
+
+    virtual OSDictionary* newDeviceDescription(void) override;
+    virtual OSData* newReportDescriptor(void) override;
+
+    virtual kern_return_t postReport(IOMemoryDescriptor* report);
+    virtual kern_return_t reset(void);
+};
+
+#endif
