@@ -1,6 +1,7 @@
 #include "org_pqrs_KarabinerDriverKitVirtualHIDKeyboardUserClient.h"
 #include "IOBufferMemoryDescriptorUtility.hpp"
 #include "org_pqrs_KarabinerDriverKitVirtualHIDKeyboard.h"
+#include "org_pqrs_KarabinerDriverKitVirtualHIDPointing.h"
 #include "pqrs/karabiner/driverkit/virtual_hid_device.hpp"
 #include "version.hpp"
 #include <os/log.h>
@@ -9,6 +10,7 @@
 
 struct org_pqrs_KarabinerDriverKitVirtualHIDKeyboardUserClient_IVars {
   org_pqrs_KarabinerDriverKitVirtualHIDKeyboard* keyboard;
+  org_pqrs_KarabinerDriverKitVirtualHIDPointing* pointing;
 };
 
 bool org_pqrs_KarabinerDriverKitVirtualHIDKeyboardUserClient::init() {
@@ -28,6 +30,8 @@ bool org_pqrs_KarabinerDriverKitVirtualHIDKeyboardUserClient::init() {
 
 void org_pqrs_KarabinerDriverKitVirtualHIDKeyboardUserClient::free() {
   os_log(OS_LOG_DEFAULT, LOG_PREFIX " free");
+
+  OSSafeReleaseNULL(ivars->pointing);
 
   IOSafeDeleteNULL(ivars, org_pqrs_KarabinerDriverKitVirtualHIDKeyboardUserClient_IVars, 1);
 
@@ -97,6 +101,27 @@ kern_return_t org_pqrs_KarabinerDriverKitVirtualHIDKeyboardUserClient::ExternalM
     case pqrs::karabiner::driverkit::virtual_hid_device::user_client_method::virtual_hid_keyboard_reset:
       if (ivars->keyboard) {
         return ivars->keyboard->reset();
+      }
+      return kIOReturnError;
+
+    case pqrs::karabiner::driverkit::virtual_hid_device::user_client_method::virtual_hid_pointing_initialize:
+      if (!ivars->pointing) {
+        IOService* client;
+
+        auto kr = Create(this, "VirtualHIDPointingProperties", &client);
+        if (kr != kIOReturnSuccess) {
+          os_log(OS_LOG_DEFAULT, LOG_PREFIX " IOService::Create failed: 0x%x", kr);
+          return kr;
+        }
+
+        ivars->pointing = OSDynamicCast(org_pqrs_KarabinerDriverKitVirtualHIDPointing, client);
+        if (!ivars->pointing) {
+          os_log(OS_LOG_DEFAULT, LOG_PREFIX " OSDynamicCast failed");
+          client->release();
+          return kIOReturnError;
+        }
+
+        return kIOReturnSuccess;
       }
       return kIOReturnError;
 

@@ -12,6 +12,8 @@ void shared_virtual_hid_keyboard_client_post_control_up(void);
 void shared_virtual_hid_keyboard_client_post_launchpad(void);
 void shared_virtual_hid_keyboard_client_reset(void);
 
+void shared_virtual_hid_keyboard_cilent_virtual_hid_pointing_initialize(void);
+
 #ifdef __cplusplus
 }
 #endif

@@ -59,12 +59,18 @@ void shared_virtual_hid_keyboard_client_post_launchpad(void) {
   // key up
   {
     pqrs::karabiner::driverkit::virtual_hid_device::hid_report::apple_vendor_keyboard_input report;
-     virtual_hid_keyboard_client->post_report(report);
+    virtual_hid_keyboard_client->post_report(report);
   }
 }
 
 void shared_virtual_hid_keyboard_client_reset(void) {
   if (virtual_hid_keyboard_client) {
     virtual_hid_keyboard_client->reset();
+  }
+}
+
+void shared_virtual_hid_keyboard_cilent_virtual_hid_pointing_initialize(void) {
+  if (virtual_hid_keyboard_client) {
+    virtual_hid_keyboard_client->virtual_hid_pointing_initialize();
   }
 }

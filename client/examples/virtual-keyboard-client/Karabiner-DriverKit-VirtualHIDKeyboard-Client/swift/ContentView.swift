@@ -18,6 +18,10 @@ struct ContentView: View {
             Button(action: { VirtualHIDDeviceClientExample.shared.reset() }) {
                 Text("reset")
             }
+
+            Button(action: { VirtualHIDDeviceClientExample.shared.virtualHIDPointingInitialize() }) {
+                Text("VirtualHIDPointing initialize")
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity).padding()
     }

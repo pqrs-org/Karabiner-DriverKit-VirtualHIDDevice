@@ -79,6 +79,19 @@ public:
                                      0);
   }
 
+  kern_return_t virtual_hid_pointing_initialize(void) const {
+    if (!connection_) {
+      return kIOReturnNotOpen;
+    }
+
+    return IOConnectCallStructMethod(connection_,
+                                     static_cast<uint32_t>(virtual_hid_device::user_client_method::virtual_hid_pointing_initialize),
+                                     nullptr,
+                                     0,
+                                     nullptr,
+                                     0);
+  }
+
 private:
   io_connect_t connection_;
 };
