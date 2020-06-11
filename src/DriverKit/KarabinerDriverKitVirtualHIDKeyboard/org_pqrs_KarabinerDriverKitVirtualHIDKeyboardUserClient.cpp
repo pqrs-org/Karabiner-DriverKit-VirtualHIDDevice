@@ -86,7 +86,7 @@ kern_return_t org_pqrs_KarabinerDriverKitVirtualHIDKeyboardUserClient::ExternalM
           memory->retain();
         }
 
-        auto kr = ivars->keyboard->postKeyboardInputReport(memory);
+        auto kr = ivars->keyboard->postReport(memory);
 
         OSSafeReleaseNULL(memory);
 

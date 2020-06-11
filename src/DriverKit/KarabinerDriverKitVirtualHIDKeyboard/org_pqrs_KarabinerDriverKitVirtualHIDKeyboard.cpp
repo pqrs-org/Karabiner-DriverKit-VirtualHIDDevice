@@ -281,7 +281,7 @@ OSData* org_pqrs_KarabinerDriverKitVirtualHIDKeyboard::newReportDescriptor(void)
   return OSData::withBytes(reportDescriptor_, sizeof(reportDescriptor_));
 }
 
-kern_return_t IMPL(org_pqrs_KarabinerDriverKitVirtualHIDKeyboard, postKeyboardInputReport) {
+kern_return_t IMPL(org_pqrs_KarabinerDriverKitVirtualHIDKeyboard, postReport) {
   if (!report) {
     return kIOReturnBadArgument;
   }
@@ -329,7 +329,7 @@ kern_return_t IMPL(org_pqrs_KarabinerDriverKitVirtualHIDKeyboard, reset) {
       return kr;
     }
 
-    postKeyboardInputReport(memory);
+    postReport(memory);
 
     OSSafeReleaseNULL(memory);
   }
