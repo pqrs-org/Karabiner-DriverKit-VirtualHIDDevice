@@ -8,6 +8,30 @@
 
 #define LOG_PREFIX "KarabinerDriverKitVirtualHIDKeyboardUserClient " KARABINER_DRIVERKIT_VERSION
 
+namespace {
+kern_return_t createIOMemoryDescriptor(IOUserClientMethodArguments* arguments, IOMemoryDescriptor** memory) {
+  if (!memory) {
+    return kIOReturnBadArgument;
+  }
+
+  *memory = nullptr;
+
+  if (arguments->structureInput) {
+    auto kr = IOBufferMemoryDescriptorUtility::createWithBytes(arguments->structureInput->getBytesNoCopy(),
+                                                               arguments->structureInput->getLength(),
+                                                               memory);
+    if (kr != kIOReturnSuccess) {
+      return kr;
+    }
+  } else if (arguments->structureInputDescriptor) {
+    *memory = arguments->structureInputDescriptor;
+    (*memory)->retain();
+  }
+
+  return kIOReturnSuccess;
+}
+} // namespace
+
 struct org_pqrs_KarabinerDriverKitVirtualHIDKeyboardUserClient_IVars {
   org_pqrs_KarabinerDriverKitVirtualHIDKeyboard* keyboard;
   org_pqrs_KarabinerDriverKitVirtualHIDPointing* pointing;
@@ -78,21 +102,11 @@ kern_return_t org_pqrs_KarabinerDriverKitVirtualHIDKeyboardUserClient::ExternalM
       if (ivars->keyboard) {
         IOMemoryDescriptor* memory = nullptr;
 
-        if (arguments->structureInput) {
-          auto kr = IOBufferMemoryDescriptorUtility::createWithBytes(arguments->structureInput->getBytesNoCopy(),
-                                                                     arguments->structureInput->getLength(),
-                                                                     &memory);
-          if (kr != kIOReturnSuccess) {
-            return kr;
-          }
-        } else if (arguments->structureInputDescriptor) {
-          memory = arguments->structureInputDescriptor;
-          memory->retain();
+        auto kr = createIOMemoryDescriptor(arguments, &memory);
+        if (kr == kIOReturnSuccess) {
+          kr = ivars->keyboard->postReport(memory);
+          OSSafeReleaseNULL(memory);
         }
-
-        auto kr = ivars->keyboard->postReport(memory);
-
-        OSSafeReleaseNULL(memory);
 
         return kr;
       }
@@ -122,6 +136,26 @@ kern_return_t org_pqrs_KarabinerDriverKitVirtualHIDKeyboardUserClient::ExternalM
         }
 
         return kIOReturnSuccess;
+      }
+      return kIOReturnError;
+
+    case pqrs::karabiner::driverkit::virtual_hid_device::user_client_method::virtual_hid_pointing_post_report:
+      if (ivars->pointing) {
+        IOMemoryDescriptor* memory = nullptr;
+
+        auto kr = createIOMemoryDescriptor(arguments, &memory);
+        if (kr == kIOReturnSuccess) {
+          kr = ivars->pointing->postReport(memory);
+          OSSafeReleaseNULL(memory);
+        }
+
+        return kr;
+      }
+      return kIOReturnError;
+
+    case pqrs::karabiner::driverkit::virtual_hid_device::user_client_method::virtual_hid_pointing_reset:
+      if (ivars->pointing) {
+        return ivars->pointing->reset();
       }
       return kIOReturnError;
 
