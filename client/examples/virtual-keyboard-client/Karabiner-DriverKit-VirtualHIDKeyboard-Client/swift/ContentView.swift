@@ -22,7 +22,15 @@ struct ContentView: View {
             Button(action: { VirtualHIDDeviceClientExample.shared.virtualHIDPointingInitialize() }) {
                 Text("VirtualHIDPointing initialize")
             }
-        }
+
+            Button(action: { VirtualHIDDeviceClientExample.shared.virtualHIDPointingPostExampleReport() }) {
+                Text("VirtualHIDPointing post example report")
+            }
+
+                    Button(action: { VirtualHIDDeviceClientExample.shared.virtualHIDPointingReset() }) {
+                Text("VirtualHIDPointing reset")
+            }
+}
         .frame(maxWidth: .infinity, maxHeight: .infinity).padding()
     }
 }

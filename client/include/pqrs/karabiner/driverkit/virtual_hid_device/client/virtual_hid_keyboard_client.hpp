@@ -36,63 +36,82 @@ public:
     return connection_;
   }
 
-  kern_return_t post_report(const void* report,
+  kern_return_t reset(void) const {
+    return call(virtual_hid_device::user_client_method::virtual_hid_keyboard_reset);
+  }
+
+  kern_return_t virtual_hid_pointing_initialize(void) const {
+    return call(virtual_hid_device::user_client_method::virtual_hid_pointing_initialize);
+  }
+
+  kern_return_t virtual_hid_pointing_reset(void) const {
+    return call(virtual_hid_device::user_client_method::virtual_hid_pointing_reset);
+  }
+
+  kern_return_t post_report(const virtual_hid_device::hid_report::keyboard_input& report) const {
+    return post_report(
+        virtual_hid_device::user_client_method::virtual_hid_keyboard_post_report,
+        &report,
+        sizeof(report));
+  }
+
+  kern_return_t post_report(const virtual_hid_device::hid_report::consumer_input& report) const {
+    return post_report(
+        virtual_hid_device::user_client_method::virtual_hid_keyboard_post_report,
+        &report,
+        sizeof(report));
+  }
+
+  kern_return_t post_report(const virtual_hid_device::hid_report::apple_vendor_keyboard_input& report) const {
+    return post_report(
+        virtual_hid_device::user_client_method::virtual_hid_keyboard_post_report,
+        &report,
+        sizeof(report));
+  }
+
+  kern_return_t post_report(const virtual_hid_device::hid_report::apple_vendor_top_case_input& report) const {
+    return post_report(
+        virtual_hid_device::user_client_method::virtual_hid_keyboard_post_report,
+        &report,
+        sizeof(report));
+  }
+
+  kern_return_t post_report(const virtual_hid_device::hid_report::pointing_input& report) const {
+    return post_report(
+        virtual_hid_device::user_client_method::virtual_hid_pointing_post_report,
+        &report,
+        sizeof(report));
+  }
+
+private:
+  kern_return_t call(virtual_hid_device::user_client_method user_client_method) const {
+    if (!connection_) {
+      return kIOReturnNotOpen;
+    }
+
+    return IOConnectCallStructMethod(connection_,
+                                     static_cast<uint32_t>(user_client_method),
+                                     nullptr,
+                                     0,
+                                     nullptr,
+                                     0);
+  }
+
+  kern_return_t post_report(virtual_hid_device::user_client_method user_client_method,
+                            const void* report,
                             size_t report_size) const {
     if (!connection_) {
       return kIOReturnNotOpen;
     }
 
     return IOConnectCallStructMethod(connection_,
-                                     static_cast<uint32_t>(virtual_hid_device::user_client_method::virtual_hid_keyboard_post_report),
+                                     static_cast<uint32_t>(user_client_method),
                                      report,
                                      report_size,
                                      nullptr,
                                      0);
   }
 
-  kern_return_t post_report(const virtual_hid_device::hid_report::keyboard_input& report) const {
-    return post_report(&report, sizeof(report));
-  }
-
-  kern_return_t post_report(const virtual_hid_device::hid_report::consumer_input& report) const {
-    return post_report(&report, sizeof(report));
-  }
-
-  kern_return_t post_report(const virtual_hid_device::hid_report::apple_vendor_keyboard_input& report) const {
-    return post_report(&report, sizeof(report));
-  }
-
-  kern_return_t post_report(const virtual_hid_device::hid_report::apple_vendor_top_case_input& report) const {
-    return post_report(&report, sizeof(report));
-  }
-
-  kern_return_t reset(void) const {
-    if (!connection_) {
-      return kIOReturnNotOpen;
-    }
-
-    return IOConnectCallStructMethod(connection_,
-                                     static_cast<uint32_t>(virtual_hid_device::user_client_method::virtual_hid_keyboard_reset),
-                                     nullptr,
-                                     0,
-                                     nullptr,
-                                     0);
-  }
-
-  kern_return_t virtual_hid_pointing_initialize(void) const {
-    if (!connection_) {
-      return kIOReturnNotOpen;
-    }
-
-    return IOConnectCallStructMethod(connection_,
-                                     static_cast<uint32_t>(virtual_hid_device::user_client_method::virtual_hid_pointing_initialize),
-                                     nullptr,
-                                     0,
-                                     nullptr,
-                                     0);
-  }
-
-private:
   io_connect_t connection_;
 };
 

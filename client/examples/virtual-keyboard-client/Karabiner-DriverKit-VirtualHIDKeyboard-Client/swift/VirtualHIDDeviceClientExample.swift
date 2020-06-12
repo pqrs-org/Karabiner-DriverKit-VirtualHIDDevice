@@ -22,6 +22,14 @@ public final class VirtualHIDDeviceClientExample {
     }
 
     func virtualHIDPointingInitialize() {
-        shared_virtual_hid_keyboard_cilent_virtual_hid_pointing_initialize()
+        shared_virtual_hid_pointing_initialize()
+    }
+
+    func virtualHIDPointingPostExampleReport() {
+        shared_virtual_hid_pointing_post_example_report()
+    }
+
+    func virtualHIDPointingReset() {
+        shared_virtual_hid_pointing_reset()
     }
 }
