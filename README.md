@@ -10,19 +10,22 @@ Virtual devices (keyboard and mouse) implementation for macOS using DriverKit.
 -   Implemented:
     -   Extension manager
     -   Virtual HID keyboard
--   WIP:
     -   Virtual HID pointing
+    -   Virtual HID device client (Need to disable SIP at the moment.)
 
 ## Documents
 
 -   [How to be close to DriverKit](DEVELOPMENT.md)
 -   [Extracts from xnu](XNU.md)
 
-![System Preferences](docs/images/system-preferences.png)
+## Screenshots
 
-![Extension Manager](docs/images/extension-manager.png)
-
-![Client](docs/images/client.png)
+-   System Preferenecs (macOS detects the virtual keyboard)<br/><br />
+    <img src="docs/images/system-preferences@2x.png" width="668" alt="System Preferences" /><br /><br />
+-   Extension manager<br/><br />
+    <img src="docs/images/extension-manager@2x.png" width="798" alt="Extension manager" /><br /><br />
+-   Client<br/><br />
+    <img src="docs/images/client@2x.png" width="480" alt="Client" /><br /><br />
 
 ---
 
