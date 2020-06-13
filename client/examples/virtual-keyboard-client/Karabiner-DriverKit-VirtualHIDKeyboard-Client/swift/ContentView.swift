@@ -12,23 +12,23 @@ struct ContentView: View {
                     HStack {
                         VStack(alignment: .leading) {
                             Button(action: { VirtualHIDDeviceClientExample.shared.virtualHIDKeyboardInitialize() }) {
-                                Text("initialize")
+                                Text("1. initialize")
                             }
 
                             Button(action: { VirtualHIDDeviceClientExample.shared.virtualHIDKeyboardPostControlUp() }) {
-                                Text("post control-up")
+                                Text("2. post control-up")
                             }
 
                             Button(action: { VirtualHIDDeviceClientExample.shared.virtualHIDKeyboardPostLaunchpad() }) {
-                                Text("post launchpad")
+                                Text("3. post launchpad")
                             }
 
                             Button(action: { VirtualHIDDeviceClientExample.shared.virtualHIDKeyboardReset() }) {
-                                Text("reset")
+                                Text("4. reset")
                             }
 
                             Button(action: { VirtualHIDDeviceClientExample.shared.virtualHIDKeyboardTerminate() }) {
-                                Text("terminate")
+                                Text("5. terminate")
                             }
                         }
 
@@ -40,19 +40,19 @@ struct ContentView: View {
                     HStack {
                         VStack(alignment: .leading) {
                             Button(action: { VirtualHIDDeviceClientExample.shared.virtualHIDPointingInitialize() }) {
-                                Text("initialize")
+                                Text("1. initialize")
                             }
 
                             Button(action: { VirtualHIDDeviceClientExample.shared.virtualHIDPointingPostExampleReport() }) {
-                                Text("post example report")
+                                Text("2. post example report")
                             }
 
                             Button(action: { VirtualHIDDeviceClientExample.shared.virtualHIDPointingReset() }) {
-                                Text("reset")
+                                Text("3. reset")
                             }
 
                             Button(action: { VirtualHIDDeviceClientExample.shared.virtualHIDPointingTerminate() }) {
-                                Text("terminate")
+                                Text("4. terminate")
                             }
                         }
 
