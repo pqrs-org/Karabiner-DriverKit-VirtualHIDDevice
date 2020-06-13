@@ -118,6 +118,8 @@ bool org_pqrs_KarabinerDriverKitVirtualHIDPointing::handleStart(IOService* provi
     key->release();
   }
 
+  RegisterService();
+
   return true;
 }
 
