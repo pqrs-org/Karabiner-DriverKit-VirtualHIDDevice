@@ -45,6 +45,16 @@
           <key>IOUserClass</key>
           <string>org_pqrs_KarabinerDriverKitVirtualHIDKeyboardUserClient</string>
           <!-- <key>IOServiceDEXTEntitlements</key> -->
+
+          <key>VirtualHIDKeyboardProperties</key>
+          <dict>
+            <key>IOClass</key>
+            <string>AppleUserHIDDevice</string>
+            <key>IOUserClass</key>
+            <string>org_pqrs_KarabinerDriverKitVirtualHIDKeyboard</string>
+            <!-- <key>IOServiceDEXTEntitlements</key> -->
+          </dict>
+
           <key>VirtualHIDPointingProperties</key>
           <dict>
             <key>IOClass</key>

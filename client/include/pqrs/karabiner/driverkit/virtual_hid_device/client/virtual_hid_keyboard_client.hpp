@@ -26,8 +26,6 @@ public:
 
   ~virtual_hid_keyboard_client(void) {
     if (connection_) {
-      reset();
-
       IOServiceClose(connection_);
     }
   }
@@ -36,7 +34,11 @@ public:
     return connection_;
   }
 
-  kern_return_t reset(void) const {
+  kern_return_t virtual_hid_keyboard_initialize(void) const {
+    return call(virtual_hid_device::user_client_method::virtual_hid_keyboard_initialize);
+  }
+
+  kern_return_t virtual_hid_keyboard_reset(void) const {
     return call(virtual_hid_device::user_client_method::virtual_hid_keyboard_reset);
   }
 

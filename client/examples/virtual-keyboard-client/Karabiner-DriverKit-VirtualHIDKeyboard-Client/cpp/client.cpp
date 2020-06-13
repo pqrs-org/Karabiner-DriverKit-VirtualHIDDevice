@@ -27,7 +27,13 @@ int shared_virtual_hid_keyboard_client_connected(void) {
   return 0;
 }
 
-void shared_virtual_hid_keyboard_client_post_control_up(void) {
+void shared_virtual_hid_keyboard_initialize(void) {
+  if (client) {
+    client->virtual_hid_keyboard_initialize();
+  }
+}
+
+void shared_virtual_hid_keyboard_post_control_up(void) {
   if (!client) {
     return;
   }
@@ -47,7 +53,7 @@ void shared_virtual_hid_keyboard_client_post_control_up(void) {
   }
 }
 
-void shared_virtual_hid_keyboard_client_post_launchpad(void) {
+void shared_virtual_hid_keyboard_post_launchpad(void) {
   if (!client) {
     return;
   }
@@ -65,9 +71,9 @@ void shared_virtual_hid_keyboard_client_post_launchpad(void) {
   }
 }
 
-void shared_virtual_hid_keyboard_client_reset(void) {
+void shared_virtual_hid_keyboard_reset(void) {
   if (client) {
-    client->reset();
+    client->virtual_hid_keyboard_reset();
   }
 }
 

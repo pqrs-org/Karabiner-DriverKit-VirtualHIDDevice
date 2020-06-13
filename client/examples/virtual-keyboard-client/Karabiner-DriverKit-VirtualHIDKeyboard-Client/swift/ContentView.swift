@@ -7,15 +7,19 @@ struct ContentView: View {
         VStack {
             Text("Karabiner-DriverKit-VirtualHIDKeyboard-Client version " + self.version)
 
-            Button(action: { VirtualHIDDeviceClientExample.shared.postControlUp() }) {
+            Button(action: { VirtualHIDDeviceClientExample.shared.virtualHIDKeyboardInitialize() }) {
+                Text("VirtualHIDKeyboard initialize")
+            }
+
+            Button(action: { VirtualHIDDeviceClientExample.shared.virtualHIDKeyboardPostControlUp() }) {
                 Text("post control-up")
             }
 
-            Button(action: { VirtualHIDDeviceClientExample.shared.postLaunchpad() }) {
+            Button(action: { VirtualHIDDeviceClientExample.shared.virtualHIDKeyboardPostLaunchpad() }) {
                 Text("post launchpad")
             }
 
-            Button(action: { VirtualHIDDeviceClientExample.shared.reset() }) {
+            Button(action: { VirtualHIDDeviceClientExample.shared.virtualHIDKeyboardReset() }) {
                 Text("reset")
             }
 
@@ -27,10 +31,10 @@ struct ContentView: View {
                 Text("VirtualHIDPointing post example report")
             }
 
-                    Button(action: { VirtualHIDDeviceClientExample.shared.virtualHIDPointingReset() }) {
+            Button(action: { VirtualHIDDeviceClientExample.shared.virtualHIDPointingReset() }) {
                 Text("VirtualHIDPointing reset")
             }
-}
+        }
         .frame(maxWidth: .infinity, maxHeight: .infinity).padding()
     }
 }

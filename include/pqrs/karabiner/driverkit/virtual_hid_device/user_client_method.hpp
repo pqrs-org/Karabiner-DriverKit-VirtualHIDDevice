@@ -10,6 +10,8 @@ enum class user_client_method {
   // keyboard
   //
 
+  virtual_hid_keyboard_initialize,
+  virtual_hid_keyboard_terminate,
   virtual_hid_keyboard_post_report,
   virtual_hid_keyboard_reset,
 
@@ -18,6 +20,7 @@ enum class user_client_method {
   //
 
   virtual_hid_pointing_initialize,
+  virtual_hid_pointing_terminate,
   virtual_hid_pointing_post_report,
   virtual_hid_pointing_reset,
 };

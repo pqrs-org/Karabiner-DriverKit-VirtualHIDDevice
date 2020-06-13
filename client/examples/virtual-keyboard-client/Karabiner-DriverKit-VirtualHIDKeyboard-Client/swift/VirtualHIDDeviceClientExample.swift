@@ -9,16 +9,20 @@ public final class VirtualHIDDeviceClientExample {
         shared_virtual_hid_keyboard_client_terminate()
     }
 
-    func postControlUp() {
-        shared_virtual_hid_keyboard_client_post_control_up()
+    func virtualHIDKeyboardInitialize() {
+        shared_virtual_hid_keyboard_initialize()
     }
 
-    func postLaunchpad() {
-        shared_virtual_hid_keyboard_client_post_launchpad()
+    func virtualHIDKeyboardPostControlUp() {
+        shared_virtual_hid_keyboard_post_control_up()
     }
 
-    func reset() {
-        shared_virtual_hid_keyboard_client_reset()
+    func virtualHIDKeyboardPostLaunchpad() {
+        shared_virtual_hid_keyboard_post_launchpad()
+    }
+
+    func virtualHIDKeyboardReset() {
+        shared_virtual_hid_keyboard_reset()
     }
 
     func virtualHIDPointingInitialize() {
