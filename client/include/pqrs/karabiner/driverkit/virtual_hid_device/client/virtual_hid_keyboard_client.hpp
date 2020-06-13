@@ -38,12 +38,20 @@ public:
     return call(virtual_hid_device::user_client_method::virtual_hid_keyboard_initialize);
   }
 
+  kern_return_t virtual_hid_keyboard_terminate(void) const {
+    return call(virtual_hid_device::user_client_method::virtual_hid_keyboard_terminate);
+  }
+
   kern_return_t virtual_hid_keyboard_reset(void) const {
     return call(virtual_hid_device::user_client_method::virtual_hid_keyboard_reset);
   }
 
   kern_return_t virtual_hid_pointing_initialize(void) const {
     return call(virtual_hid_device::user_client_method::virtual_hid_pointing_initialize);
+  }
+
+  kern_return_t virtual_hid_pointing_terminate(void) const {
+    return call(virtual_hid_device::user_client_method::virtual_hid_pointing_terminate);
   }
 
   kern_return_t virtual_hid_pointing_reset(void) const {

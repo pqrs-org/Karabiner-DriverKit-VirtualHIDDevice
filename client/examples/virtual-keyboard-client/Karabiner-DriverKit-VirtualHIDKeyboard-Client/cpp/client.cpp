@@ -1,6 +1,7 @@
 #include "client.h"
 #include <cmath>
 #include <memory>
+#include <os/log.h>
 #include <pqrs/hid.hpp>
 #include <pqrs/karabiner/driverkit/virtual_hid_device/client/virtual_hid_keyboard_client.hpp>
 #include <thread>
@@ -30,6 +31,12 @@ int shared_virtual_hid_keyboard_client_connected(void) {
 void shared_virtual_hid_keyboard_initialize(void) {
   if (client) {
     client->virtual_hid_keyboard_initialize();
+  }
+}
+
+void shared_virtual_hid_keyboard_terminate(void) {
+  if (client) {
+    client->virtual_hid_keyboard_terminate();
   }
 }
 
@@ -83,13 +90,20 @@ void shared_virtual_hid_pointing_initialize(void) {
   }
 }
 
+void shared_virtual_hid_pointing_terminate(void) {
+  if (client) {
+    client->virtual_hid_pointing_terminate();
+  }
+}
+
 void shared_virtual_hid_pointing_post_example_report(void) {
   if (client) {
     for (int i = 0; i < 400; ++i) {
       pqrs::karabiner::driverkit::virtual_hid_device::hid_report::pointing_input report;
       report.x = static_cast<uint8_t>(cos(0.1 * i) * 20);
       report.y = static_cast<uint8_t>(sin(0.1 * i) * 20);
-      client->post_report(report);
+      auto kr = client->post_report(report);
+      os_log(OS_LOG_DEFAULT, "pointing_input %d %d 0x%x", report.x, report.y, kr);
 
       std::this_thread::sleep_for(std::chrono::milliseconds(5));
     }
