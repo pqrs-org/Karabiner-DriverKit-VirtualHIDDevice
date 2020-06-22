@@ -13,6 +13,16 @@ codesign \
     --force \
     build/Release/Karabiner-DriverKit-ExtensionManager.app/Contents/Library/SystemExtensions/org.pqrs.driverkit.KarabinerDriverKitVirtualHIDKeyboard.dext
 
+#
+# Sign Karabiner-DriverKit-ExtensionManager.app
+#
+
+# Embed provisioning profile
+
+cp \
+    ExtensionManager/embedded.provisionprofile \
+    build/Release/Karabiner-DriverKit-ExtensionManager.app/Contents/embedded.provisionprofile
+
 codesign \
     --sign $CODE_SIGN_IDENTITY \
     --entitlements ExtensionManager/entitlements.plist \

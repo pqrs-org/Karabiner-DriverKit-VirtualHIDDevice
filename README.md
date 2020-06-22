@@ -68,20 +68,28 @@ System requirements to build Karabiner-Elements:
     readonly CODE_SIGN_IDENTITY=6B9AF0D3B3147A69C5E713773ADD9707CB3480D9
     ```
 
-2.  (Optional) Search `G43BCU2T37` and replace them with your team identifier if you want to test your driver with SIP enabled environments.
+2.  (Optional) Replace team identifier, domain and embedded.provisionprofile if you want to test your driver with SIP enabled environments.
 
-    ```shell
-    git grep G43BCU2T37 src/
-    ```
+    -   Search `G43BCU2T37` and replace them with your team identifier if you want to test your driver with SIP enabled environments.
 
-3.  (Optional) Search `org.pqrs` and `org_pqrs`, then replace them with your domain if you want to test your driver with SIP enabled environments.
+        ```shell
+        git grep G43BCU2T37 src/
+        ```
 
-    ```shell
-    git grep org.pqrs src/
-    git grep org_pqrs src/
-    ```
+    -   Search `org.pqrs` and `org_pqrs`, then replace them with your domain if you want to test your driver with SIP enabled environments.
 
-4.  Build by the following command in terminal.
+        ```shell
+        git grep org.pqrs src/
+        git grep org_pqrs src/
+        ```
+
+    -   Replace `embedded.provisionprofile` file with yours.
+
+        ```shell
+        find * -name 'embedded.provisionprofile'
+        ```
+
+3.  Build by the following command in terminal.
 
     ```shell
     cd src
