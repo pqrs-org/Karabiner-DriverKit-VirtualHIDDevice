@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Replace with your identity
-readonly CODE_SIGN_IDENTITY=2772A6CA4AFC07DF97C2BB1BFD92EA182BF4B2B5
+readonly CODE_SIGN_IDENTITY=C6DD0BCD24C737EA0505F1EB26B8BBEEDEC12F1B
 
 set -e # forbid command failure
 
@@ -11,7 +11,7 @@ codesign \
     --options runtime \
     --verbose \
     --force \
-    build/Release/KarabinerDriverKitVirtualHIDDevice.app/Contents/Library/SystemExtensions/org.pqrs.driverkit.KarabinerDriverKitVirtualHIDKeyboard.dext
+    build/Release/Karabiner-DriverKit-ExtensionManager.app/Contents/Library/SystemExtensions/org.pqrs.driverkit.KarabinerDriverKitVirtualHIDKeyboard.dext
 
 codesign \
     --sign $CODE_SIGN_IDENTITY \
@@ -19,4 +19,4 @@ codesign \
     --options runtime \
     --verbose \
     --force \
-    build/Release/KarabinerDriverKitVirtualHIDDevice.app
+    build/Release/Karabiner-DriverKit-ExtensionManager.app

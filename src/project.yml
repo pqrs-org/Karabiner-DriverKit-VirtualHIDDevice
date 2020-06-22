@@ -1,4 +1,4 @@
-name: KarabinerDriverKitVirtualHIDDevice
+name: Karabiner-DriverKit-ExtensionManager
 
 packages:
   SwiftShell:
@@ -6,9 +6,9 @@ packages:
     from: 5.0.1
 
 targets:
-  KarabinerDriverKitVirtualHIDDevice:
+  Karabiner-DriverKit-ExtensionManager:
     settings:
-      PRODUCT_BUNDLE_IDENTIFIER: org.pqrs.KarabinerDriverKitVirtualHIDDevice
+      PRODUCT_BUNDLE_IDENTIFIER: org.pqrs.Karabiner-DriverKit-ExtensionManager
       CODE_SIGN_ENTITLEMENTS: ''
       CODE_SIGN_IDENTITY: '-'
       CODE_SIGN_STYLE: Manual
