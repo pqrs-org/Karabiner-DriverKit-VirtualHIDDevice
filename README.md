@@ -96,4 +96,4 @@ System requirements to build Karabiner-Elements:
     make
     ```
 
-    `build/Release/KarabinerDriverKitVirtualHIDDevice.app` will be generated.
+    `build/Release/Karabiner-DriverKit-ExtensionManager.app` will be generated.

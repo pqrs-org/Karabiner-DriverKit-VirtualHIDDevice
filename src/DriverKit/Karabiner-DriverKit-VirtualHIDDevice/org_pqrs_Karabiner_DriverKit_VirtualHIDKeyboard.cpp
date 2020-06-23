@@ -1,4 +1,4 @@
-#include "org_pqrs_KarabinerDriverKitVirtualHIDKeyboard.h"
+#include "org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard.h"
 #include "IOBufferMemoryDescriptorUtility.hpp"
 #include "pqrs/karabiner/driverkit/virtual_hid_device.hpp"
 #include "version.hpp"
@@ -6,7 +6,7 @@
 #include <HIDDriverKit/IOHIDUsageTables.h>
 #include <os/log.h>
 
-#define LOG_PREFIX "KarabinerDriverKitVirtualHIDKeyboard " KARABINER_DRIVERKIT_VERSION
+#define LOG_PREFIX "Karabiner-DriverKit-VirtualHIDKeyboard " KARABINER_DRIVERKIT_VERSION
 
 namespace {
 const uint8_t reportDescriptor_[] = {
@@ -111,19 +111,19 @@ const uint8_t reportDescriptor_[] = {
 };
 }
 
-struct org_pqrs_KarabinerDriverKitVirtualHIDKeyboard_IVars {
+struct org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard_IVars {
   IOService* provider;
   OSDictionaryPtr properties;
 };
 
-bool org_pqrs_KarabinerDriverKitVirtualHIDKeyboard::init() {
+bool org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard::init() {
   os_log(OS_LOG_DEFAULT, LOG_PREFIX " init");
 
   if (!super::init()) {
     return false;
   }
 
-  ivars = IONewZero(org_pqrs_KarabinerDriverKitVirtualHIDKeyboard_IVars, 1);
+  ivars = IONewZero(org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard_IVars, 1);
   if (ivars == nullptr) {
     return false;
   }
@@ -131,17 +131,17 @@ bool org_pqrs_KarabinerDriverKitVirtualHIDKeyboard::init() {
   return true;
 }
 
-void org_pqrs_KarabinerDriverKitVirtualHIDKeyboard::free() {
+void org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard::free() {
   os_log(OS_LOG_DEFAULT, LOG_PREFIX " free");
 
   OSSafeReleaseNULL(ivars->properties);
 
-  IOSafeDeleteNULL(ivars, org_pqrs_KarabinerDriverKitVirtualHIDKeyboard_IVars, 1);
+  IOSafeDeleteNULL(ivars, org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard_IVars, 1);
 
   super::free();
 }
 
-bool org_pqrs_KarabinerDriverKitVirtualHIDKeyboard::handleStart(IOService* provider) {
+bool org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard::handleStart(IOService* provider) {
   os_log(OS_LOG_DEFAULT, LOG_PREFIX " handleStart");
 
   ivars->provider = provider;
@@ -187,7 +187,7 @@ bool org_pqrs_KarabinerDriverKitVirtualHIDKeyboard::handleStart(IOService* provi
   return true;
 }
 
-kern_return_t IMPL(org_pqrs_KarabinerDriverKitVirtualHIDKeyboard, Stop) {
+kern_return_t IMPL(org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard, Stop) {
   os_log(OS_LOG_DEFAULT, LOG_PREFIX " Stop");
 
   ivars->provider = nullptr;
@@ -195,7 +195,7 @@ kern_return_t IMPL(org_pqrs_KarabinerDriverKitVirtualHIDKeyboard, Stop) {
   return Stop(provider, SUPERDISPATCH);
 }
 
-kern_return_t IMPL(org_pqrs_KarabinerDriverKitVirtualHIDKeyboard, NewUserClient) {
+kern_return_t IMPL(org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard, NewUserClient) {
   os_log(OS_LOG_DEFAULT, LOG_PREFIX " NewUserClient type:%d", type);
 
   IOService* client;
@@ -218,7 +218,7 @@ kern_return_t IMPL(org_pqrs_KarabinerDriverKitVirtualHIDKeyboard, NewUserClient)
   return kIOReturnSuccess;
 }
 
-OSDictionary* org_pqrs_KarabinerDriverKitVirtualHIDKeyboard::newDeviceDescription(void) {
+OSDictionary* org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard::newDeviceDescription(void) {
   os_log(OS_LOG_DEFAULT, LOG_PREFIX " newDeviceDescription");
 
   auto dictionary = OSDictionary::withCapacity(10);
@@ -237,7 +237,7 @@ OSDictionary* org_pqrs_KarabinerDriverKitVirtualHIDKeyboard::newDeviceDescriptio
     product->release();
   }
 
-  if (auto serialNumber = OSString::withCString("pqrs.org:KarabinerDriverKitVirtualHIDKeyboard")) {
+  if (auto serialNumber = OSString::withCString("pqrs.org:Karabiner-DriverKit-VirtualHIDKeyboard")) {
     OSDictionarySetValue(dictionary, kIOHIDSerialNumberKey, serialNumber);
     serialNumber->release();
   }
@@ -275,13 +275,13 @@ OSDictionary* org_pqrs_KarabinerDriverKitVirtualHIDKeyboard::newDeviceDescriptio
   return dictionary;
 }
 
-OSData* org_pqrs_KarabinerDriverKitVirtualHIDKeyboard::newReportDescriptor(void) {
+OSData* org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard::newReportDescriptor(void) {
   os_log(OS_LOG_DEFAULT, LOG_PREFIX " newReportDescriptor");
 
   return OSData::withBytes(reportDescriptor_, sizeof(reportDescriptor_));
 }
 
-kern_return_t IMPL(org_pqrs_KarabinerDriverKitVirtualHIDKeyboard, postReport) {
+kern_return_t IMPL(org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard, postReport) {
   if (!report) {
     return kIOReturnBadArgument;
   }
@@ -299,7 +299,7 @@ kern_return_t IMPL(org_pqrs_KarabinerDriverKitVirtualHIDKeyboard, postReport) {
                       0);
 }
 
-kern_return_t IMPL(org_pqrs_KarabinerDriverKitVirtualHIDKeyboard, reset) {
+kern_return_t IMPL(org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard, reset) {
   os_log(OS_LOG_DEFAULT, LOG_PREFIX " reset");
 
   // Post empty reports

@@ -5,7 +5,7 @@ all:
 	$(MAKE) -C DriverKit
 	mkdir -p build/Release/Karabiner-DriverKit-ExtensionManager.app/Contents/Library/SystemExtensions
 	rsync -a --delete \
-		DriverKit/build/Release-driverkit/org.pqrs.driverkit.KarabinerDriverKitVirtualHIDKeyboard.dext \
+		DriverKit/build/Release-driverkit/org.pqrs.Karabiner-DriverKit-VirtualHIDDevice.dext \
 		build/Release/Karabiner-DriverKit-ExtensionManager.app/Contents/Library/SystemExtensions
 	$(MAKE) codesign
 
@@ -25,9 +25,9 @@ verify:
 	@echo "\n"
 	codesign --display --entitlements :- build/Release/Karabiner-DriverKit-ExtensionManager.app
 	@echo "\n"
-	codesign -vvv -display build/Release/Karabiner-DriverKit-ExtensionManager.app/Contents/Library/SystemExtensions/org.pqrs.driverkit.KarabinerDriverKitVirtualHIDKeyboard.dext
+	codesign -vvv -display build/Release/Karabiner-DriverKit-ExtensionManager.app/Contents/Library/SystemExtensions/org.pqrs.Karabiner-DriverKit-VirtualHIDDevice.dext
 	@echo "\n"
-	codesign --display --entitlements :- build/Release/Karabiner-DriverKit-ExtensionManager.app/Contents/Library/SystemExtensions/org.pqrs.driverkit.KarabinerDriverKitVirtualHIDKeyboard.dext
+	codesign --display --entitlements :- build/Release/Karabiner-DriverKit-ExtensionManager.app/Contents/Library/SystemExtensions/org.pqrs.Karabiner-DriverKit-VirtualHIDDevice.dext
 
 install:
 	rsync -a --delete build/Release/Karabiner-DriverKit-ExtensionManager.app /Applications

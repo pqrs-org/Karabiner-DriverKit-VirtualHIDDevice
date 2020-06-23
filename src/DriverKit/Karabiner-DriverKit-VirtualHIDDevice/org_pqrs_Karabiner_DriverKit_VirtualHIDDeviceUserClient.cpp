@@ -1,12 +1,12 @@
-#include "org_pqrs_KarabinerDriverKitVirtualHIDKeyboardUserClient.h"
+#include "org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient.h"
 #include "IOBufferMemoryDescriptorUtility.hpp"
-#include "org_pqrs_KarabinerDriverKitVirtualHIDKeyboard.h"
-#include "org_pqrs_KarabinerDriverKitVirtualHIDPointing.h"
+#include "org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard.h"
+#include "org_pqrs_Karabiner_DriverKit_VirtualHIDPointing.h"
 #include "pqrs/karabiner/driverkit/virtual_hid_device.hpp"
 #include "version.hpp"
 #include <os/log.h>
 
-#define LOG_PREFIX "KarabinerDriverKitVirtualHIDKeyboardUserClient " KARABINER_DRIVERKIT_VERSION
+#define LOG_PREFIX "Karabiner-DriverKit-VirtualHIDDeviceUserClient " KARABINER_DRIVERKIT_VERSION
 
 namespace {
 kern_return_t createIOMemoryDescriptor(IOUserClientMethodArguments* arguments, IOMemoryDescriptor** memory) {
@@ -32,19 +32,19 @@ kern_return_t createIOMemoryDescriptor(IOUserClientMethodArguments* arguments, I
 }
 } // namespace
 
-struct org_pqrs_KarabinerDriverKitVirtualHIDKeyboardUserClient_IVars {
-  org_pqrs_KarabinerDriverKitVirtualHIDKeyboard* keyboard;
-  org_pqrs_KarabinerDriverKitVirtualHIDPointing* pointing;
+struct org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient_IVars {
+  org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard* keyboard;
+  org_pqrs_Karabiner_DriverKit_VirtualHIDPointing* pointing;
 };
 
-bool org_pqrs_KarabinerDriverKitVirtualHIDKeyboardUserClient::init() {
+bool org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient::init() {
   os_log(OS_LOG_DEFAULT, LOG_PREFIX " init");
 
   if (!super::init()) {
     return false;
   }
 
-  ivars = IONewZero(org_pqrs_KarabinerDriverKitVirtualHIDKeyboardUserClient_IVars, 1);
+  ivars = IONewZero(org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient_IVars, 1);
   if (ivars == nullptr) {
     return false;
   }
@@ -52,18 +52,18 @@ bool org_pqrs_KarabinerDriverKitVirtualHIDKeyboardUserClient::init() {
   return true;
 }
 
-void org_pqrs_KarabinerDriverKitVirtualHIDKeyboardUserClient::free() {
+void org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient::free() {
   os_log(OS_LOG_DEFAULT, LOG_PREFIX " free");
 
   OSSafeReleaseNULL(ivars->keyboard);
   OSSafeReleaseNULL(ivars->pointing);
 
-  IOSafeDeleteNULL(ivars, org_pqrs_KarabinerDriverKitVirtualHIDKeyboardUserClient_IVars, 1);
+  IOSafeDeleteNULL(ivars, org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient_IVars, 1);
 
   super::free();
 }
 
-kern_return_t IMPL(org_pqrs_KarabinerDriverKitVirtualHIDKeyboardUserClient, Start) {
+kern_return_t IMPL(org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient, Start) {
   os_log(OS_LOG_DEFAULT, LOG_PREFIX " Start");
 
   {
@@ -77,13 +77,13 @@ kern_return_t IMPL(org_pqrs_KarabinerDriverKitVirtualHIDKeyboardUserClient, Star
   return kIOReturnSuccess;
 }
 
-kern_return_t IMPL(org_pqrs_KarabinerDriverKitVirtualHIDKeyboardUserClient, Stop) {
+kern_return_t IMPL(org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient, Stop) {
   os_log(OS_LOG_DEFAULT, LOG_PREFIX " Stop");
 
   return Stop(provider, SUPERDISPATCH);
 }
 
-kern_return_t org_pqrs_KarabinerDriverKitVirtualHIDKeyboardUserClient::ExternalMethod(uint64_t selector,
+kern_return_t org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient::ExternalMethod(uint64_t selector,
                                                                                       IOUserClientMethodArguments* arguments,
                                                                                       const IOUserClientMethodDispatch* dispatch,
                                                                                       OSObject* target,
@@ -99,7 +99,7 @@ kern_return_t org_pqrs_KarabinerDriverKitVirtualHIDKeyboardUserClient::ExternalM
           return kr;
         }
 
-        ivars->keyboard = OSDynamicCast(org_pqrs_KarabinerDriverKitVirtualHIDKeyboard, client);
+        ivars->keyboard = OSDynamicCast(org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard, client);
         if (!ivars->keyboard) {
           os_log(OS_LOG_DEFAULT, LOG_PREFIX " OSDynamicCast failed");
           client->release();
@@ -144,7 +144,7 @@ kern_return_t org_pqrs_KarabinerDriverKitVirtualHIDKeyboardUserClient::ExternalM
           return kr;
         }
 
-        ivars->pointing = OSDynamicCast(org_pqrs_KarabinerDriverKitVirtualHIDPointing, client);
+        ivars->pointing = OSDynamicCast(org_pqrs_Karabiner_DriverKit_VirtualHIDPointing, client);
         if (!ivars->pointing) {
           os_log(OS_LOG_DEFAULT, LOG_PREFIX " OSDynamicCast failed");
           client->release();

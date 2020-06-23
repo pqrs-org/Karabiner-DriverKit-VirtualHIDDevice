@@ -26,9 +26,9 @@ The result:
 
 ```text
 Timestamp                       Thread     Type        Activity             PID    TTL
-2020-05-13 08:50:08.983279+0900 0x97b      Default     0x0                  0      0    kernel: (org.pqrs.driverkit.KarabinerDriverKitVirtualHIDKeyboard) KarabinerDriverKitVirtualHIDKeyboard init
-2020-05-13 08:50:08.983378+0900 0x97b      Default     0x0                  0      0    kernel: (org.pqrs.driverkit.KarabinerDriverKitVirtualHIDKeyboard) KarabinerDriverKitVirtualHIDKeyboard handleStart
-2020-05-13 08:50:08.983521+0900 0x97b      Default     0x0                  0      0    kernel: (org.pqrs.driverkit.KarabinerDriverKitVirtualHIDKeyboard) [IOUserHIDDevice.cpp:62][0x100000514] Start failed: 0xe00002c7
+2020-05-13 08:50:08.983279+0900 0x97b      Default     0x0                  0      0    kernel: (org.pqrs.Karabiner-DriverKit-VirtualHIDKeyboard) Karabiner-DriverKit-VirtualHIDKeyboard init
+2020-05-13 08:50:08.983378+0900 0x97b      Default     0x0                  0      0    kernel: (org.pqrs.Karabiner-DriverKit-VirtualHIDKeyboard) Karabiner-DriverKit-VirtualHIDKeyboard handleStart
+2020-05-13 08:50:08.983521+0900 0x97b      Default     0x0                  0      0    kernel: (org.pqrs.Karabiner-DriverKit-VirtualHIDKeyboard) [IOUserHIDDevice.cpp:62][0x100000514] Start failed: 0xe00002c7
 ```
 
 ## Inspect installed driver extensions
@@ -73,8 +73,8 @@ plutil -convert xml1 -o - /Library/SystemExtensions/db.plist
 
 ### Driver extension
 
-1.  Provide your driver extension. (e.g., org_pqrs_KarabinerDriverKitVirtualHIDKeyboard)
-2.  Add a subclass of IOUserClient. (e.g., org_pqrs_KarabinerDriverKitVirtualHIDKeyboardUserClient)
+1.  Provide your driver extension. (e.g., org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard)
+2.  Add a subclass of IOUserClient. (e.g., org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient)
 3.  Put UserClientProperties into Info.plist.
 
     ```xml
@@ -83,18 +83,18 @@ plutil -convert xml1 -o - /Library/SystemExtensions/db.plist
         <key>IOClass</key>
         <string>IOUserUserClient</string>
         <key>IOUserClass</key>
-        <string>org_pqrs_KarabinerDriverKitVirtualHIDKeyboardUserClient</string>
+        <string>org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient</string>
         <!-- <key>IOServiceDEXTEntitlements</key> -->
     </dict>
     ```
 
-4.  Implement `org_pqrs_KarabinerDriverKitVirtualHIDKeyboard::NewUserClient` method.
-5.  Implement `org_pqrs_KarabinerDriverKitVirtualHIDKeyboardUserClient::Start` and `Stop`.
+4.  Implement `org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard::NewUserClient` method.
+5.  Implement `org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient::Start` and `Stop`.
 
     -   Save `provider` argument to ivars at `Start`.
 
         ```cpp
-        ivars->keyboard = OSDynamicCast(org_pqrs_KarabinerDriverKitVirtualHIDKeyboard, provider);
+        ivars->keyboard = OSDynamicCast(org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard, provider);
         ```
 
 ### Client
@@ -103,7 +103,7 @@ plutil -convert xml1 -o - /Library/SystemExtensions/db.plist
 
     ```cpp
       io_connect_t connect = IO_OBJECT_NULL;
-      auto service = IOServiceGetMatchingService(kIOMasterPortDefault, IOServiceNameMatching("org_pqrs_KarabinerDriverKitVirtualHIDKeyboard"));
+      auto service = IOServiceGetMatchingService(kIOMasterPortDefault, IOServiceNameMatching("org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard"));
       if (!service) {
         std::cerr << "IOServiceGetMatchingService error" << std::endl;
         goto finish;
@@ -127,7 +127,7 @@ plutil -convert xml1 -o - /Library/SystemExtensions/db.plist
         <dict>
             <key>com.apple.developer.driverkit.userclient-access</key>
             <array>
-            <string>org.pqrs.driverkit.org_pqrs_KarabinerDriverKitVirtualHIDKeyboard</string>
+            <string>org.pqrs.Karabiner-DriverKit-VirtualHIDDevice</string>
             </array>
         </dict>
     </plist>
@@ -142,7 +142,7 @@ Implement the actual processing by the following steps.
 1.  Implement `ExternalMethod` method your driverkit user client class.
 
     ```cpp
-    kern_return_t org_pqrs_KarabinerDriverKitVirtualHIDKeyboardUserClient::ExternalMethod(uint64_t selector,
+    kern_return_t org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient::ExternalMethod(uint64_t selector,
                                                                                           IOUserClientMethodArguments* arguments,
                                                                                           const IOUserClientMethodDispatch* dispatch,
                                                                                           OSObject* target,

@@ -1,4 +1,4 @@
-#include "org_pqrs_KarabinerDriverKitVirtualHIDPointing.h"
+#include "org_pqrs_Karabiner_DriverKit_VirtualHIDPointing.h"
 #include "IOBufferMemoryDescriptorUtility.hpp"
 #include "pqrs/karabiner/driverkit/virtual_hid_device.hpp"
 #include "version.hpp"
@@ -6,7 +6,7 @@
 #include <HIDDriverKit/IOHIDUsageTables.h>
 #include <os/log.h>
 
-#define LOG_PREFIX "KarabinerDriverKitVirtualHIDPointing " KARABINER_DRIVERKIT_VERSION
+#define LOG_PREFIX "Karabiner-DriverKit-VirtualHIDPointing " KARABINER_DRIVERKIT_VERSION
 
 namespace {
 const uint8_t reportDescriptor_[] = {
@@ -79,17 +79,17 @@ const uint8_t reportDescriptor_[] = {
 };
 }
 
-struct org_pqrs_KarabinerDriverKitVirtualHIDPointing_IVars {
+struct org_pqrs_Karabiner_DriverKit_VirtualHIDPointing_IVars {
 };
 
-bool org_pqrs_KarabinerDriverKitVirtualHIDPointing::init() {
+bool org_pqrs_Karabiner_DriverKit_VirtualHIDPointing::init() {
   os_log(OS_LOG_DEFAULT, LOG_PREFIX " init");
 
   if (!super::init()) {
     return false;
   }
 
-  ivars = IONewZero(org_pqrs_KarabinerDriverKitVirtualHIDPointing_IVars, 1);
+  ivars = IONewZero(org_pqrs_Karabiner_DriverKit_VirtualHIDPointing_IVars, 1);
   if (ivars == nullptr) {
     return false;
   }
@@ -97,15 +97,15 @@ bool org_pqrs_KarabinerDriverKitVirtualHIDPointing::init() {
   return true;
 }
 
-void org_pqrs_KarabinerDriverKitVirtualHIDPointing::free() {
+void org_pqrs_Karabiner_DriverKit_VirtualHIDPointing::free() {
   os_log(OS_LOG_DEFAULT, LOG_PREFIX " free");
 
-  IOSafeDeleteNULL(ivars, org_pqrs_KarabinerDriverKitVirtualHIDPointing_IVars, 1);
+  IOSafeDeleteNULL(ivars, org_pqrs_Karabiner_DriverKit_VirtualHIDPointing_IVars, 1);
 
   super::free();
 }
 
-bool org_pqrs_KarabinerDriverKitVirtualHIDPointing::handleStart(IOService* provider) {
+bool org_pqrs_Karabiner_DriverKit_VirtualHIDPointing::handleStart(IOService* provider) {
   os_log(OS_LOG_DEFAULT, LOG_PREFIX " handleStart");
 
   if (!super::handleStart(provider)) {
@@ -123,13 +123,13 @@ bool org_pqrs_KarabinerDriverKitVirtualHIDPointing::handleStart(IOService* provi
   return true;
 }
 
-kern_return_t IMPL(org_pqrs_KarabinerDriverKitVirtualHIDPointing, Stop) {
+kern_return_t IMPL(org_pqrs_Karabiner_DriverKit_VirtualHIDPointing, Stop) {
   os_log(OS_LOG_DEFAULT, LOG_PREFIX " Stop");
 
   return Stop(provider, SUPERDISPATCH);
 }
 
-OSDictionary* org_pqrs_KarabinerDriverKitVirtualHIDPointing::newDeviceDescription(void) {
+OSDictionary* org_pqrs_Karabiner_DriverKit_VirtualHIDPointing::newDeviceDescription(void) {
   os_log(OS_LOG_DEFAULT, LOG_PREFIX " newDeviceDescription");
 
   auto dictionary = OSDictionary::withCapacity(10);
@@ -148,7 +148,7 @@ OSDictionary* org_pqrs_KarabinerDriverKitVirtualHIDPointing::newDeviceDescriptio
     product->release();
   }
 
-  if (auto serialNumber = OSString::withCString("pqrs.org:KarabinerDriverKitVirtualHIDPointing")) {
+  if (auto serialNumber = OSString::withCString("pqrs.org:Karabiner-DriverKit-VirtualHIDPointing")) {
     OSDictionarySetValue(dictionary, kIOHIDSerialNumberKey, serialNumber);
     serialNumber->release();
   }
@@ -186,13 +186,13 @@ OSDictionary* org_pqrs_KarabinerDriverKitVirtualHIDPointing::newDeviceDescriptio
   return dictionary;
 }
 
-OSData* org_pqrs_KarabinerDriverKitVirtualHIDPointing::newReportDescriptor(void) {
+OSData* org_pqrs_Karabiner_DriverKit_VirtualHIDPointing::newReportDescriptor(void) {
   os_log(OS_LOG_DEFAULT, LOG_PREFIX " newReportDescriptor");
 
   return OSData::withBytes(reportDescriptor_, sizeof(reportDescriptor_));
 }
 
-kern_return_t IMPL(org_pqrs_KarabinerDriverKitVirtualHIDPointing, postReport) {
+kern_return_t IMPL(org_pqrs_Karabiner_DriverKit_VirtualHIDPointing, postReport) {
   if (!report) {
     return kIOReturnBadArgument;
   }
@@ -210,7 +210,7 @@ kern_return_t IMPL(org_pqrs_KarabinerDriverKitVirtualHIDPointing, postReport) {
                       0);
 }
 
-kern_return_t IMPL(org_pqrs_KarabinerDriverKitVirtualHIDPointing, reset) {
+kern_return_t IMPL(org_pqrs_Karabiner_DriverKit_VirtualHIDPointing, reset) {
   os_log(OS_LOG_DEFAULT, LOG_PREFIX " reset");
 
   // Post empty reports

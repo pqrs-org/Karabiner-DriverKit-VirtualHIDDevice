@@ -1,11 +1,11 @@
-#ifndef KarabinerDriverKitVirtualHIDKeyboard_h
-#define KarabinerDriverKitVirtualHIDKeyboard_h
+#ifndef org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard_h
+#define org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard_h
 
 #include <Availability.h>
 #include <DriverKit/IOService.iig>
 #include <HIDDriverKit/IOUserHIDDevice.iig>
 
-class org_pqrs_KarabinerDriverKitVirtualHIDKeyboard: public IOUserHIDDevice
+class org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard: public IOUserHIDDevice
 {
 public:
     virtual bool init() override;

@@ -1,10 +1,10 @@
-#ifndef org_pqrs_KarabinerDriverKitVirtualHIDKeyboardUserClient_h
-#define org_pqrs_KarabinerDriverKitVirtualHIDKeyboardUserClient_h
+#ifndef org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient_h
+#define org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient_h
 
 #include <Availability.h>
 #include <DriverKit/IOUserClient.iig>
 
-class org_pqrs_KarabinerDriverKitVirtualHIDKeyboardUserClient: public IOUserClient
+class org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient: public IOUserClient
 {
 public:
     virtual bool init() override;
