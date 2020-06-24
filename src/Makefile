@@ -29,11 +29,5 @@ verify:
 	@echo "\n"
 	codesign --display --entitlements :- build/Release/Karabiner-DriverKit-ExtensionManager.app/Contents/Library/SystemExtensions/org.pqrs.Karabiner-DriverKit-VirtualHIDDevice.dext
 
-install:
-	rsync -a --delete build/Release/Karabiner-DriverKit-ExtensionManager.app /Applications
-
-run: install
-	open /Applications/Karabiner-DriverKit-ExtensionManager.app
-
 log-show-extension-manager:
 	log show --predicate 'sender == "sysextd" or sender CONTAINS "org.pqrs"' --info --debug --last 1h
