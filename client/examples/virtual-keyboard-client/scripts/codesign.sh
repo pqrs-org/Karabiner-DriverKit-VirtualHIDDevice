@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Replace with your identity
-readonly CODE_SIGN_IDENTITY=2772A6CA4AFC07DF97C2BB1BFD92EA182BF4B2B5
+readonly CODE_SIGN_IDENTITY=C6DD0BCD24C737EA0505F1EB26B8BBEEDEC12F1B
 
 set -e # forbid command failure
 
