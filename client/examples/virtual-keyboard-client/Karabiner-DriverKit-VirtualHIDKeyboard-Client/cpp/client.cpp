@@ -102,8 +102,7 @@ void shared_virtual_hid_pointing_post_example_report(void) {
       pqrs::karabiner::driverkit::virtual_hid_device::hid_report::pointing_input report;
       report.x = static_cast<uint8_t>(cos(0.1 * i) * 20);
       report.y = static_cast<uint8_t>(sin(0.1 * i) * 20);
-      auto kr = client->post_report(report);
-      os_log(OS_LOG_DEFAULT, "pointing_input %d %d 0x%x", report.x, report.y, kr);
+      client->post_report(report);
 
       std::this_thread::sleep_for(std::chrono::milliseconds(5));
     }
