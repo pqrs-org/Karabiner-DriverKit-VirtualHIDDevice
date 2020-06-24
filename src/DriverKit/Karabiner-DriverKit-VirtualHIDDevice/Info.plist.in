@@ -43,7 +43,7 @@
           <key>IOClass</key>
           <string>IOUserUserClient</string>
           <key>IOUserClass</key>
-          <string>org_pqrs_Karabiner_DriverKit_VirtualHIDDevice_UserClient</string>
+          <string>org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient</string>
           <!-- <key>IOServiceDEXTEntitlements</key> -->
 
           <key>VirtualHIDKeyboardProperties</key>
