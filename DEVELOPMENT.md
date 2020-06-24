@@ -46,6 +46,7 @@ plutil -convert xml1 -o - /Library/SystemExtensions/db.plist
         -   There are extra entitlements which are not allowed for us:
             -   `com.apple.developer.hid.virtual.device`
             -   `com.apple.developer.system-extension.redistributable` (Bug?)
+        -   Your `dext` must be notarized if you enabled SIP even if the dext is built on the install target machine.
 -   `sysextd` is crashed by `EXC_BAD_INSTRUCTION (SIGILL)`
     -   Reason #1:
         -   `sysextd` will be crashed if multiple versions of your driver extension are installed.
