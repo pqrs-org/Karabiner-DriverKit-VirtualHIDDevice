@@ -12,6 +12,8 @@ clean:
 
 package:
 	$(MAKE) -C src
+	$(MAKE) -C client/examples
+
 	rm -f Karabiner-DriverKit-ExtensionManager-$(VERSION).dmg
 	create-dmg \
 		--overwrite \
@@ -19,6 +21,14 @@ package:
 		--dmg-title=ExtensionManager \
 		src/build/Release/Karabiner-DriverKit-ExtensionManager.app
 	mv "Karabiner-DriverKit-ExtensionManager $(VERSION).dmg" dist/Karabiner-DriverKit-ExtensionManager-$(VERSION).dmg
+
+	rm -f Karabiner-DriverKit-VirtualHIDDeviceClient-$(VERSION).dmg
+	create-dmg \
+		--overwrite \
+		--identity=$(DMG_IDENTITY) \
+		--dmg-title=VirtualHIDDeviceClient \
+		client/examples/virtual-keyboard-client/build/Release/Karabiner-DriverKit-VirtualHIDDeviceClient.app
+	mv "Karabiner-DriverKit-VirtualHIDDeviceClient $(VERSION).dmg" dist/Karabiner-DriverKit-VirtualHIDDeviceClient-$(VERSION).dmg
 
 notarize:
 	xcrun altool --notarize-app \
@@ -28,5 +38,13 @@ notarize:
 		-u 'tekezo@pqrs.org' \
 		-p '@keychain:pqrs.org-notarize-app'
 
+	xcrun altool --notarize-app \
+		-t osx \
+		-f dist/Karabiner-DriverKit-VirtualHIDDeviceClient-$(VERSION).dmg \
+		--primary-bundle-id 'org.pqrs.Karabiner-DriverKit-VirtualHIDDeviceClient' \
+		-u 'tekezo@pqrs.org' \
+		-p '@keychain:pqrs.org-notarize-app'
+
 staple:
 		xcrun stapler staple dist/Karabiner-DriverKit-ExtensionManager-$(VERSION).dmg
+		xcrun stapler staple dist/Karabiner-DriverKit-VirtualHIDDeviceClient-$(VERSION).dmg
