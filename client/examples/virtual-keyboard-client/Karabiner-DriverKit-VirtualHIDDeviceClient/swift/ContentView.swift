@@ -5,7 +5,7 @@ struct ContentView: View {
 
     var body: some View {
         VStack(spacing: 20) {
-            Text("Karabiner-DriverKit-VirtualHIDKeyboard-Client version " + self.version)
+            Text("Karabiner-DriverKit-VirtualHIDDeviceClient version " + self.version)
 
             HStack(alignment: .top, spacing: 20.0) {
                 GroupBox(label: Text("VirtualHIDKeyboard")) {

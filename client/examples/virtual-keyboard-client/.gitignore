@@ -1,4 +1,4 @@
-Karabiner-DriverKit-VirtualHIDKeyboard-Client.xcodeproj
+Karabiner-DriverKit-VirtualHIDDeviceClient.xcodeproj
 
 /build/
 /vendor/cget/cget.cmake

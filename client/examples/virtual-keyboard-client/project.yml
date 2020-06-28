@@ -1,9 +1,9 @@
-name: Karabiner-DriverKit-VirtualHIDKeyboard-Client
+name: Karabiner-DriverKit-VirtualHIDDeviceClient
 
 targets:
-  Karabiner-DriverKit-VirtualHIDKeyboard-Client:
+  Karabiner-DriverKit-VirtualHIDDeviceClient:
     settings:
-      PRODUCT_BUNDLE_IDENTIFIER: org.pqrs.Karabiner-DriverKit-VirtualHIDKeyboard-Client
+      PRODUCT_BUNDLE_IDENTIFIER: org.pqrs.Karabiner-DriverKit-VirtualHIDDeviceClient
       CODE_SIGN_ENTITLEMENTS: ''
       CODE_SIGN_IDENTITY: '-'
       CODE_SIGN_STYLE: Manual
@@ -11,14 +11,14 @@ targets:
     platform: macOS
     deploymentTarget: 10.15
     sources:
-      - path: Karabiner-DriverKit-VirtualHIDKeyboard-Client
+      - path: Karabiner-DriverKit-VirtualHIDDeviceClient
         compilerFlags:
           - -Werror
         excludes:
           - Info.plist.in
     settings:
       base:
-        SWIFT_OBJC_BRIDGING_HEADER: 'Karabiner-DriverKit-VirtualHIDKeyboard-Client/Bridging-Header.h'
+        SWIFT_OBJC_BRIDGING_HEADER: 'Karabiner-DriverKit-VirtualHIDDeviceClient/Bridging-Header.h'
         SYSTEM_HEADER_SEARCH_PATHS:
           - vendor/include
           - ../../include

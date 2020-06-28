@@ -3,7 +3,7 @@
 <plist version="1.0">
   <dict>
     <key>com.apple.application-identifier</key>
-    <string>G43BCU2T37.org.pqrs.Karabiner-DriverKit-VirtualHIDKeyboard-Client</string>
+    <string>G43BCU2T37.org.pqrs.Karabiner-DriverKit-VirtualHIDDeviceClient</string>
     <key>com.apple.developer.driverkit.userclient-access</key>
     <array>
       <string>org.pqrs.Karabiner-DriverKit-VirtualHIDDevice</string>
