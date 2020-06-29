@@ -7,6 +7,11 @@ targets:
       CODE_SIGN_ENTITLEMENTS: ''
       CODE_SIGN_IDENTITY: '-'
       CODE_SIGN_STYLE: Manual
+      SWIFT_OBJC_BRIDGING_HEADER: 'Karabiner-DriverKit-VirtualHIDDeviceClient/Bridging-Header.h'
+      SYSTEM_HEADER_SEARCH_PATHS:
+        - vendor/include
+        - ../../include
+        - ../../../include
     type: application
     platform: macOS
     deploymentTarget: 10.15
@@ -16,10 +21,3 @@ targets:
           - -Werror
         excludes:
           - Info.plist.in
-    settings:
-      base:
-        SWIFT_OBJC_BRIDGING_HEADER: 'Karabiner-DriverKit-VirtualHIDDeviceClient/Bridging-Header.h'
-        SYSTEM_HEADER_SEARCH_PATHS:
-          - vendor/include
-          - ../../include
-          - ../../../include
