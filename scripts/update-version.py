@@ -16,9 +16,15 @@ with topDirectory.joinpath('version').open() as f:
         replacedFilePath = Path(re.sub(r'\.in$', '', str(templateFilePath)))
         needsUpdate = False
 
-        with templateFilePath.open('r') as templateFile, replacedFilePath.open('r') as replacedFile:
+        with templateFilePath.open('r') as templateFile:
             templateLines = templateFile.readlines()
-            replacedLines = replacedFile.readlines()
+            replacedLines = []
+
+            if replacedFilePath.exists():
+                with replacedFilePath.open('r') as replacedFile:
+                    replacedLines = replacedFile.readlines()
+            else:
+                replacedLines = templateLines
 
             for index, templateLine in enumerate(templateLines):
                 if re.search(r'@VERSION@', templateLine):
