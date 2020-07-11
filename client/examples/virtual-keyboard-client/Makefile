@@ -1,7 +1,7 @@
 CXXFLAGS = -Ivendor/include -I../../include -I../../../include -std=c++17 -Wall -Werror -O2
 
 all:
-	bash ../../../scripts/update-version.sh
+	/usr/bin/python3 ../../../scripts/update-version.py
 	xcodegen generate
 	xcodebuild -configuration Release SYMROOT="$(CURDIR)/build"
 	$(MAKE) codesign

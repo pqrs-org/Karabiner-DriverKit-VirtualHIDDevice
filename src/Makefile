@@ -1,5 +1,5 @@
 all:
-	bash ../scripts/update-version.sh
+	/usr/bin/python3 ../scripts/update-version.py
 	xcodegen generate
 	xcodebuild -configuration Release SYMROOT="$(CURDIR)/build"
 	$(MAKE) -C DriverKit
