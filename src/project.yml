@@ -3,7 +3,10 @@ name: Karabiner-DriverKit-ExtensionManager
 packages:
   SwiftShell:
     url: https://github.com/kareman/SwiftShell
-    from: 5.0.1
+    # from: 5.0.1
+    # We use master because v5.0.1 does not support Xcode 12.
+    branch: master
+
 
 targets:
   Karabiner-DriverKit-ExtensionManager:
