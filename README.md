@@ -11,7 +11,7 @@ Virtual devices (keyboard and mouse) implementation for macOS using DriverKit.
     -   Extension manager
     -   Virtual HID keyboard
     -   Virtual HID pointing
-    -   Virtual HID device client (Need to disable SIP at the moment.)
+    -   Virtual HID device client
 
 ## Documents
 
