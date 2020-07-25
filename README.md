@@ -40,6 +40,13 @@ System requirements to build Karabiner-Elements:
 -   Command Line Tools for Xcode
 -   [XcodeGen](https://github.com/yonaskolb/XcodeGen)
 
+### Note
+
+A provision profile which supports `com.apple.developer.driverkit` is required to build a driver extension since Xcode 12.
+
+If you want to start without a valid provision profile, use Xcode 11 and
+[Karabiner-DriverKit-VirtualHIDDevice v0.11.0](https://github.com/pqrs-org/Karabiner-DriverKit-VirtualHIDDevice/releases/tag/v0.11.0).
+
 ### Steps
 
 1.  Replace `CODE_SIGN_IDENTITY` at `src/scripts/codesign.sh` with yours.
