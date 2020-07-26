@@ -42,15 +42,25 @@ System requirements to build Karabiner-Elements:
 
 ### Note
 
-A provision profile which supports `com.apple.developer.driverkit` is required to build a driver extension since Xcode 12.
+A provisioning profile which supports `com.apple.developer.driverkit` is required to build a driver extension since Xcode 12.
 
-If you want to start without a valid provision profile, use Xcode 11 and
+If you want to start without a valid provisioning profile, use Xcode 11 and
 [Karabiner-DriverKit-VirtualHIDDevice v0.11.0](https://github.com/pqrs-org/Karabiner-DriverKit-VirtualHIDDevice/releases/tag/v0.11.0).
 
 ### Steps
 
-1.  Replace `CODE_SIGN_IDENTITY` at `src/scripts/codesign.sh` with yours.
-    (The codesign identity is required even if you disabled SIP in order to inject entitlements into your driver extension.)
+1.  Gain the DriverKit entitlements to be able to create a provisioning profile which supports `com.apple.developer.driverkit`.
+    Specifically, follow the instructions on [Requesting Entitlements for DriverKit Development](https://developer.apple.com/documentation/driverkit/requesting_entitlements_for_driverkit_development)
+
+    Note: This process may take some time to complete on Apple's end.
+
+    If you want to start without the request, use Xcode 11 and Karabiner-DriverKit-VirtualHIDDevice v0.11.0. (See above note)
+
+2.  Create a Developer ID distribution provisioning profile for `org.pqrs.Karabiner-DriverKit-VirtualHIDDevice` with `com.apple.developer.driverkit` entitlement.
+
+    <img src="docs/images/generate-a-provisioning-profile@2x.png" width="921" alt="Generate a Provisioning Profile" />
+
+3.  Replace `CODE_SIGN_IDENTITY` at `src/scripts/codesign.sh` with yours.
 
     Find your codesign identity by executing the following command in Terminal.
 
@@ -68,22 +78,22 @@ If you want to start without a valid provision profile, use Xcode 11 and
         4 valid identities found
     ```
 
-    Choose one of them (e.g., `6B9AF0D3B3147A69C5E713773ADD9707CB3480D9`) and replace existing `CODE_SIGN_IDENTITY` with yours as follows.
+    Choose one of them (e.g., `8D660191481C98F5C56630847A6C39D95C166F22`) and replace existing `CODE_SIGN_IDENTITY` with yours as follows.
 
     ```shell
     # Replace with your identity
-    readonly CODE_SIGN_IDENTITY=6B9AF0D3B3147A69C5E713773ADD9707CB3480D9
+    readonly CODE_SIGN_IDENTITY=8D660191481C98F5C56630847A6C39D95C166F22
     ```
 
-2.  (Optional) Replace team identifier, domain and embedded.provisionprofile if you want to test your driver with SIP enabled environments.
+4.  Replace team identifier, domain and embedded.provisionprofile.
 
-    -   Search `G43BCU2T37` and replace them with your team identifier if you want to test your driver with SIP enabled environments.
+    -   Search `G43BCU2T37` and replace them with your team identifier.
 
         ```shell
         git grep G43BCU2T37 src/
         ```
 
-    -   Search `org.pqrs` and `org_pqrs`, then replace them with your domain if you want to test your driver with SIP enabled environments.
+    -   Search `org.pqrs` and `org_pqrs`, then replace them with your domain.
 
         ```shell
         git grep org.pqrs src/
@@ -96,7 +106,7 @@ If you want to start without a valid provision profile, use Xcode 11 and
         find * -name 'embedded.provisionprofile'
         ```
 
-3.  Build by the following command in terminal.
+5.  Build by the following command in terminal.
 
     ```shell
     cd src
