@@ -13,7 +13,7 @@ namespace client {
 class virtual_hid_keyboard_client final {
 public:
   virtual_hid_keyboard_client(void) : connection_(IO_OBJECT_NULL) {
-    if (auto service = IOServiceGetMatchingService(kIOMasterPortDefault, IOServiceNameMatching("org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard"))) {
+    if (auto service = IOServiceGetMatchingService(kIOMasterPortDefault, IOServiceNameMatching("org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceRoot"))) {
       auto kr = IOServiceOpen(service, mach_task_self(), 0, &connection_);
       if (kr != kIOReturnSuccess) {
         os_log_error(OS_LOG_DEFAULT, "IOServiceOpen error: 0x%x", kr);
