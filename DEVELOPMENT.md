@@ -26,9 +26,16 @@ The result:
 
 ```text
 Timestamp                       Thread     Type        Activity             PID    TTL
-2020-05-13 08:50:08.983279+0900 0x97b      Default     0x0                  0      0    kernel: (org.pqrs.Karabiner-DriverKit-VirtualHIDKeyboard) Karabiner-DriverKit-VirtualHIDKeyboard init
-2020-05-13 08:50:08.983378+0900 0x97b      Default     0x0                  0      0    kernel: (org.pqrs.Karabiner-DriverKit-VirtualHIDKeyboard) Karabiner-DriverKit-VirtualHIDKeyboard handleStart
-2020-05-13 08:50:08.983521+0900 0x97b      Default     0x0                  0      0    kernel: (org.pqrs.Karabiner-DriverKit-VirtualHIDKeyboard) [IOUserHIDDevice.cpp:62][0x100000514] Start failed: 0xe00002c7
+2020-07-26 23:43:10.674449+0900 0x973      Default     0x0                  0      0    kernel: (org.pqrs.Karabiner-DriverKit-VirtualHIDDevice) Karabiner-DriverKit-VirtualHIDDeviceRoot 0.12.0 init
+2020-07-26 23:43:10.674525+0900 0x973      Default     0x0                  0      0    kernel: (org.pqrs.Karabiner-DriverKit-VirtualHIDDevice) Karabiner-DriverKit-VirtualHIDDeviceRoot 0.12.0 Start
+2020-07-26 23:44:28.781849+0900 0x974      Default     0x0                  0      0    kernel: (org.pqrs.Karabiner-DriverKit-VirtualHIDDevice) Karabiner-DriverKit-VirtualHIDDeviceRoot 0.12.0 NewUserClient type:0
+2020-07-26 23:44:28.781895+0900 0x974      Default     0x0                  0      0    kernel: (org.pqrs.Karabiner-DriverKit-VirtualHIDDevice) Karabiner-DriverKit-VirtualHIDDeviceUserClient 0.12.0 init
+2020-07-26 23:44:28.781940+0900 0x974      Default     0x0                  0      0    kernel: (org.pqrs.Karabiner-DriverKit-VirtualHIDDevice) Karabiner-DriverKit-VirtualHIDDeviceUserClient 0.12.0 Start
+2020-07-26 23:44:28.781943+0900 0x974      Default     0x0                  0      0    kernel: (org.pqrs.Karabiner-DriverKit-VirtualHIDDevice) Karabiner-DriverKit-VirtualHIDDeviceRoot 0.12.0 UserClient is created
+2020-07-26 23:44:28.782094+0900 0x974      Default     0x0                  0      0    kernel: (org.pqrs.Karabiner-DriverKit-VirtualHIDDevice) Karabiner-DriverKit-VirtualHIDKeyboard 0.12.0 init
+2020-07-26 23:44:28.782153+0900 0x974      Default     0x0                  0      0    kernel: (org.pqrs.Karabiner-DriverKit-VirtualHIDDevice) Karabiner-DriverKit-VirtualHIDKeyboard 0.12.0 handleStart
+2020-07-26 23:44:28.782238+0900 0x974      Default     0x0                  0      0    kernel: (org.pqrs.Karabiner-DriverKit-VirtualHIDDevice) Karabiner-DriverKit-VirtualHIDKeyboard 0.12.0 newDeviceDescription
+2020-07-26 23:44:28.782264+0900 0x974      Default     0x0                  0      0    kernel: (org.pqrs.Karabiner-DriverKit-VirtualHIDDevice) Karabiner-DriverKit-VirtualHIDKeyboard 0.12.0 newReportDescriptor
 ```
 
 ## Inspect installed driver extensions
@@ -74,7 +81,7 @@ plutil -convert xml1 -o - /Library/SystemExtensions/db.plist
 
 ### Driver extension
 
-1.  Provide your driver extension. (e.g., org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard)
+1.  Provide your driver extension. (e.g., org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceRoot)
 2.  Add a subclass of IOUserClient. (e.g., org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient)
 3.  Put UserClientProperties into Info.plist.
 
@@ -89,13 +96,13 @@ plutil -convert xml1 -o - /Library/SystemExtensions/db.plist
     </dict>
     ```
 
-4.  Implement `org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard::NewUserClient` method.
+4.  Implement `org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceRoot::NewUserClient` method.
 5.  Implement `org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient::Start` and `Stop`.
 
-    -   Save `provider` argument to ivars at `Start`.
+    -   You can save `provider` argument to ivars at `org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient::Start` if needed as follows.
 
         ```cpp
-        ivars->keyboard = OSDynamicCast(org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard, provider);
+        ivars->deviceRoot = OSDynamicCast(org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceRoot, provider);
         ```
 
 ### Client
@@ -104,7 +111,7 @@ plutil -convert xml1 -o - /Library/SystemExtensions/db.plist
 
     ```cpp
       io_connect_t connect = IO_OBJECT_NULL;
-      auto service = IOServiceGetMatchingService(kIOMasterPortDefault, IOServiceNameMatching("org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard"));
+      auto service = IOServiceGetMatchingService(kIOMasterPortDefault, IOServiceNameMatching("org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceRoot"));
       if (!service) {
         std::cerr << "IOServiceGetMatchingService error" << std::endl;
         goto finish;
