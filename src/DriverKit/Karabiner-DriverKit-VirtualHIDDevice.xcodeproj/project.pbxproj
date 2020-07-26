@@ -29,7 +29,7 @@
 		34F33B1A24A17DD100F4BB09 /* org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient.cpp; sourceTree = "<group>"; };
 		34F33B1B24A17DD100F4BB09 /* org_pqrs_Karabiner_DriverKit_VirtualHIDPointing.iig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.iig; path = org_pqrs_Karabiner_DriverKit_VirtualHIDPointing.iig; sourceTree = "<group>"; };
 		34F33B1C24A17DD200F4BB09 /* org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient.iig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.iig; path = org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient.iig; sourceTree = "<group>"; };
-		34F4352E2467151C00ABFBC1 /* org.pqrs.Karabiner-DriverKit-VirtualHIDDevice.dext */ = {isa = PBXFileReference; explicitFileType = "wrapper.driver-extension"; includeInIndex = 0; name = "org.pqrs.Karabiner-DriverKit-VirtualHIDDevice.dext"; path = org.pqrs.Karabiner-DriverKit-VirtualHIDDevice.dext; sourceTree = BUILT_PRODUCTS_DIR; };
+		34F4352E2467151C00ABFBC1 /* org.pqrs.Karabiner-DriverKit-VirtualHIDDevice.dext */ = {isa = PBXFileReference; explicitFileType = "wrapper.driver-extension"; includeInIndex = 0; path = "org.pqrs.Karabiner-DriverKit-VirtualHIDDevice.dext"; sourceTree = BUILT_PRODUCTS_DIR; };
 		34F435312467151C00ABFBC1 /* DriverKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DriverKit.framework; path = Library/Frameworks/DriverKit.framework; sourceTree = DEVELOPER_DIR; };
 		34F435382467151C00ABFBC1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -295,18 +295,18 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "";
-				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_IDENTITY = "Developer ID Application";
 				CODE_SIGN_STYLE = Manual;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = G43BCU2T37;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SDKROOT)/System/DriverKit/System/Library/Frameworks",
 				);
 				HEADER_SEARCH_PATHS = ../../include;
-				INFOPLIST_FILE = Karabiner-DriverKit-VirtualHIDDevice/Info.plist;
-				PRODUCT_BUNDLE_IDENTIFIER = org.pqrs.Karabiner-DriverKit-VirtualHIDDevice;
+				INFOPLIST_FILE = "Karabiner-DriverKit-VirtualHIDDevice/Info.plist";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.pqrs.Karabiner-DriverKit-VirtualHIDDevice";
 				PRODUCT_NAME = "$(inherited)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
+				PROVISIONING_PROFILE_SPECIFIER = "Developer ID Karabiner-DriverKit-VirtualHIDDevice";
 				SKIP_INSTALL = YES;
 			};
 			name = Debug;
@@ -315,18 +315,18 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "";
-				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_IDENTITY = "Developer ID Application";
 				CODE_SIGN_STYLE = Manual;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = G43BCU2T37;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SDKROOT)/System/DriverKit/System/Library/Frameworks",
 				);
 				HEADER_SEARCH_PATHS = ../../include;
-				INFOPLIST_FILE = Karabiner-DriverKit-VirtualHIDDevice/Info.plist;
-				PRODUCT_BUNDLE_IDENTIFIER = org.pqrs.Karabiner-DriverKit-VirtualHIDDevice;
+				INFOPLIST_FILE = "Karabiner-DriverKit-VirtualHIDDevice/Info.plist";
+				PRODUCT_BUNDLE_IDENTIFIER = "org.pqrs.Karabiner-DriverKit-VirtualHIDDevice";
 				PRODUCT_NAME = "$(inherited)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
+				PROVISIONING_PROFILE_SPECIFIER = "Developer ID Karabiner-DriverKit-VirtualHIDDevice";
 				SKIP_INSTALL = YES;
 			};
 			name = Release;
