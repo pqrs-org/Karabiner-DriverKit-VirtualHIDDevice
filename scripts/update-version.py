@@ -23,15 +23,20 @@ with topDirectory.joinpath('version').open() as f:
             if replacedFilePath.exists():
                 with replacedFilePath.open('r') as replacedFile:
                     replacedLines = replacedFile.readlines()
+                    while len(replacedLines) < len(templateLines):
+                        replacedLines.append('')
             else:
                 replacedLines = templateLines
 
             for index, templateLine in enumerate(templateLines):
+                line = templateLine
+
                 if re.search(r'@VERSION@', templateLine):
-                    line = templateLine.replace('@VERSION@', version)
-                    if (replacedLines[index] != line):
-                        needsUpdate = True
-                        replacedLines[index] = line
+                    line = line.replace('@VERSION@', version)
+
+                if (replacedLines[index] != line):
+                    needsUpdate = True
+                    replacedLines[index] = line
 
         if needsUpdate:
             with replacedFilePath.open('w') as replacedFile:
