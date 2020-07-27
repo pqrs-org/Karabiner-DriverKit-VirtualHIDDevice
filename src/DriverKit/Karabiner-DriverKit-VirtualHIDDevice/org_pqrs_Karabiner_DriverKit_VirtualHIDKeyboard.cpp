@@ -113,7 +113,6 @@ const uint8_t reportDescriptor_[] = {
 
 struct org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard_IVars {
   IOService* provider;
-  OSDictionaryPtr properties;
 };
 
 bool org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard::init() {
@@ -133,8 +132,6 @@ bool org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard::init() {
 
 void org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard::free() {
   os_log(OS_LOG_DEFAULT, LOG_PREFIX " free");
-
-  OSSafeReleaseNULL(ivars->properties);
 
   IOSafeDeleteNULL(ivars, org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard_IVars, 1);
 
@@ -161,27 +158,6 @@ bool org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard::handleStart(IOService* pro
     key->release();
   }
 
-  // Debug output
-
-  {
-    auto kr = CopyProperties(&(ivars->properties));
-    if (kr != kIOReturnSuccess) {
-      os_log(OS_LOG_DEFAULT, LOG_PREFIX " CopyProperties failed:0x%x", kr);
-      return false;
-    }
-
-    if (ivars->properties) {
-      if (auto userClientProperties = OSDynamicCast(OSDictionary, OSDictionaryGetValue(ivars->properties, "UserClientProperties"))) {
-        if (auto s = OSDynamicCast(OSString, OSDictionaryGetValue(userClientProperties, "IOClass"))) {
-          os_log(OS_LOG_DEFAULT, LOG_PREFIX " UserClientProperties::IOClass %{public}s", s->getCStringNoCopy());
-        }
-        if (auto s = OSDynamicCast(OSString, OSDictionaryGetValue(userClientProperties, "IOUserClass"))) {
-          os_log(OS_LOG_DEFAULT, LOG_PREFIX " UserClientProperties::IOUserClass %{public}s", s->getCStringNoCopy());
-        }
-      }
-    }
-  }
-
   RegisterService();
 
   return true;
@@ -193,29 +169,6 @@ kern_return_t IMPL(org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard, Stop) {
   ivars->provider = nullptr;
 
   return Stop(provider, SUPERDISPATCH);
-}
-
-kern_return_t IMPL(org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard, NewUserClient) {
-  os_log(OS_LOG_DEFAULT, LOG_PREFIX " NewUserClient type:%d", type);
-
-  IOService* client;
-
-  auto kr = Create(this, "UserClientProperties", &client);
-  if (kr != kIOReturnSuccess) {
-    os_log(OS_LOG_DEFAULT, LOG_PREFIX " IOService::Create failed: 0x%x", kr);
-    return kr;
-  }
-
-  os_log(OS_LOG_DEFAULT, LOG_PREFIX " UserClient is created");
-
-  *userClient = OSDynamicCast(IOUserClient, client);
-  if (!*userClient) {
-    os_log(OS_LOG_DEFAULT, LOG_PREFIX " OSDynamicCast failed");
-    client->release();
-    return kIOReturnError;
-  }
-
-  return kIOReturnSuccess;
 }
 
 OSDictionary* org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard::newDeviceDescription(void) {
