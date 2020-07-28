@@ -118,6 +118,7 @@ bool org_pqrs_Karabiner_DriverKit_VirtualHIDPointing::handleStart(IOService* pro
     key->release();
   }
 
+  // We have to register service in order to ensure macOS finds the virtual device.
   RegisterService();
 
   return true;
