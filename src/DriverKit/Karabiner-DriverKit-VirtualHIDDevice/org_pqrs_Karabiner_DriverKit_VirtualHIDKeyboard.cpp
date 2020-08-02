@@ -148,19 +148,6 @@ bool org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard::handleStart(IOService* pro
     return false;
   }
 
-  if (auto key = OSString::withCString("HIDDefaultBehavior")) {
-    setProperty(key, kOSBooleanTrue);
-    key->release();
-  }
-
-  if (auto key = OSString::withCString("AppleVendorSupported")) {
-    setProperty(key, kOSBooleanTrue);
-    key->release();
-  }
-
-  // We have to register service in order to ensure macOS finds the virtual device.
-  RegisterService();
-
   return true;
 }
 
@@ -175,11 +162,16 @@ kern_return_t IMPL(org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard, Stop) {
 OSDictionary* org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard::newDeviceDescription(void) {
   os_log(OS_LOG_DEFAULT, LOG_PREFIX " newDeviceDescription");
 
-  auto dictionary = OSDictionary::withCapacity(10);
+  auto dictionary = OSDictionary::withCapacity(12);
   if (!dictionary) {
     os_log(OS_LOG_DEFAULT, LOG_PREFIX " OSDictionary::withCapacity failed");
     return nullptr;
   }
+
+  // Set kIOHIDRegisterServiceKey in order to call registerService in IOHIDDevice::start.
+  OSDictionarySetValue(dictionary, "RegisterService", kOSBooleanTrue);
+  OSDictionarySetValue(dictionary, "HIDDefaultBehavior", kOSBooleanTrue);
+  OSDictionarySetValue(dictionary, "AppleVendorSupported", kOSBooleanTrue);
 
   if (auto manufacturer = OSString::withCString("pqrs.org")) {
     OSDictionarySetValue(dictionary, kIOHIDManufacturerKey, manufacturer);

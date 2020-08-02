@@ -113,14 +113,6 @@ bool org_pqrs_Karabiner_DriverKit_VirtualHIDPointing::handleStart(IOService* pro
     return false;
   }
 
-  if (auto key = OSString::withCString("HIDDefaultBehavior")) {
-    setProperty(key, kOSBooleanTrue);
-    key->release();
-  }
-
-  // We have to register service in order to ensure macOS finds the virtual device.
-  RegisterService();
-
   return true;
 }
 
@@ -138,6 +130,10 @@ OSDictionary* org_pqrs_Karabiner_DriverKit_VirtualHIDPointing::newDeviceDescript
     os_log(OS_LOG_DEFAULT, LOG_PREFIX " OSDictionary::withCapacity failed");
     return nullptr;
   }
+
+  // Set kIOHIDRegisterServiceKey in order to call registerService in IOHIDDevice::start.
+  OSDictionarySetValue(dictionary, "RegisterService", kOSBooleanTrue);
+  OSDictionarySetValue(dictionary, "HIDDefaultBehavior", kOSBooleanTrue);
 
   if (auto manufacturer = OSString::withCString("pqrs.org")) {
     OSDictionarySetValue(dictionary, kIOHIDManufacturerKey, manufacturer);
@@ -167,11 +163,6 @@ OSDictionary* org_pqrs_Karabiner_DriverKit_VirtualHIDPointing::newDeviceDescript
   if (auto locationId = OSNumber::withNumber(static_cast<uint32_t>(0), 32)) {
     OSDictionarySetValue(dictionary, kIOHIDLocationIDKey, locationId);
     locationId->release();
-  }
-
-  if (auto countryCode = OSNumber::withNumber(static_cast<uint32_t>(0), 32)) {
-    OSDictionarySetValue(dictionary, kIOHIDCountryCodeKey, countryCode);
-    countryCode->release();
   }
 
   if (auto usagePage = OSNumber::withNumber(static_cast<uint32_t>(kHIDPage_GenericDesktop), 32)) {
