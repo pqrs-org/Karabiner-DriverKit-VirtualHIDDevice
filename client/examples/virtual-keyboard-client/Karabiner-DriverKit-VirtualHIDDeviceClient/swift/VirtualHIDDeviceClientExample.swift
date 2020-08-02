@@ -25,6 +25,10 @@ public final class VirtualHIDDeviceClientExample {
         shared_virtual_hid_keyboard_post_launchpad()
     }
 
+    func virtualHIDKeyboardPostFn() {
+        shared_virtual_hid_keyboard_post_fn()
+    }
+
     func virtualHIDKeyboardReset() {
         shared_virtual_hid_keyboard_reset()
     }

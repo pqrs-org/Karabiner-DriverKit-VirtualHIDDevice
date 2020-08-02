@@ -23,12 +23,16 @@ struct ContentView: View {
                                 Text("3. post launchpad")
                             }
 
+                            Button(action: { VirtualHIDDeviceClientExample.shared.virtualHIDKeyboardPostFn() }) {
+                                Text("4. post fn")
+                            }
+
                             Button(action: { VirtualHIDDeviceClientExample.shared.virtualHIDKeyboardReset() }) {
-                                Text("4. reset")
+                                Text("5. reset")
                             }
 
                             Button(action: { VirtualHIDDeviceClientExample.shared.virtualHIDKeyboardTerminate() }) {
-                                Text("5. terminate")
+                                Text("6. terminate")
                             }
                         }
 
