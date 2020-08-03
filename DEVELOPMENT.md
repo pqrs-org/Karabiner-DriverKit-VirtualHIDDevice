@@ -182,3 +182,32 @@ You have to add a description you want to use `userclient-access` at the DriverK
 You can confirm the entitlements on Apple developer portal after you gained the permission.
 
 <img src="docs/images/apple-developer-portal-profile@2x.png" width="900" alt="Apple developer portal" /><br /><br />
+
+---
+
+## How to register IOUserHIDDevice
+
+You should not override `Start` method in the subclass of `IOUserHIDDevice`.
+
+[IOUserHIDDevice::Start documentation](https://developer.apple.com/documentation/hiddriverkit/iouserhiddevice/3433772-start)
+
+So, we cannot call `IOService::RegisterService` directly at the end of `Start` method.
+And if you call `RegisterService` at the end of `handleStart`, your own device will not be matched because the initialization process has not been completed at `RegisterService` is called.
+
+Thus, the correct way to register `IOUserHIDDevice` is that we implement `newDeviceDescription` and return `"RegisterService"`.
+
+```cpp
+OSDictionary* org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard::newDeviceDescription(void) {
+  auto dictionary = OSDictionary::withCapacity(12);
+
+  ...
+
+  OSDictionarySetValue(dictionary, "RegisterService", kOSBooleanTrue);
+
+  ...
+
+  return dictionary;
+}
+```
+
+The `RegisterService` invokes `registerService()` at [IOHIDDevice::start](https://github.com/pqrs-org/Karabiner-DriverKit-VirtualHIDDevice/blob/master/docs/vendor/IOHIDFamily/IOHIDDevice.cpp#L476-L479).
