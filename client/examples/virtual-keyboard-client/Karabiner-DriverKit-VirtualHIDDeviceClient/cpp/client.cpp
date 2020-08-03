@@ -85,8 +85,8 @@ void shared_virtual_hid_keyboard_post_fn(void) {
 
   // key down
   {
-    pqrs::karabiner::driverkit::virtual_hid_device::hid_report::apple_vendor_keyboard_input report;
-    report.keys.insert(type_safe::get(pqrs::hid::usage::apple_vendor_keyboard::function));
+    pqrs::karabiner::driverkit::virtual_hid_device::hid_report::apple_vendor_top_case_input report;
+    report.keys.insert(type_safe::get(pqrs::hid::usage::apple_vendor_top_case::keyboard_fn));
     client->post_report(report);
   }
 
@@ -94,7 +94,7 @@ void shared_virtual_hid_keyboard_post_fn(void) {
 
   // key up
   {
-    pqrs::karabiner::driverkit::virtual_hid_device::hid_report::apple_vendor_keyboard_input report;
+    pqrs::karabiner::driverkit::virtual_hid_device::hid_report::apple_vendor_top_case_input report;
     client->post_report(report);
   }
 }
