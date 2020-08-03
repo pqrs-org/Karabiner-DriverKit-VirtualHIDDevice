@@ -79,7 +79,7 @@ plutil -convert xml1 -o - /Library/SystemExtensions/db.plist
 
 ## How to register IOUserHIDDevice
 
-You should not override `Start` method in the subclass of `IOUserHIDDevice`.
+We should not override `Start` method in the subclass of `IOUserHIDDevice`.
 
 [IOUserHIDDevice::Start documentation](https://developer.apple.com/documentation/hiddriverkit/iouserhiddevice/3433772-start)
 
