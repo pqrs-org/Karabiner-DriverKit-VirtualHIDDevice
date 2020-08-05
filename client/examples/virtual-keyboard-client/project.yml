@@ -18,6 +18,7 @@ targets:
     sources:
       - path: Karabiner-DriverKit-VirtualHIDDeviceClient
         compilerFlags:
+          - -Wall
           - -Werror
         excludes:
           - Info.plist.in

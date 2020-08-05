@@ -21,6 +21,7 @@ targets:
     sources:
       - path: ExtensionManager
         compilerFlags:
+          - -Wall
           - -Werror
         excludes:
           - entitlements.plist
