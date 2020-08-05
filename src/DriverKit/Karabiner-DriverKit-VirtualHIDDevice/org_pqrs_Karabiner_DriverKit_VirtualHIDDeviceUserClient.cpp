@@ -33,6 +33,7 @@ kern_return_t createIOMemoryDescriptor(IOUserClientMethodArguments* arguments, I
 } // namespace
 
 struct org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient_IVars {
+  uint32_t keyboardCountryCode;
   org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard* keyboard;
   org_pqrs_Karabiner_DriverKit_VirtualHIDPointing* pointing;
 };
@@ -91,6 +92,10 @@ kern_return_t org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient::ExternalM
   switch (pqrs::karabiner::driverkit::virtual_hid_device::user_client_method(selector)) {
     case pqrs::karabiner::driverkit::virtual_hid_device::user_client_method::virtual_hid_keyboard_initialize:
       if (!ivars->keyboard) {
+        if (arguments->scalarInputCount > 0) {
+          ivars->keyboardCountryCode = arguments->scalarInput[0];
+        }
+
         IOService* client;
 
         auto kr = Create(this, "VirtualHIDKeyboardProperties", &client);
@@ -184,4 +189,8 @@ kern_return_t org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient::ExternalM
   }
 
   return kIOReturnBadArgument;
+}
+
+uint32_t IMPL(org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient, getKeyboardCountryCode) {
+  return ivars->keyboardCountryCode;
 }

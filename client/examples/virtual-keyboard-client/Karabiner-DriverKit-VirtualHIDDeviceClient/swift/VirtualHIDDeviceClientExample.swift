@@ -9,8 +9,8 @@ public final class VirtualHIDDeviceClientExample {
         shared_virtual_hid_keyboard_client_terminate()
     }
 
-    func virtualHIDKeyboardInitialize() {
-        shared_virtual_hid_keyboard_initialize()
+    func virtualHIDKeyboardInitialize(_ countryCode: UInt32) {
+        shared_virtual_hid_keyboard_initialize(countryCode)
     }
 
     func virtualHIDKeyboardTerminate() {

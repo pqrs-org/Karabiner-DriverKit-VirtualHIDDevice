@@ -18,6 +18,8 @@ public:
                                          const IOUserClientMethodDispatch* dispatch,
                                          OSObject* target,
                                          void* reference) override;
+
+    virtual uint32_t getKeyboardCountryCode(void);
 };
 
 #endif

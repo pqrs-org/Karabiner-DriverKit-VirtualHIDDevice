@@ -28,9 +28,9 @@ int shared_virtual_hid_keyboard_client_connected(void) {
   return 0;
 }
 
-void shared_virtual_hid_keyboard_initialize(void) {
+void shared_virtual_hid_keyboard_initialize(uint32_t country_code) {
   if (client) {
-    client->virtual_hid_keyboard_initialize();
+    client->virtual_hid_keyboard_initialize(country_code);
   }
 }
 

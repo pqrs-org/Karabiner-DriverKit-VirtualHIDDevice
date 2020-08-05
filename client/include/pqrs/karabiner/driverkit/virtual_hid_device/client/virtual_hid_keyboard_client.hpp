@@ -1,6 +1,7 @@
 #pragma once
 
 #include <IOKit/IOKitLib.h>
+#include <array>
 #include <os/log.h>
 #include <pqrs/karabiner/driverkit/virtual_hid_device.hpp>
 
@@ -34,8 +35,12 @@ public:
     return connection_;
   }
 
-  kern_return_t virtual_hid_keyboard_initialize(void) const {
-    return call(virtual_hid_device::user_client_method::virtual_hid_keyboard_initialize);
+  kern_return_t virtual_hid_keyboard_initialize(uint32_t country_code) const {
+    std::array<uint64_t, 1> input = {country_code};
+
+    return call_scalar_method(virtual_hid_device::user_client_method::virtual_hid_keyboard_initialize,
+                              input.data(),
+                              input.size());
   }
 
   kern_return_t virtual_hid_keyboard_terminate(void) const {
@@ -103,6 +108,21 @@ private:
                                      static_cast<uint32_t>(user_client_method),
                                      nullptr,
                                      0,
+                                     nullptr,
+                                     0);
+  }
+
+  kern_return_t call_scalar_method(virtual_hid_device::user_client_method user_client_method,
+                                   const uint64_t* input,
+                                   uint32_t input_count) const {
+    if (!connection_) {
+      return kIOReturnNotOpen;
+    }
+
+    return IOConnectCallScalarMethod(connection_,
+                                     static_cast<uint32_t>(user_client_method),
+                                     input,
+                                     input_count,
                                      nullptr,
                                      0);
   }

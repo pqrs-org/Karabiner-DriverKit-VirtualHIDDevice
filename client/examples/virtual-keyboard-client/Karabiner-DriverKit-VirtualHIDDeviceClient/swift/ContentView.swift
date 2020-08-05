@@ -1,7 +1,8 @@
 import SwiftUI
 
 struct ContentView: View {
-    let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as! String
+    private let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as! String
+    @State private var countryCode = 4
 
     var body: some View {
         VStack(spacing: 20) {
@@ -11,9 +12,15 @@ struct ContentView: View {
                 GroupBox(label: Text("VirtualHIDKeyboard")) {
                     HStack {
                         VStack(alignment: .leading) {
-                            Button(action: { VirtualHIDDeviceClientExample.shared.virtualHIDKeyboardInitialize() }) {
-                                Text("1. initialize")
+                            Picker("Country code", selection: $countryCode) {
+                                ForEach(0 ..< 10) {
+                                    Text(String($0))
+                                }
                             }
+
+                            Button(action: { VirtualHIDDeviceClientExample.shared.virtualHIDKeyboardInitialize(UInt32(countryCode)) }) {
+                                Text("1. initialize")
+                            }.padding(.top, 20)
 
                             Button(action: { VirtualHIDDeviceClientExample.shared.virtualHIDKeyboardPostControlUp() }) {
                                 Text("2. post control-up")
@@ -38,7 +45,7 @@ struct ContentView: View {
 
                         Spacer()
                     }.padding()
-                }.frame(width: 200.0)
+                }.frame(width: 300.0)
 
                 GroupBox(label: Text("VirtualHIDPointing")) {
                     HStack {
