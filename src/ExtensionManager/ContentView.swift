@@ -2,9 +2,9 @@ import SwiftUI
 import SystemExtensions
 
 struct ContentView: View {
-    let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as! String
-    let driverVersion = Bundle.main.object(forInfoDictionaryKey: "KarabinerDriverKitVirtualHIDDeviceDriverVersion") as! String
-    let driverIdentifier = "org.pqrs.Karabiner-DriverKit-VirtualHIDDevice"
+    private let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as! String
+    private let driverVersion = Bundle.main.object(forInfoDictionaryKey: "KarabinerDriverKitVirtualHIDDeviceDriverVersion") as! String
+    private let driverIdentifier = "org.pqrs.Karabiner-DriverKit-VirtualHIDDevice"
 
     @State private var logMessages: [String] = []
     @State private var controlResult: String = ""
