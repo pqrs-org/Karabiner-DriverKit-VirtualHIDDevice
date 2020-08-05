@@ -8,8 +8,9 @@ from itertools import chain
 
 topDirectory = Path(__file__).resolve(True).parents[1]
 
-with topDirectory.joinpath('version').open() as f:
-    version = f.readline().strip()
+with topDirectory.joinpath('version').open() as versionFile, topDirectory.joinpath('driver-version').open() as driverVersionFile:
+    version = versionFile.readline().strip()
+    driverVersion = driverVersionFile.readline().strip()
 
     for templateFilePath in chain(topDirectory.rglob('Info.plist.in'),
                                   topDirectory.rglob('version.hpp.in')):
@@ -30,9 +31,8 @@ with topDirectory.joinpath('version').open() as f:
 
             for index, templateLine in enumerate(templateLines):
                 line = templateLine
-
-                if re.search(r'@VERSION@', templateLine):
-                    line = line.replace('@VERSION@', version)
+                line = line.replace('@VERSION@', version)
+                line = line.replace('@DRIVER_VERSION@', driverVersion)
 
                 if (replacedLines[index] != line):
                     needsUpdate = True

@@ -3,6 +3,7 @@ import SystemExtensions
 
 struct ContentView: View {
     let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as! String
+    let driverVersion = Bundle.main.object(forInfoDictionaryKey: "KarabinerDriverKitVirtualHIDDeviceDriverVersion") as! String
     let driverIdentifier = "org.pqrs.Karabiner-DriverKit-VirtualHIDDevice"
 
     @State private var logMessages: [String] = []
@@ -19,6 +20,7 @@ struct ContentView: View {
     var body: some View {
         VStack {
             Text("Karabiner-DriverKit-ExtensionManager version " + self.version)
+            Text("Karabiner-DriverKit-VirtualHIDDevice version " + self.driverVersion)
             HStack {
                 Button(action: { ExtensionManager.shared.activate(self.driverIdentifier) }) {
                     Text("Activate driver extension")
