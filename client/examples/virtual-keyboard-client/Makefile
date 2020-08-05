@@ -1,5 +1,3 @@
-CXXFLAGS = -Ivendor/include -I../../include -I../../../include -std=c++17 -Wall -Werror -O2
-
 all:
 	/usr/bin/python3 ../../../scripts/update-version.py
 	xcodegen generate
