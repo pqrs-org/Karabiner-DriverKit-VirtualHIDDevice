@@ -2,7 +2,7 @@ import SwiftUI
 
 struct ContentView: View {
     private let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as! String
-    @State private var countryCode = 4
+    @State private var countryCode = 0
 
     var body: some View {
         VStack(spacing: 20) {
