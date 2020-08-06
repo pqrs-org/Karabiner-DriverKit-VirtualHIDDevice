@@ -93,7 +93,7 @@ kern_return_t org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient::ExternalM
     case pqrs::karabiner::driverkit::virtual_hid_device::user_client_method::virtual_hid_keyboard_initialize:
       if (!ivars->keyboard) {
         if (arguments->scalarInputCount > 0) {
-          ivars->keyboardCountryCode = arguments->scalarInput[0];
+          ivars->keyboardCountryCode = static_cast<uint32_t>(arguments->scalarInput[0]);
         }
 
         IOService* client;
