@@ -9,7 +9,7 @@
 #define LOG_PREFIX "Karabiner-DriverKit-VirtualHIDPointing " KARABINER_DRIVERKIT_VERSION
 
 namespace {
-const uint8_t reportDescriptor_[] = {
+const uint8_t reportDescriptor[] = {
     0x05, 0x01,        // USAGE_PAGE (Generic Desktop)
     0x09, 0x02,        // USAGE (Mouse)
     0xa1, 0x01,        // COLLECTION (Application)
@@ -181,7 +181,7 @@ OSDictionary* org_pqrs_Karabiner_DriverKit_VirtualHIDPointing::newDeviceDescript
 OSData* org_pqrs_Karabiner_DriverKit_VirtualHIDPointing::newReportDescriptor(void) {
   os_log(OS_LOG_DEFAULT, LOG_PREFIX " newReportDescriptor");
 
-  return OSData::withBytes(reportDescriptor_, sizeof(reportDescriptor_));
+  return OSData::withBytes(reportDescriptor, sizeof(reportDescriptor));
 }
 
 kern_return_t IMPL(org_pqrs_Karabiner_DriverKit_VirtualHIDPointing, postReport) {
