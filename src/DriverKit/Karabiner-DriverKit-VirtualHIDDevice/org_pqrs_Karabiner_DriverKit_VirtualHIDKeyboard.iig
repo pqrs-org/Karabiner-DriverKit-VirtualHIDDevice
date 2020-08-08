@@ -19,6 +19,11 @@ public:
 
     virtual OSDictionary* newDeviceDescription(void) override;
     virtual OSData* newReportDescriptor(void) override;
+    virtual kern_return_t setReport(IOMemoryDescriptor* report,
+                                    IOHIDReportType reportType,
+                                    IOOptionBits options,
+                                    uint32_t completionTimeout,
+                                    OSAction* action);
 
     virtual kern_return_t postReport(IOMemoryDescriptor* report);
     virtual kern_return_t reset(void);

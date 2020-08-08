@@ -10,7 +10,7 @@
 #define LOG_PREFIX "Karabiner-DriverKit-VirtualHIDKeyboard " KARABINER_DRIVERKIT_VERSION
 
 namespace {
-const uint8_t reportDescriptor_[] = {
+const uint8_t reportDescriptor[] = {
     0x05, 0x01,       // Usage Page (Generic Desktop)
     0x09, 0x06,       // Usage (Keyboard)
     0xa1, 0x01,       // Collection (Application)
@@ -114,6 +114,7 @@ const uint8_t reportDescriptor_[] = {
 
 struct org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard_IVars {
   org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient* provider;
+  uint8_t lastLedState;
 };
 
 bool org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard::init() {
@@ -233,7 +234,63 @@ OSDictionary* org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard::newDeviceDescript
 OSData* org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard::newReportDescriptor(void) {
   os_log(OS_LOG_DEFAULT, LOG_PREFIX " newReportDescriptor");
 
-  return OSData::withBytes(reportDescriptor_, sizeof(reportDescriptor_));
+  return OSData::withBytes(reportDescriptor, sizeof(reportDescriptor));
+}
+
+kern_return_t org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard::setReport(IOMemoryDescriptor* report,
+                                                                         IOHIDReportType reportType,
+                                                                         IOOptionBits options,
+                                                                         uint32_t completionTimeout,
+                                                                         OSAction* action) {
+  uint64_t address;
+  uint64_t len;
+  report->Map(0, 0, 0, 0, &address, &len);
+
+  if (len < 2) {
+    return kIOReturnBadArgument;
+  }
+
+  // The reportId is described at `reportDescriptor`.
+  auto reportId = reinterpret_cast<uint8_t*>(address)[0];
+  // state bits: 0b000000(caps lock)(num lock)
+  auto state = reinterpret_cast<uint8_t*>(address)[1];
+
+  if (reportId != 5) {
+    // Error unless LED report.
+    return kIOReturnUnsupported;
+  }
+
+  if (ivars->lastLedState == state) {
+    return kIOReturnSuccess;
+  }
+
+  ivars->lastLedState = state;
+
+  struct __attribute__((packed)) ledReport {
+    uint8_t reportId;
+    uint8_t state;
+  } ledReport;
+
+  ledReport.reportId = 6;
+  ledReport.state = state;
+
+  // Post LED report.
+
+  IOMemoryDescriptor* memory = nullptr;
+
+  auto kr = IOBufferMemoryDescriptorUtility::createWithBytes(&ledReport,
+                                                             sizeof(ledReport),
+                                                             &memory);
+  if (kr != kIOReturnSuccess) {
+    os_log(OS_LOG_DEFAULT, LOG_PREFIX " setReport createWithBytes error: 0x%x", kr);
+    return kr;
+  }
+
+  postReport(memory);
+
+  OSSafeReleaseNULL(memory);
+
+  return kIOReturnSuccess;
 }
 
 kern_return_t IMPL(org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard, postReport) {
