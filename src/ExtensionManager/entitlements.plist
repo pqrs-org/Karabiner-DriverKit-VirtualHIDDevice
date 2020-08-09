@@ -4,6 +4,8 @@
   <dict>
     <key>com.apple.application-identifier</key>
     <string>G43BCU2T37.org.pqrs.Karabiner-DriverKit-ExtensionManager</string>
+    <key>com.apple.security.app-sandbox</key>
+    <true/>
     <key>com.apple.developer.system-extension.install</key>
     <true/>
   </dict>
