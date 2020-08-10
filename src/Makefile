@@ -33,5 +33,10 @@ verify:
 	@echo "\n"
 	2>&1 codesign -d --entitlements :- build/Release/Karabiner-DriverKit-VirtualHIDDeviceClient.app
 
+update_vendor:
+	rm -rf vendor
+	cget install pqrs-org/cget-recipes --prefix vendor
+	cget install -f cget-requirements.txt --prefix vendor
+
 log-show-extension-manager:
 	log show --predicate 'sender == "sysextd" or sender CONTAINS "org.pqrs"' --info --debug --last 1h
