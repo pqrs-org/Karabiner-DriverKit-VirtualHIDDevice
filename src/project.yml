@@ -1,4 +1,4 @@
-name: Karabiner-DriverKit-ExtensionManager
+name: Karabiner-DriverKit-VirtualHIDDevice
 
 packages:
   SwiftShell:
@@ -6,7 +6,6 @@ packages:
     # from: 5.0.1
     # We use master because v5.0.1 does not support Xcode 12.
     branch: master
-
 
 targets:
   Karabiner-DriverKit-ExtensionManager:
@@ -24,9 +23,35 @@ targets:
           - -Wall
           - -Werror
         excludes:
+          - .gitignore
+          - embedded.provisionprofile
           - entitlements.plist
           - Info.plist.in
     dependencies:
       - package: SwiftShell
-
+  Karabiner-DriverKit-VirtualHIDDeviceClient:
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: org.pqrs.Karabiner-DriverKit-VirtualHIDDeviceClient
+      CODE_SIGN_ENTITLEMENTS: ''
+      CODE_SIGN_IDENTITY: '-'
+      CODE_SIGN_STYLE: Manual
+      SYSTEM_HEADER_SEARCH_PATHS:
+        - vendor/include
+    type: application
+    platform: macOS
+    deploymentTarget: 10.15
+    sources:
+      - path: Client
+        compilerFlags:
+          - -Wall
+          - -Werror
+          - '-std=gnu++17'
+        excludes:
+          - .gitignore
+          - embedded.provisionprofile
+          - entitlements.plist
+          - Info.plist.in
+    dependencies:
+      - sdk: CoreFoundation.framework
+      - sdk: IOKit.framework
 # DriverKit directory is not managed by project.yml since XcodeGen does not support DriverKit project yet
