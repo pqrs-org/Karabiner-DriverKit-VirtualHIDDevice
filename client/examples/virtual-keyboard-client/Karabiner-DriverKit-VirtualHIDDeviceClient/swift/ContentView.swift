@@ -3,6 +3,10 @@ import SwiftUI
 struct ContentView: View {
     private let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as! String
     @State private var countryCode = 0
+    @State private var keyboardReady: Int = -1
+    @State private var pointingReady: Int = -1
+
+    let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
     var body: some View {
         VStack(spacing: 20) {
@@ -12,6 +16,8 @@ struct ContentView: View {
                 GroupBox(label: Text("VirtualHIDKeyboard")) {
                     HStack {
                         VStack(alignment: .leading) {
+                            Text("Ready: \(keyboardReady)")
+
                             Picker("Country code", selection: $countryCode) {
                                 ForEach(0 ..< 10) {
                                     Text(String($0))
@@ -50,6 +56,8 @@ struct ContentView: View {
                 GroupBox(label: Text("VirtualHIDPointing")) {
                     HStack {
                         VStack(alignment: .leading) {
+                            Text("Ready: \(pointingReady)")
+
                             Button(action: { VirtualHIDDeviceClientExample.shared.virtualHIDPointingInitialize() }) {
                                 Text("1. initialize")
                             }
@@ -75,6 +83,10 @@ struct ContentView: View {
             Spacer()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity).padding()
+        .onReceive(timer) { _ in
+            keyboardReady = VirtualHIDDeviceClientExample.shared.virtualHIDKeyboardReady()
+            pointingReady = VirtualHIDDeviceClientExample.shared.virtualHIDPointingReady()
+        }
     }
 }
 

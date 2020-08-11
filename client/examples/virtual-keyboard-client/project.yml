@@ -20,5 +20,6 @@ targets:
         compilerFlags:
           - -Wall
           - -Werror
+          - '-std=gnu++17'
         excludes:
           - Info.plist.in

@@ -40,6 +40,17 @@ void shared_virtual_hid_keyboard_terminate(void) {
   }
 }
 
+int shared_virtual_hid_keyboard_ready(void) {
+  if (client) {
+    auto ready = client->virtual_hid_keyboard_ready();
+    if (ready) {
+      return *ready;
+    }
+  }
+
+  return -1;
+}
+
 void shared_virtual_hid_keyboard_post_control_up(void) {
   if (!client) {
     return;
@@ -115,6 +126,17 @@ void shared_virtual_hid_pointing_terminate(void) {
   if (client) {
     client->virtual_hid_pointing_terminate();
   }
+}
+
+int shared_virtual_hid_pointing_ready(void) {
+  if (client) {
+    auto ready = client->virtual_hid_pointing_ready();
+    if (ready) {
+      return *ready;
+    }
+  }
+
+  return -1;
 }
 
 void shared_virtual_hid_pointing_post_example_report(void) {

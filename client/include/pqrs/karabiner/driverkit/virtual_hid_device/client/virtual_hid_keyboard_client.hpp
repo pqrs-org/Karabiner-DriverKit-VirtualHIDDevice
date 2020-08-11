@@ -2,6 +2,7 @@
 
 #include <IOKit/IOKitLib.h>
 #include <array>
+#include <optional>
 #include <os/log.h>
 #include <pqrs/karabiner/driverkit/virtual_hid_device.hpp>
 
@@ -47,6 +48,10 @@ public:
     return call(virtual_hid_device::user_client_method::virtual_hid_keyboard_terminate);
   }
 
+  std::optional<bool> virtual_hid_keyboard_ready(void) const {
+    return call_ready(virtual_hid_device::user_client_method::virtual_hid_keyboard_ready);
+  }
+
   kern_return_t virtual_hid_keyboard_reset(void) const {
     return call(virtual_hid_device::user_client_method::virtual_hid_keyboard_reset);
   }
@@ -57,6 +62,10 @@ public:
 
   kern_return_t virtual_hid_pointing_terminate(void) const {
     return call(virtual_hid_device::user_client_method::virtual_hid_pointing_terminate);
+  }
+
+  std::optional<bool> virtual_hid_pointing_ready(void) const {
+    return call_ready(virtual_hid_device::user_client_method::virtual_hid_pointing_ready);
   }
 
   kern_return_t virtual_hid_pointing_reset(void) const {
@@ -125,6 +134,27 @@ private:
                                      input_count,
                                      nullptr,
                                      0);
+  }
+
+  std::optional<bool> call_ready(virtual_hid_device::user_client_method user_client_method) const {
+    if (!connection_) {
+      return std::nullopt;
+    }
+
+    uint64_t output[1] = {0};
+    uint32_t output_count = 1;
+    auto kr = IOConnectCallScalarMethod(connection_,
+                                        static_cast<uint32_t>(user_client_method),
+                                        nullptr,
+                                        0,
+                                        output,
+                                        &output_count);
+
+    if (kr != kIOReturnSuccess) {
+      return std::nullopt;
+    }
+
+    return output[0];
   }
 
   kern_return_t post_report(virtual_hid_device::user_client_method user_client_method,
