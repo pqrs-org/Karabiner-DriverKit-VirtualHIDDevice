@@ -37,6 +37,7 @@ targets:
       CODE_SIGN_STYLE: Manual
       SYSTEM_HEADER_SEARCH_PATHS:
         - vendor/include
+        - ../include
     type: application
     platform: macOS
     deploymentTarget: 10.15
