@@ -27,7 +27,7 @@ Virtual devices (keyboard and mouse) implementation for macOS using DriverKit.
 
 ## Screenshots
 
--   System Preferenecs (macOS detects the virtual keyboard)<br/><br />
+-   System Preferences (macOS detects the virtual keyboard)<br/><br />
     <img src="docs/images/system-preferences@2x.png" width="668" alt="System Preferences" /><br /><br />
 -   Extension manager<br/><br />
     <img src="docs/images/extension-manager@2x.png" width="798" alt="Extension manager" /><br /><br />
