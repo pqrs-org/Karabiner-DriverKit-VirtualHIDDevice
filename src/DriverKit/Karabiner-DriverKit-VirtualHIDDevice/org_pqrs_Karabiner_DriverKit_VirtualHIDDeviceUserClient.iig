@@ -19,6 +19,9 @@ public:
                                          OSObject* target,
                                          void* reference) override;
 
+    virtual void setKeyboardReady(bool value);
+    virtual void setPointingReady(bool value);
+
     virtual uint32_t getKeyboardCountryCode(void);
 };
 

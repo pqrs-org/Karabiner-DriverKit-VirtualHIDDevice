@@ -1,5 +1,6 @@
 #include "org_pqrs_Karabiner_DriverKit_VirtualHIDPointing.h"
 #include "IOBufferMemoryDescriptorUtility.hpp"
+#include "org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient.h"
 #include "pqrs/karabiner/driverkit/virtual_hid_device.hpp"
 #include "version.hpp"
 #include <HIDDriverKit/IOHIDDeviceKeys.h>
@@ -80,6 +81,7 @@ const uint8_t reportDescriptor[] = {
 }
 
 struct org_pqrs_Karabiner_DriverKit_VirtualHIDPointing_IVars {
+  org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient* provider;
 };
 
 bool org_pqrs_Karabiner_DriverKit_VirtualHIDPointing::init() {
@@ -108,16 +110,26 @@ void org_pqrs_Karabiner_DriverKit_VirtualHIDPointing::free() {
 bool org_pqrs_Karabiner_DriverKit_VirtualHIDPointing::handleStart(IOService* provider) {
   os_log(OS_LOG_DEFAULT, LOG_PREFIX " handleStart");
 
+  ivars->provider = OSDynamicCast(org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient, provider);
+  if (!ivars->provider) {
+    os_log(OS_LOG_DEFAULT, LOG_PREFIX " provider is not org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient");
+    return false;
+  }
+
   if (!super::handleStart(provider)) {
     os_log(OS_LOG_DEFAULT, LOG_PREFIX " super::handleStart failed");
     return false;
   }
+
+  ivars->provider->setPointingReady(true);
 
   return true;
 }
 
 kern_return_t IMPL(org_pqrs_Karabiner_DriverKit_VirtualHIDPointing, Stop) {
   os_log(OS_LOG_DEFAULT, LOG_PREFIX " Stop");
+
+  ivars->provider = nullptr;
 
   return Stop(provider, SUPERDISPATCH);
 }

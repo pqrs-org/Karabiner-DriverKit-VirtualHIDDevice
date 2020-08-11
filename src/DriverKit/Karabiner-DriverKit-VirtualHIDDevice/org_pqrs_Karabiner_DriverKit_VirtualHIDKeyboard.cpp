@@ -154,6 +154,8 @@ bool org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard::handleStart(IOService* pro
     return false;
   }
 
+  ivars->provider->setKeyboardReady(true);
+
   return true;
 }
 
