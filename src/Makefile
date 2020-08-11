@@ -38,5 +38,5 @@ update_vendor:
 	cget install pqrs-org/cget-recipes --prefix vendor
 	cget install -f cget-requirements.txt --prefix vendor
 
-log-show-extension-manager:
+log-show:
 	log show --predicate 'sender == "sysextd" or sender CONTAINS "org.pqrs"' --info --debug --last 1h
