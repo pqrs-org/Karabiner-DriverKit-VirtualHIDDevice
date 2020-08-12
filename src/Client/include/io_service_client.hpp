@@ -2,32 +2,48 @@
 
 #include <IOKit/IOKitLib.h>
 #include <array>
+#include <nod/nod.hpp>
 #include <optional>
 #include <os/log.h>
+#include <pqrs/dispatcher.hpp>
 #include <pqrs/karabiner/driverkit/virtual_hid_device.hpp>
+#include <pqrs/osx/iokit_return.hpp>
 
-class io_service_client final {
+class io_service_client final : public pqrs::dispatcher::extra::dispatcher_client {
 public:
-  io_service_client(void) : connection_(IO_OBJECT_NULL) {
-    if (auto service = IOServiceGetMatchingService(kIOMasterPortDefault, IOServiceNameMatching("org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceRoot"))) {
-      auto kr = IOServiceOpen(service, mach_task_self(), 0, &connection_);
-      if (kr != kIOReturnSuccess) {
-        os_log_error(OS_LOG_DEFAULT, "IOServiceOpen error: 0x%x", kr);
-        connection_ = IO_OBJECT_NULL;
-      }
+  // Signals (invoked from the shared dispatcher thread)
 
-      IOObjectRelease(service);
-    }
+  nod::signal<void(void)> service_opened;
+
+  // Methods
+
+  io_service_client(void) : dispatcher_client(),
+                            connection_(IO_OBJECT_NULL) {
   }
 
   ~io_service_client(void) {
-    if (connection_) {
-      IOServiceClose(connection_);
-    }
+    detach_from_dispatcher([this] {
+      if (connection_) {
+        IOServiceClose(connection_);
+      }
+    });
   }
 
-  bool connected(void) const {
-    return connection_;
+  void async_open(void) {
+    enqueue_to_dispatcher([this] {
+      if (auto service = IOServiceGetMatchingService(kIOMasterPortDefault, IOServiceNameMatching("org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceRoot"))) {
+        pqrs::osx::iokit_return r = IOServiceOpen(service, mach_task_self(), 0, &connection_);
+
+        if (!r) {
+          os_log_error(OS_LOG_DEFAULT, "IOServiceOpen error: %{public}s", r.to_string().c_str());
+          connection_ = IO_OBJECT_NULL;
+        } else {
+          service_opened();
+        }
+
+        IOObjectRelease(service);
+      }
+    });
   }
 
   kern_return_t virtual_hid_keyboard_initialize(uint32_t country_code) const {
