@@ -18,47 +18,57 @@ int main(void) {
 
   pqrs::dispatcher::extra::initialize_shared_dispatcher();
 
+  std::optional<bool> virtual_hid_keyboard_ready;
+  std::mutex virtual_hid_keyboard_ready_mutex;
+
   auto client = std::make_shared<io_service_client>();
+  client->virtual_hid_keyboard_ready_callback.connect([&virtual_hid_keyboard_ready, &virtual_hid_keyboard_ready_mutex](auto&& ready) {
+    std::lock_guard<std::mutex> lock(virtual_hid_keyboard_ready_mutex);
 
-  client->service_opened.connect([client] {
-    std::cout << "service opened" << std::endl;
+    virtual_hid_keyboard_ready = ready;
 
-    pqrs::osx::iokit_return r = client->virtual_hid_keyboard_initialize(0);
-    std::cout << r << std::endl;
-
-    while (true) {
-      if (auto ready = client->virtual_hid_keyboard_ready()) {
-        std::cout << "ready " << *ready << std::endl;
-
-        if (*ready) {
-          break;
-        }
-      }
-
-      std::this_thread::sleep_for(std::chrono::milliseconds(500));
-    }
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
-
-    std::cout << "post" << std::endl;
-
-    {
-      // key down
-      {
-        pqrs::karabiner::driverkit::virtual_hid_device::hid_report::apple_vendor_keyboard_input report;
-        report.keys.insert(type_safe::get(pqrs::hid::usage::apple_vendor_keyboard::launchpad));
-        r = client->post_report(report);
-        std::cout << r << std::endl;
-      }
-      // key up
-      {
-        pqrs::karabiner::driverkit::virtual_hid_device::hid_report::apple_vendor_keyboard_input report;
-        r = client->post_report(report);
-        std::cout << r << std::endl;
-      }
+    if (ready) {
+      std::cout << "ready " << *ready << std::endl;
+    } else {
+      std::cout << "ready std::nullopt" << std::endl;
     }
   });
+  client->async_start();
 
-  client->async_open();
+  std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+  std::cout << "initialize" << std::endl;
+
+  client->async_virtual_hid_keyboard_initialize(pqrs::hid::country_code::us);
+
+  while (true) {
+    client->async_virtual_hid_keyboard_ready();
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
+    {
+      std::lock_guard<std::mutex> lock(virtual_hid_keyboard_ready_mutex);
+
+      if (virtual_hid_keyboard_ready && *virtual_hid_keyboard_ready) {
+        break;
+      }
+    }
+  }
+
+  std::cout << "post" << std::endl;
+
+  {
+    // key down
+    {
+      pqrs::karabiner::driverkit::virtual_hid_device::hid_report::apple_vendor_keyboard_input report;
+      report.keys.insert(type_safe::get(pqrs::hid::usage::apple_vendor_keyboard::launchpad));
+      client->async_post_report(report);
+    }
+    // key up
+    {
+      pqrs::karabiner::driverkit::virtual_hid_device::hid_report::apple_vendor_keyboard_input report;
+      client->async_post_report(report);
+    }
+  }
 
   global_wait->wait_notice();
 
