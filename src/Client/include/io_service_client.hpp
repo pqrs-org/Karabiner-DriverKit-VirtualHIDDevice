@@ -1,5 +1,6 @@
 #pragma once
 
+#include "logger.hpp"
 #include <IOKit/IOKitLib.h>
 #include <array>
 #include <nod/nod.hpp>
@@ -62,15 +63,23 @@ public:
     enqueue_to_dispatcher([this, country_code] {
       std::array<uint64_t, 1> input = {type_safe::get(country_code)};
 
-      call_scalar_method(pqrs::karabiner::driverkit::virtual_hid_device::user_client_method::virtual_hid_keyboard_initialize,
-                         input.data(),
-                         input.size());
+      auto r = call_scalar_method(pqrs::karabiner::driverkit::virtual_hid_device::user_client_method::virtual_hid_keyboard_initialize,
+                                  input.data(),
+                                  input.size());
+
+      if (!r) {
+        logger::get_logger()->error("virtual_hid_keyboard_initialize error: {0}", r.to_string());
+      }
     });
   }
 
   void async_virtual_hid_keyboard_terminate(void) const {
     enqueue_to_dispatcher([this] {
-      call(pqrs::karabiner::driverkit::virtual_hid_device::user_client_method::virtual_hid_keyboard_terminate);
+      auto r = call(pqrs::karabiner::driverkit::virtual_hid_device::user_client_method::virtual_hid_keyboard_terminate);
+
+      if (!r) {
+        logger::get_logger()->error("virtual_hid_keyboard_terminate error: {0}", r.to_string());
+      }
     });
   }
 
@@ -86,19 +95,31 @@ public:
 
   void async_virtual_hid_keyboard_reset(void) const {
     enqueue_to_dispatcher([this] {
-      call(pqrs::karabiner::driverkit::virtual_hid_device::user_client_method::virtual_hid_keyboard_reset);
+      auto r = call(pqrs::karabiner::driverkit::virtual_hid_device::user_client_method::virtual_hid_keyboard_reset);
+
+      if (!r) {
+        logger::get_logger()->error("virtual_hid_keyboard_reset error: {0}", r.to_string());
+      }
     });
   }
 
   void async_virtual_hid_pointing_initialize(void) const {
     enqueue_to_dispatcher([this] {
-      call(pqrs::karabiner::driverkit::virtual_hid_device::user_client_method::virtual_hid_pointing_initialize);
+      auto r = call(pqrs::karabiner::driverkit::virtual_hid_device::user_client_method::virtual_hid_pointing_initialize);
+
+      if (!r) {
+        logger::get_logger()->error("virtual_hid_pointing_initialize error: {0}", r.to_string());
+      }
     });
   }
 
   void async_virtual_hid_pointing_terminate(void) const {
     enqueue_to_dispatcher([this] {
-      call(pqrs::karabiner::driverkit::virtual_hid_device::user_client_method::virtual_hid_pointing_terminate);
+      auto r = call(pqrs::karabiner::driverkit::virtual_hid_device::user_client_method::virtual_hid_pointing_terminate);
+
+      if (!r) {
+        logger::get_logger()->error("virtual_hid_pointing_terminate error: {0}", r.to_string());
+      }
     });
   }
 
@@ -114,52 +135,76 @@ public:
 
   void async_virtual_hid_pointing_reset(void) const {
     enqueue_to_dispatcher([this] {
-      call(pqrs::karabiner::driverkit::virtual_hid_device::user_client_method::virtual_hid_pointing_reset);
+      auto r = call(pqrs::karabiner::driverkit::virtual_hid_device::user_client_method::virtual_hid_pointing_reset);
+
+      if (!r) {
+        logger::get_logger()->error("virtual_hid_pointing_reset error: {0}", r.to_string());
+      }
     });
   }
 
   void async_post_report(const pqrs::karabiner::driverkit::virtual_hid_device::hid_report::keyboard_input& report) const {
     enqueue_to_dispatcher([this, report] {
-      post_report(
+      auto r = post_report(
           pqrs::karabiner::driverkit::virtual_hid_device::user_client_method::virtual_hid_keyboard_post_report,
           &report,
           sizeof(report));
+
+      if (!r) {
+        logger::get_logger()->error("virtual_hid_keyboard_post_report(keyboard_input) error: {0}", r.to_string());
+      }
     });
   }
 
   void async_post_report(const pqrs::karabiner::driverkit::virtual_hid_device::hid_report::consumer_input& report) const {
     enqueue_to_dispatcher([this, report] {
-      post_report(
+      auto r = post_report(
           pqrs::karabiner::driverkit::virtual_hid_device::user_client_method::virtual_hid_keyboard_post_report,
           &report,
           sizeof(report));
+
+      if (!r) {
+        logger::get_logger()->error("virtual_hid_keyboard_post_report(consumer_input) error: {0}", r.to_string());
+      }
     });
   }
 
   void async_post_report(const pqrs::karabiner::driverkit::virtual_hid_device::hid_report::apple_vendor_keyboard_input& report) const {
     enqueue_to_dispatcher([this, report] {
-      post_report(
+      auto r = post_report(
           pqrs::karabiner::driverkit::virtual_hid_device::user_client_method::virtual_hid_keyboard_post_report,
           &report,
           sizeof(report));
+
+      if (!r) {
+        logger::get_logger()->error("virtual_hid_keyboard_post_report(apple_vendor_keyboard_input) error: {0}", r.to_string());
+      }
     });
   }
 
   void async_post_report(const pqrs::karabiner::driverkit::virtual_hid_device::hid_report::apple_vendor_top_case_input& report) const {
     enqueue_to_dispatcher([this, report] {
-      post_report(
+      auto r = post_report(
           pqrs::karabiner::driverkit::virtual_hid_device::user_client_method::virtual_hid_keyboard_post_report,
           &report,
           sizeof(report));
+
+      if (!r) {
+        logger::get_logger()->error("virtual_hid_keyboard_post_report(apple_vendor_top_case_input) error: {0}", r.to_string());
+      }
     });
   }
 
   void async_post_report(const pqrs::karabiner::driverkit::virtual_hid_device::hid_report::pointing_input& report) const {
     enqueue_to_dispatcher([this, report] {
-      post_report(
+      auto r = post_report(
           pqrs::karabiner::driverkit::virtual_hid_device::user_client_method::virtual_hid_pointing_post_report,
           &report,
           sizeof(report));
+
+      if (!r) {
+        logger::get_logger()->error("virtual_hid_pointing_post_report(pointing_input) error: {0}", r.to_string());
+      }
     });
   }
 
