@@ -4,7 +4,7 @@
 #include <array>
 #include <optional>
 #include <os/log.h>
-#include <pqrs/karabiner/driverkit/virtual_hid_device.hpp>
+#include <pqrs/karabiner/driverkit/virtual_hid_device_driver.hpp>
 
 namespace pqrs {
 namespace karabiner {
@@ -39,76 +39,76 @@ public:
   kern_return_t virtual_hid_keyboard_initialize(uint32_t country_code) const {
     std::array<uint64_t, 1> input = {country_code};
 
-    return call_scalar_method(virtual_hid_device::user_client_method::virtual_hid_keyboard_initialize,
+    return call_scalar_method(virtual_hid_device_driver::user_client_method::virtual_hid_keyboard_initialize,
                               input.data(),
                               input.size());
   }
 
   kern_return_t virtual_hid_keyboard_terminate(void) const {
-    return call(virtual_hid_device::user_client_method::virtual_hid_keyboard_terminate);
+    return call(virtual_hid_device_driver::user_client_method::virtual_hid_keyboard_terminate);
   }
 
   std::optional<bool> virtual_hid_keyboard_ready(void) const {
-    return call_ready(virtual_hid_device::user_client_method::virtual_hid_keyboard_ready);
+    return call_ready(virtual_hid_device_driver::user_client_method::virtual_hid_keyboard_ready);
   }
 
   kern_return_t virtual_hid_keyboard_reset(void) const {
-    return call(virtual_hid_device::user_client_method::virtual_hid_keyboard_reset);
+    return call(virtual_hid_device_driver::user_client_method::virtual_hid_keyboard_reset);
   }
 
   kern_return_t virtual_hid_pointing_initialize(void) const {
-    return call(virtual_hid_device::user_client_method::virtual_hid_pointing_initialize);
+    return call(virtual_hid_device_driver::user_client_method::virtual_hid_pointing_initialize);
   }
 
   kern_return_t virtual_hid_pointing_terminate(void) const {
-    return call(virtual_hid_device::user_client_method::virtual_hid_pointing_terminate);
+    return call(virtual_hid_device_driver::user_client_method::virtual_hid_pointing_terminate);
   }
 
   std::optional<bool> virtual_hid_pointing_ready(void) const {
-    return call_ready(virtual_hid_device::user_client_method::virtual_hid_pointing_ready);
+    return call_ready(virtual_hid_device_driver::user_client_method::virtual_hid_pointing_ready);
   }
 
   kern_return_t virtual_hid_pointing_reset(void) const {
-    return call(virtual_hid_device::user_client_method::virtual_hid_pointing_reset);
+    return call(virtual_hid_device_driver::user_client_method::virtual_hid_pointing_reset);
   }
 
-  kern_return_t post_report(const virtual_hid_device::hid_report::keyboard_input& report) const {
+  kern_return_t post_report(const virtual_hid_device_driver::hid_report::keyboard_input& report) const {
     return post_report(
-        virtual_hid_device::user_client_method::virtual_hid_keyboard_post_report,
+        virtual_hid_device_driver::user_client_method::virtual_hid_keyboard_post_report,
         &report,
         sizeof(report));
   }
 
-  kern_return_t post_report(const virtual_hid_device::hid_report::consumer_input& report) const {
+  kern_return_t post_report(const virtual_hid_device_driver::hid_report::consumer_input& report) const {
     return post_report(
-        virtual_hid_device::user_client_method::virtual_hid_keyboard_post_report,
+        virtual_hid_device_driver::user_client_method::virtual_hid_keyboard_post_report,
         &report,
         sizeof(report));
   }
 
-  kern_return_t post_report(const virtual_hid_device::hid_report::apple_vendor_keyboard_input& report) const {
+  kern_return_t post_report(const virtual_hid_device_driver::hid_report::apple_vendor_keyboard_input& report) const {
     return post_report(
-        virtual_hid_device::user_client_method::virtual_hid_keyboard_post_report,
+        virtual_hid_device_driver::user_client_method::virtual_hid_keyboard_post_report,
         &report,
         sizeof(report));
   }
 
-  kern_return_t post_report(const virtual_hid_device::hid_report::apple_vendor_top_case_input& report) const {
+  kern_return_t post_report(const virtual_hid_device_driver::hid_report::apple_vendor_top_case_input& report) const {
     return post_report(
-        virtual_hid_device::user_client_method::virtual_hid_keyboard_post_report,
+        virtual_hid_device_driver::user_client_method::virtual_hid_keyboard_post_report,
         &report,
         sizeof(report));
   }
 
-  kern_return_t post_report(const virtual_hid_device::hid_report::pointing_input& report) const {
+  kern_return_t post_report(const virtual_hid_device_driver::hid_report::pointing_input& report) const {
     return post_report(
-        virtual_hid_device::user_client_method::virtual_hid_pointing_post_report,
+        virtual_hid_device_driver::user_client_method::virtual_hid_pointing_post_report,
         &report,
         sizeof(report));
   }
 
 private:
-  kern_return_t call(virtual_hid_device::user_client_method user_client_method) const {
+  kern_return_t call(virtual_hid_device_driver::user_client_method user_client_method) const {
     if (!connection_) {
       return kIOReturnNotOpen;
     }
@@ -121,7 +121,7 @@ private:
                                      0);
   }
 
-  kern_return_t call_scalar_method(virtual_hid_device::user_client_method user_client_method,
+  kern_return_t call_scalar_method(virtual_hid_device_driver::user_client_method user_client_method,
                                    const uint64_t* input,
                                    uint32_t input_count) const {
     if (!connection_) {
@@ -136,7 +136,7 @@ private:
                                      0);
   }
 
-  std::optional<bool> call_ready(virtual_hid_device::user_client_method user_client_method) const {
+  std::optional<bool> call_ready(virtual_hid_device_driver::user_client_method user_client_method) const {
     if (!connection_) {
       return std::nullopt;
     }
@@ -157,7 +157,7 @@ private:
     return output[0];
   }
 
-  kern_return_t post_report(virtual_hid_device::user_client_method user_client_method,
+  kern_return_t post_report(virtual_hid_device_driver::user_client_method user_client_method,
                             const void* report,
                             size_t report_size) const {
     if (!connection_) {

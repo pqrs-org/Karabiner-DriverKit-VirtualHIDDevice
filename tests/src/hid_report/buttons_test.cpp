@@ -1,6 +1,6 @@
 #include <catch2/catch.hpp>
 
-#include <pqrs/karabiner/driverkit/virtual_hid_device.hpp>
+#include <pqrs/karabiner/driverkit/virtual_hid_device_driver.hpp>
 
 TEST_CASE("buttons") {
   using namespace pqrs::karabiner::driverkit::virtual_hid_device;

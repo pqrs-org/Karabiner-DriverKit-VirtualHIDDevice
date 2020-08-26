@@ -1,6 +1,6 @@
 #include "org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceRoot.h"
 #include "IOBufferMemoryDescriptorUtility.hpp"
-#include "pqrs/karabiner/driverkit/virtual_hid_device.hpp"
+#include "pqrs/karabiner/driverkit/virtual_hid_device_driver.hpp"
 #include "version.hpp"
 #include <HIDDriverKit/IOHIDDeviceKeys.h>
 #include <HIDDriverKit/IOHIDUsageTables.h>

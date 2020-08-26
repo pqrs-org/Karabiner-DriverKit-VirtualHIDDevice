@@ -7,7 +7,7 @@
 namespace pqrs {
 namespace karabiner {
 namespace driverkit {
-namespace virtual_hid_device {
+namespace virtual_hid_device_driver {
 
 enum class user_client_method {
   //

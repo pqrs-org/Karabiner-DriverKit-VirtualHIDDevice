@@ -12,6 +12,7 @@
     </array>
     <key>com.apple.security.temporary-exception.files.absolute-path.read-write</key>
     <array>
+      <string>/Library/Application Support/org.pqrs/tmp/rootonly</string>
       <string>/var/log/karabiner</string>
     </array>
     <key>com.apple.developer.driverkit.userclient-access</key>

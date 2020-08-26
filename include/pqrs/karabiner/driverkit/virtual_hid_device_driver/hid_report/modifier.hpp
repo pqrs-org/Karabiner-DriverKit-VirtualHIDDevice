@@ -9,7 +9,7 @@
 namespace pqrs {
 namespace karabiner {
 namespace driverkit {
-namespace virtual_hid_device {
+namespace virtual_hid_device_driver {
 namespace hid_report {
 
 enum class modifier : uint8_t {
@@ -24,7 +24,7 @@ enum class modifier : uint8_t {
 };
 }
 
-} // namespace virtual_hid_device
+} // namespace virtual_hid_device_driver
 } // namespace driverkit
 } // namespace karabiner
 } // namespace pqrs

@@ -1,7 +1,7 @@
 #include "org_pqrs_Karabiner_DriverKit_VirtualHIDPointing.h"
 #include "IOBufferMemoryDescriptorUtility.hpp"
 #include "org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient.h"
-#include "pqrs/karabiner/driverkit/virtual_hid_device.hpp"
+#include "pqrs/karabiner/driverkit/virtual_hid_device_driver.hpp"
 #include "version.hpp"
 #include <HIDDriverKit/IOHIDDeviceKeys.h>
 #include <HIDDriverKit/IOHIDUsageTables.h>
@@ -219,7 +219,7 @@ kern_return_t IMPL(org_pqrs_Karabiner_DriverKit_VirtualHIDPointing, reset) {
 
   // Post empty reports
 
-  pqrs::karabiner::driverkit::virtual_hid_device::hid_report::pointing_input pointing_input;
+  pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report::pointing_input pointing_input;
 
   struct input {
     const void* address;

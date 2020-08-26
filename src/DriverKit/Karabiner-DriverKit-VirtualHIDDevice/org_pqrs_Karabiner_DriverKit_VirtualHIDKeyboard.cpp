@@ -1,7 +1,7 @@
 #include "org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard.h"
 #include "IOBufferMemoryDescriptorUtility.hpp"
 #include "org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient.h"
-#include "pqrs/karabiner/driverkit/virtual_hid_device.hpp"
+#include "pqrs/karabiner/driverkit/virtual_hid_device_driver.hpp"
 #include "version.hpp"
 #include <HIDDriverKit/IOHIDDeviceKeys.h>
 #include <HIDDriverKit/IOHIDUsageTables.h>
@@ -318,10 +318,10 @@ kern_return_t IMPL(org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard, reset) {
 
   // Post empty reports
 
-  pqrs::karabiner::driverkit::virtual_hid_device::hid_report::keyboard_input keyboard_input;
-  pqrs::karabiner::driverkit::virtual_hid_device::hid_report::consumer_input consumer_input;
-  pqrs::karabiner::driverkit::virtual_hid_device::hid_report::apple_vendor_keyboard_input apple_vendor_keyboard_input;
-  pqrs::karabiner::driverkit::virtual_hid_device::hid_report::apple_vendor_top_case_input apple_vendor_top_case_input;
+  pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report::keyboard_input keyboard_input;
+  pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report::consumer_input consumer_input;
+  pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report::apple_vendor_keyboard_input apple_vendor_keyboard_input;
+  pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report::apple_vendor_top_case_input apple_vendor_top_case_input;
 
   struct input {
     const void* address;

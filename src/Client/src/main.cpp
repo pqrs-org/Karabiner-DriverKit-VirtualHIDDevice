@@ -1,4 +1,5 @@
 #include "io_service_client.hpp"
+#include "virtual_hid_device_service_server.hpp"
 #include <chrono>
 #include <iostream>
 #include <memory>
@@ -63,13 +64,13 @@ int main(void) {
   {
     // key down
     {
-      pqrs::karabiner::driverkit::virtual_hid_device::hid_report::apple_vendor_keyboard_input report;
+      pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report::apple_vendor_keyboard_input report;
       report.keys.insert(type_safe::get(pqrs::hid::usage::apple_vendor_keyboard::launchpad));
       client->async_post_report(report);
     }
     // key up
     {
-      pqrs::karabiner::driverkit::virtual_hid_device::hid_report::apple_vendor_keyboard_input report;
+      pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report::apple_vendor_keyboard_input report;
       client->async_post_report(report);
     }
   }

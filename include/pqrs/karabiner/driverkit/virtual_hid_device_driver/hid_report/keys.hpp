@@ -9,7 +9,7 @@
 namespace pqrs {
 namespace karabiner {
 namespace driverkit {
-namespace virtual_hid_device {
+namespace virtual_hid_device_driver {
 namespace hid_report {
 
 class __attribute__((packed)) keys final {
@@ -80,7 +80,7 @@ private:
 };
 
 } // namespace hid_report
-} // namespace virtual_hid_device
+} // namespace virtual_hid_device_driver
 } // namespace driverkit
 } // namespace karabiner
 } // namespace pqrs

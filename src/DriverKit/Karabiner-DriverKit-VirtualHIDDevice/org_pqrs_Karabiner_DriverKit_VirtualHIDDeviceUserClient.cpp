@@ -2,7 +2,7 @@
 #include "IOBufferMemoryDescriptorUtility.hpp"
 #include "org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard.h"
 #include "org_pqrs_Karabiner_DriverKit_VirtualHIDPointing.h"
-#include "pqrs/karabiner/driverkit/virtual_hid_device.hpp"
+#include "pqrs/karabiner/driverkit/virtual_hid_device_driver.hpp"
 #include "version.hpp"
 #include <os/log.h>
 
@@ -91,8 +91,8 @@ kern_return_t org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient::ExternalM
                                                                                       const IOUserClientMethodDispatch* dispatch,
                                                                                       OSObject* target,
                                                                                       void* reference) {
-  switch (pqrs::karabiner::driverkit::virtual_hid_device::user_client_method(selector)) {
-    case pqrs::karabiner::driverkit::virtual_hid_device::user_client_method::virtual_hid_keyboard_initialize:
+  switch (pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method(selector)) {
+    case pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_keyboard_initialize:
       if (!ivars->keyboard) {
         ivars->keyboardReady = false;
 
@@ -119,19 +119,19 @@ kern_return_t org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient::ExternalM
       }
       return kIOReturnError;
 
-    case pqrs::karabiner::driverkit::virtual_hid_device::user_client_method::virtual_hid_keyboard_terminate:
+    case pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_keyboard_terminate:
       ivars->keyboardReady = false;
       OSSafeReleaseNULL(ivars->keyboard);
       return kIOReturnSuccess;
 
-    case pqrs::karabiner::driverkit::virtual_hid_device::user_client_method::virtual_hid_keyboard_ready:
+    case pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_keyboard_ready:
       if (arguments->scalarOutput && arguments->scalarOutputCount > 0) {
         arguments->scalarOutput[0] = ivars->keyboardReady;
         return kIOReturnSuccess;
       }
       return kIOReturnError;
 
-    case pqrs::karabiner::driverkit::virtual_hid_device::user_client_method::virtual_hid_keyboard_post_report:
+    case pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_keyboard_post_report:
       if (ivars->keyboard) {
         IOMemoryDescriptor* memory = nullptr;
 
@@ -145,13 +145,13 @@ kern_return_t org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient::ExternalM
       }
       return kIOReturnError;
 
-    case pqrs::karabiner::driverkit::virtual_hid_device::user_client_method::virtual_hid_keyboard_reset:
+    case pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_keyboard_reset:
       if (ivars->keyboard) {
         return ivars->keyboard->reset();
       }
       return kIOReturnError;
 
-    case pqrs::karabiner::driverkit::virtual_hid_device::user_client_method::virtual_hid_pointing_initialize:
+    case pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_pointing_initialize:
       if (!ivars->pointing) {
         ivars->pointingReady = false;
 
@@ -174,19 +174,19 @@ kern_return_t org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient::ExternalM
       }
       return kIOReturnError;
 
-    case pqrs::karabiner::driverkit::virtual_hid_device::user_client_method::virtual_hid_pointing_terminate:
+    case pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_pointing_terminate:
       ivars->pointingReady = false;
       OSSafeReleaseNULL(ivars->pointing);
       return kIOReturnSuccess;
 
-    case pqrs::karabiner::driverkit::virtual_hid_device::user_client_method::virtual_hid_pointing_ready:
+    case pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_pointing_ready:
       if (arguments->scalarOutput && arguments->scalarOutputCount > 0) {
         arguments->scalarOutput[0] = ivars->pointingReady;
         return kIOReturnSuccess;
       }
       return kIOReturnError;
 
-    case pqrs::karabiner::driverkit::virtual_hid_device::user_client_method::virtual_hid_pointing_post_report:
+    case pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_pointing_post_report:
       if (ivars->pointing) {
         IOMemoryDescriptor* memory = nullptr;
 
@@ -200,7 +200,7 @@ kern_return_t org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient::ExternalM
       }
       return kIOReturnError;
 
-    case pqrs::karabiner::driverkit::virtual_hid_device::user_client_method::virtual_hid_pointing_reset:
+    case pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_pointing_reset:
       if (ivars->pointing) {
         return ivars->pointing->reset();
       }
