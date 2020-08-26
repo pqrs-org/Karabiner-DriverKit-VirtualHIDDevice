@@ -16,6 +16,10 @@ int main(void) {
     global_wait->notify();
   });
 
+  logger::set_async_rotating_logger("karabiner_driverkit_virtual_hid_device_service",
+                                    "/var/log/karabiner_driverkit_virtual_hid_device_service.log",
+                                    pqrs::spdlog::filesystem::log_directory_perms_0700);
+
   pqrs::dispatcher::extra::initialize_shared_dispatcher();
 
   std::optional<bool> virtual_hid_keyboard_ready;
