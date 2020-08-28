@@ -40,3 +40,6 @@ update_vendor:
 
 log-show:
 	log show --predicate 'sender == "sysextd" or sender CONTAINS "org.pqrs"' --info --debug --last 1h
+
+run-client:
+	sudo /bin/launchctl asuser 0 ./build/Release/Karabiner-DriverKit-VirtualHIDDeviceClient.app/Contents/MacOS/Karabiner-DriverKit-VirtualHIDDeviceClient
