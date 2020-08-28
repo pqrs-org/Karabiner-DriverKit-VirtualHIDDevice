@@ -1,4 +1,3 @@
-gabime/spdlog
 pqrs-org/cpp-spdlog
 pqrs-org/cpp-hid
 pqrs-org/cpp-local_datagram
