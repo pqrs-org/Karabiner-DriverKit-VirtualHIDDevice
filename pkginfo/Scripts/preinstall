@@ -1,0 +1,10 @@
+#!/bin/bash
+
+PATH=/bin:/sbin:/usr/bin:/usr/sbin; export PATH
+
+uninstall_script='/Library/Application Support/org.pqrs/Karabiner-DriverKit-VirtualHIDDevice/scripts/uninstall_core.sh'
+if [ -f "$uninstall_script" ]; then
+    bash "$uninstall_script"
+fi
+
+exit 0

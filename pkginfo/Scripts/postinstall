@@ -1,0 +1,17 @@
+#!/bin/bash
+
+PATH=/bin:/sbin:/usr/bin:/usr/sbin
+export PATH
+
+# ------------------------------------------------------------
+# Relaunch karabiner processes
+
+killall Karabiner-DriverKit-VirtualHIDDeviceClient
+
+# If plistFilePath is already bootstrapped and disabled, launchctl bootstrap will fail until it is enabled again.
+# So we should enable it first, and then bootstrap and enable it.
+launchctl enable system/org.pqrs.Karabiner-DriverKit-VirtualHIDDeviceClient
+launchctl bootstrap system /Library/LaunchDaemons/org.pqrs.Karabiner-DriverKit-VirtualHIDDeviceClient
+launchctl enable system/org.pqrs.Karabiner-DriverKit-VirtualHIDDeviceClient
+
+exit 0
