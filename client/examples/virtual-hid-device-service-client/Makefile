@@ -3,8 +3,12 @@ all:
 	xcodegen generate
 	xcodebuild -configuration Release -alltargets SYMROOT="$(CURDIR)/build"
 
+clean:
+	rm -rf virtual-hid-device-service-client.xcodeproj
+	rm -rf build
+
 run:
-	./build/Release/virtual-hid-device-service-client
+	sudo ./build/Release/virtual-hid-device-service-client
 
 update_vendor:
 	rm -rf vendor
