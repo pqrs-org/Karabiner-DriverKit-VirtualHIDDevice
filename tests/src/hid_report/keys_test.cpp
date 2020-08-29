@@ -3,7 +3,7 @@
 #include <pqrs/karabiner/driverkit/virtual_hid_device_driver.hpp>
 
 TEST_CASE("keys") {
-  using namespace pqrs::karabiner::driverkit::virtual_hid_device;
+  using namespace pqrs::karabiner::driverkit::virtual_hid_device_driver;
 
   {
     hid_report::keys keys;

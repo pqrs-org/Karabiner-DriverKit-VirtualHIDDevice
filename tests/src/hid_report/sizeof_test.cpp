@@ -3,7 +3,7 @@
 #include <pqrs/karabiner/driverkit/virtual_hid_device_driver.hpp>
 
 TEST_CASE("sizeof") {
-  using namespace pqrs::karabiner::driverkit::virtual_hid_device;
+  using namespace pqrs::karabiner::driverkit::virtual_hid_device_driver;
 
   REQUIRE(sizeof(hid_report::apple_vendor_keyboard_input) == 33);
   REQUIRE(sizeof(hid_report::apple_vendor_top_case_input) == 33);
