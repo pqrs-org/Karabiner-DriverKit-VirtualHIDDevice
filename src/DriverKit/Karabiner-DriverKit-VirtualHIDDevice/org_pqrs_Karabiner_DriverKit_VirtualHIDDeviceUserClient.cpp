@@ -114,10 +114,8 @@ kern_return_t org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient::ExternalM
           client->release();
           return kIOReturnError;
         }
-
-        return kIOReturnSuccess;
       }
-      return kIOReturnError;
+      return kIOReturnSuccess;
 
     case pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_keyboard_terminate:
       ivars->keyboardReady = false;
@@ -169,10 +167,8 @@ kern_return_t org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient::ExternalM
           client->release();
           return kIOReturnError;
         }
-
-        return kIOReturnSuccess;
       }
-      return kIOReturnError;
+      return kIOReturnSuccess;
 
     case pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_pointing_terminate:
       ivars->pointingReady = false;
