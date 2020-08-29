@@ -19,7 +19,7 @@ struct ContentView: View {
 
     var body: some View {
         VStack {
-            Text("Karabiner-DriverKit-ExtensionManager version " + self.version)
+            Text("Karabiner-VirtualHIDDevice-Manager version " + self.version)
             Text("Karabiner-DriverKit-VirtualHIDDevice version " + self.driverVersion)
             HStack {
                 Button(action: { ExtensionManager.shared.activate(self.driverIdentifier) }) {

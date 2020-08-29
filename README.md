@@ -120,4 +120,4 @@ If you want to start without a valid provisioning profile, use Xcode 11 and
     make
     ```
 
-    `build/Release/Karabiner-DriverKit-ExtensionManager.app` will be generated.
+    `build/Release/Karabiner-VirtualHIDDevice-Manager.app` will be generated.

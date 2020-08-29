@@ -10,16 +10,16 @@
                 <application id="hnw-xV-0zn" sceneMemberID="viewController">
                     <menu key="mainMenu" title="Main Menu" systemMenu="main" id="AYu-sK-qS6">
                         <items>
-                            <menuItem title="Karabiner-DriverKit-ExtensionManager" id="1Xt-HY-uBw">
+                            <menuItem title="Karabiner-VirtualHIDDevice-Manager" id="1Xt-HY-uBw">
                                 <modifierMask key="keyEquivalentModifierMask"/>
-                                <menu key="submenu" title="Karabiner-DriverKit-ExtensionManager" systemMenu="apple" id="uQy-DD-JDr">
+                                <menu key="submenu" title="Karabiner-VirtualHIDDevice-Manager" systemMenu="apple" id="uQy-DD-JDr">
                                     <items>
                                         <menuItem title="Close" keyEquivalent="w" id="DVo-aG-piG">
                                             <connections>
                                                 <action selector="performClose:" target="Ady-hI-5gd" id="HmO-Ls-i7Q"/>
                                             </connections>
                                         </menuItem>
-                                        <menuItem title="Quit Karabiner-DriverKit-ExtensionManager" keyEquivalent="q" id="KhK-MY-Q5N">
+                                        <menuItem title="Quit Karabiner-VirtualHIDDevice-Manager" keyEquivalent="q" id="KhK-MY-Q5N">
                                             <connections>
                                                 <action selector="terminate:" target="Ady-hI-5gd" id="dOr-7H-Ypf"/>
                                             </connections>
@@ -33,7 +33,7 @@
                         <outlet property="delegate" destination="Voe-Tx-rLC" id="PrD-fu-P6m"/>
                     </connections>
                 </application>
-                <customObject id="Voe-Tx-rLC" customClass="AppDelegate" customModule="Karabiner-DriverKit-ExtensionManager" customModuleProvider="target"/>
+                <customObject id="Voe-Tx-rLC" customClass="AppDelegate" customModule="Karabiner-VirtualHIDDevice-Manager" customModuleProvider="target"/>
                 <customObject id="YLy-65-1bz" customClass="NSFontManager"/>
                 <customObject id="Ady-hI-5gd" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>

@@ -12,7 +12,7 @@ set -e # forbid command failure
 # Embed provisioning profile
 cp \
     DriverKit/embedded.provisionprofile \
-    build/Release/Karabiner-DriverKit-ExtensionManager.app/Contents/Library/SystemExtensions/org.pqrs.Karabiner-DriverKit-VirtualHIDDevice.dext/embedded.provisionprofile
+    build/Release/Karabiner-VirtualHIDDevice-Manager.app/Contents/Library/SystemExtensions/org.pqrs.Karabiner-DriverKit-VirtualHIDDevice.dext/embedded.provisionprofile
 
 # Sign
 codesign \
@@ -21,16 +21,16 @@ codesign \
     --options runtime \
     --verbose \
     --force \
-    build/Release/Karabiner-DriverKit-ExtensionManager.app/Contents/Library/SystemExtensions/org.pqrs.Karabiner-DriverKit-VirtualHIDDevice.dext
+    build/Release/Karabiner-VirtualHIDDevice-Manager.app/Contents/Library/SystemExtensions/org.pqrs.Karabiner-DriverKit-VirtualHIDDevice.dext
 
 #
-# Sign Karabiner-DriverKit-ExtensionManager.app
+# Sign Karabiner-VirtualHIDDevice-Manager.app
 #
 
 # Embed provisioning profile
 cp \
     ExtensionManager/embedded.provisionprofile \
-    build/Release/Karabiner-DriverKit-ExtensionManager.app/Contents/embedded.provisionprofile
+    build/Release/Karabiner-VirtualHIDDevice-Manager.app/Contents/embedded.provisionprofile
 
 # Sign
 codesign \
@@ -39,7 +39,7 @@ codesign \
     --options runtime \
     --verbose \
     --force \
-    build/Release/Karabiner-DriverKit-ExtensionManager.app
+    build/Release/Karabiner-VirtualHIDDevice-Manager.app
 
 #
 # Sign Karabiner-DriverKit-VirtualHIDDeviceClient

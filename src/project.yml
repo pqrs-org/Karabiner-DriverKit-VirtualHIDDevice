@@ -8,9 +8,9 @@ packages:
     branch: master
 
 targets:
-  Karabiner-DriverKit-ExtensionManager:
+  Karabiner-VirtualHIDDevice-Manager:
     settings:
-      PRODUCT_BUNDLE_IDENTIFIER: org.pqrs.Karabiner-DriverKit-ExtensionManager
+      PRODUCT_BUNDLE_IDENTIFIER: org.pqrs.Karabiner-VirtualHIDDevice-Manager
       CODE_SIGN_ENTITLEMENTS: ''
       CODE_SIGN_IDENTITY: '-'
       CODE_SIGN_STYLE: Manual

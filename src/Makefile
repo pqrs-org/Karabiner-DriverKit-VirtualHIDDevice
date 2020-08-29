@@ -3,10 +3,10 @@ all:
 	xcodegen generate
 	xcodebuild -configuration Release -alltargets SYMROOT="$(CURDIR)/build"
 	$(MAKE) -C DriverKit
-	mkdir -p build/Release/Karabiner-DriverKit-ExtensionManager.app/Contents/Library/SystemExtensions
+	mkdir -p build/Release/Karabiner-VirtualHIDDevice-Manager.app/Contents/Library/SystemExtensions
 	rsync -a --delete \
 		DriverKit/build/Release-driverkit/org.pqrs.Karabiner-DriverKit-VirtualHIDDevice.dext \
-		build/Release/Karabiner-DriverKit-ExtensionManager.app/Contents/Library/SystemExtensions
+		build/Release/Karabiner-VirtualHIDDevice-Manager.app/Contents/Library/SystemExtensions
 	$(MAKE) codesign
 
 clean:
@@ -21,13 +21,13 @@ codesign:
 	bash scripts/codesign.sh
 
 verify:
-	2>&1 codesign -dvvv build/Release/Karabiner-DriverKit-ExtensionManager.app
+	2>&1 codesign -dvvv build/Release/Karabiner-VirtualHIDDevice-Manager.app
 	@echo "\n"
-	2>&1 codesign -d --entitlements :- build/Release/Karabiner-DriverKit-ExtensionManager.app
+	2>&1 codesign -d --entitlements :- build/Release/Karabiner-VirtualHIDDevice-Manager.app
 	@echo "\n"
-	2>&1 codesign -dvvv build/Release/Karabiner-DriverKit-ExtensionManager.app/Contents/Library/SystemExtensions/org.pqrs.Karabiner-DriverKit-VirtualHIDDevice.dext
+	2>&1 codesign -dvvv build/Release/Karabiner-VirtualHIDDevice-Manager.app/Contents/Library/SystemExtensions/org.pqrs.Karabiner-DriverKit-VirtualHIDDevice.dext
 	@echo "\n"
-	2>&1 codesign -d --entitlements :- build/Release/Karabiner-DriverKit-ExtensionManager.app/Contents/Library/SystemExtensions/org.pqrs.Karabiner-DriverKit-VirtualHIDDevice.dext
+	2>&1 codesign -d --entitlements :- build/Release/Karabiner-VirtualHIDDevice-Manager.app/Contents/Library/SystemExtensions/org.pqrs.Karabiner-DriverKit-VirtualHIDDevice.dext
 	@echo "\n"
 	2>&1 codesign -dvvv build/Release/Karabiner-DriverKit-VirtualHIDDeviceClient.app
 	@echo "\n"
