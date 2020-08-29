@@ -166,6 +166,7 @@ private:
         auto size = buffer->size();
 
         auto request = pqrs::karabiner::driverkit::virtual_hid_device_service::request(*p);
+        ++p;
         --size;
 
         switch (request) {
@@ -259,13 +260,15 @@ private:
                                std::optional<bool> ready,
                                std::shared_ptr<asio::local::datagram_protocol::endpoint> endpoint) {
     if (server_) {
-      if (ready) {
-        uint8_t buffer[] = {
-            static_cast<std::underlying_type<pqrs::karabiner::driverkit::virtual_hid_device_service::response>::type>(response),
-            *ready,
-        };
+      if (!endpoint->path().empty()) {
+        if (ready) {
+          uint8_t buffer[] = {
+              static_cast<std::underlying_type<pqrs::karabiner::driverkit::virtual_hid_device_service::response>::type>(response),
+              *ready,
+          };
 
-        server_->async_send(buffer, sizeof(buffer), endpoint);
+          server_->async_send(buffer, sizeof(buffer), endpoint);
+        }
       }
     }
   }
