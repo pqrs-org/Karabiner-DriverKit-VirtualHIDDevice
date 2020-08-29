@@ -12,8 +12,9 @@ with topDirectory.joinpath('version').open() as versionFile, topDirectory.joinpa
     version = versionFile.readline().strip()
     driverVersion = driverVersionFile.readline().strip()
 
-    for templateFilePath in chain(topDirectory.rglob('Info.plist.in'),
-                                  topDirectory.rglob('version.hpp.in')):
+    for templateFilePath in chain(topDirectory.rglob('*.hpp.in'),
+                                  topDirectory.rglob('*.plist.in'),
+                                  topDirectory.rglob('*.xml.in')):
         replacedFilePath = Path(re.sub(r'\.in$', '', str(templateFilePath)))
         needsUpdate = False
 
