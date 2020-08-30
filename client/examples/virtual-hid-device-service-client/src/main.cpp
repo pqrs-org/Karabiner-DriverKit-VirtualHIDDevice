@@ -64,7 +64,9 @@ int main(void) {
     std::cout << "error_occurred " << error_code << std::endl;
   });
   client->virtual_hid_keyboard_ready_callback.connect([&client, &keyboard_post](auto&& ready) {
-    std::cout << "virtual_hid_keyboard_ready_callback " << ready << std::endl;
+    if (!keyboard_post) {
+      std::cout << "virtual_hid_keyboard_ready_callback " << ready << std::endl;
+    }
 
     if (ready) {
       if (!keyboard_post) {
@@ -86,7 +88,9 @@ int main(void) {
     }
   });
   client->virtual_hid_pointing_ready_callback.connect([&client, &client_mutex, &pointing_thread, &pointing_thread_mutex](auto&& ready) {
-    std::cout << "virtual_hid_pointing_ready_callback " << ready << std::endl;
+    if (!pointing_thread) {
+      std::cout << "virtual_hid_pointing_ready_callback " << ready << std::endl;
+    }
 
     if (ready) {
       std::lock_guard<std::mutex> lock(pointing_thread_mutex);
@@ -117,6 +121,8 @@ int main(void) {
   //
   // Wait control-c
   //
+
+  std::cout << "Press control+c to quit." << std::endl;
 
   while (!exit_flag) {
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
