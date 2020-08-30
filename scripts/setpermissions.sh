@@ -10,6 +10,7 @@ err() {
 
 test_mach_o() {
     if `file -b "$1" | grep 'executable ' | grep -sq 'Mach-O '`; then
+        # This is Mach-O file.
         exit 0
     fi
 
