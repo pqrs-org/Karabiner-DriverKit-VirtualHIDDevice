@@ -1,5 +1,5 @@
 all:
-	$(MAKE) -C virtual-keyboard-client
+	$(MAKE) -C virtual-hid-device-service-client
 
 clean:
-	$(MAKE) -C virtual-keyboard-client clean
+	$(MAKE) -C virtual-hid-device-service-client clean

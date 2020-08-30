@@ -1,2 +1,0 @@
-pqrs-org/cpp-hid
-pqrs-org/cpp-osx-iokit_return
