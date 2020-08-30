@@ -31,8 +31,36 @@ Virtual devices (keyboard and mouse) implementation for macOS using DriverKit.
     <img src="docs/images/system-preferences@2x.png" width="668" alt="System Preferences" /><br /><br />
 -   Extension manager<br/><br />
     <img src="docs/images/extension-manager@2x.png" width="798" alt="Extension manager" /><br /><br />
--   Client<br/><br />
-    <img src="docs/images/client@2x.png" width="480" alt="Client" /><br /><br />
+
+---
+
+## Usage
+
+1.  Open `dist/Karabiner-DriverKit-VirtualHIDDevice-x.x.x.dmg`, and then open `Karabiner-DriverKit-VirtualHIDDevice.pkg` (installer).
+2.  Install files via installer.
+3.  Execute the following command in Terminal.
+
+    ```shell
+    open /Applications/.Karabiner-VirtualHIDDevice-Manager.app
+    ```
+
+4.  Install driver extension by `Activate driver extension` button.
+5.  Run a client program to test the driver extension.
+
+    ```shell
+    git clone --depth 1 https://github.com/pqrs-org/Karabiner-DriverKit-VirtualHIDDevice.git
+    cd Karabiner-DriverKit-VirtualHIDDevice/client/examples/virtual-hid-device-service-client
+    make
+    sudo ./build/Release/virtual-hid-device-service-client
+    ```
+
+### Installed files
+
+-   `/Applications/.Karabiner-VirtualHIDDevice-Manager.app`
+-   `/Library/Application Support/org.pqrs/Karabiner-DriverKit-VirtualHIDDevice`
+-   `/Library/LaunchDaemons/org.pqrs.Karabiner-DriverKit-VirtualHIDDeviceClient.plist`
+-   `/Library/Application Support/org.pqrs/tmp`
+-   `/var/log/karabiner`
 
 ---
 
