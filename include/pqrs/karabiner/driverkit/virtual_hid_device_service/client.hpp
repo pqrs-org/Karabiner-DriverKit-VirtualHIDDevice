@@ -28,8 +28,8 @@ public:
 
   // Methods
 
-  client(const std::string& client_socket_file_path) : dispatcher_client() {
-    create_client(client_socket_file_path);
+  client(const std::string& client_socket_file_path) : dispatcher_client(),
+                                                       client_socket_file_path_(client_socket_file_path) {
   }
 
   virtual ~client(void) {
@@ -39,9 +39,23 @@ public:
   }
 
   void async_start(void) {
-    if (client_) {
-      client_->async_start();
-    }
+    enqueue_to_dispatcher([this] {
+      if (client_) {
+        return;
+      }
+
+      create_client();
+
+      if (client_) {
+        client_->async_start();
+      }
+    });
+  }
+
+  void async_close(void) {
+    enqueue_to_dispatcher([this] {
+      client_ = nullptr;
+    });
   }
 
   void async_virtual_hid_keyboard_initialize(hid::country_code::value_t country_code) {
@@ -97,10 +111,10 @@ public:
   }
 
 private:
-  void create_client(const std::string& client_socket_file_path) {
+  void create_client(void) {
     client_ = std::make_unique<local_datagram::client>(weak_dispatcher_,
                                                        constants::server_socket_file_path.data(),
-                                                       client_socket_file_path,
+                                                       client_socket_file_path_,
                                                        constants::local_datagram_buffer_size);
     client_->set_server_check_interval(std::chrono::milliseconds(3000));
     client_->set_reconnect_interval(std::chrono::milliseconds(1000));
@@ -198,6 +212,7 @@ private:
     *(reinterpret_cast<T*>(&(buffer[size]))) = data;
   }
 
+  std::string client_socket_file_path_;
   std::unique_ptr<local_datagram::client> client_;
 };
 } // namespace virtual_hid_device_service
