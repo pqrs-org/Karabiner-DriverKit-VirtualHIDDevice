@@ -52,7 +52,7 @@ public:
     });
   }
 
-  void async_close(void) {
+  void async_stop(void) {
     enqueue_to_dispatcher([this] {
       client_ = nullptr;
     });
