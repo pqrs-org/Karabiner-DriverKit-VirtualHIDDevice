@@ -90,11 +90,19 @@ kern_return_t org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient::ExternalM
                                                                                       OSObject* target,
                                                                                       void* reference) {
   switch (pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method(selector)) {
-    case pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_keyboard_initialize:
+    case pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_keyboard_initialize: {
+      uint32_t countryCode = 0;
+      if (arguments->scalarInputCount > 0) {
+        countryCode = static_cast<uint32_t>(arguments->scalarInput[0]);
+      }
+
+      // Recreate if countryCode is differ.
+      if (ivars->keyboard && ivars->keyboard->getCountryCode() != countryCode) {
+        OSSafeReleaseNULL(ivars->keyboard);
+      }
+
       if (!ivars->keyboard) {
-        if (arguments->scalarInputCount > 0) {
-          ivars->keyboardCountryCode = static_cast<uint32_t>(arguments->scalarInput[0]);
-        }
+        ivars->keyboardCountryCode = countryCode;
 
         IOService* client;
 
@@ -112,6 +120,7 @@ kern_return_t org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient::ExternalM
         }
       }
       return kIOReturnSuccess;
+    }
 
     case pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_keyboard_terminate:
       OSSafeReleaseNULL(ivars->keyboard);
