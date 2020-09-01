@@ -19,6 +19,7 @@ public:
                                          OSObject* target,
                                          void* reference) override;
 
+    // For `org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard::newDeviceDescription`.
     virtual uint32_t getKeyboardCountryCode(void);
 };
 

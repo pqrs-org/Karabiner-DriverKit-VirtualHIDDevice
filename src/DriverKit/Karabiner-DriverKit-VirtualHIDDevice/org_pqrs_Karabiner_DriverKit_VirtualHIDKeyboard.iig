@@ -29,6 +29,7 @@ public:
     virtual kern_return_t reset(void);
 
     virtual bool getReady(void);
+    virtual uint32_t getCountryCode(void);
 };
 
 #endif
