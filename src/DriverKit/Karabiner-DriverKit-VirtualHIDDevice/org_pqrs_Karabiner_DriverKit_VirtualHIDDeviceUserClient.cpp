@@ -35,9 +35,7 @@ kern_return_t createIOMemoryDescriptor(IOUserClientMethodArguments* arguments, I
 struct org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient_IVars {
   uint32_t keyboardCountryCode;
   org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard* keyboard;
-  bool keyboardReady;
   org_pqrs_Karabiner_DriverKit_VirtualHIDPointing* pointing;
-  bool pointingReady;
 };
 
 bool org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient::init() {
@@ -94,8 +92,6 @@ kern_return_t org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient::ExternalM
   switch (pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method(selector)) {
     case pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_keyboard_initialize:
       if (!ivars->keyboard) {
-        ivars->keyboardReady = false;
-
         if (arguments->scalarInputCount > 0) {
           ivars->keyboardCountryCode = static_cast<uint32_t>(arguments->scalarInput[0]);
         }
@@ -118,13 +114,12 @@ kern_return_t org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient::ExternalM
       return kIOReturnSuccess;
 
     case pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_keyboard_terminate:
-      ivars->keyboardReady = false;
       OSSafeReleaseNULL(ivars->keyboard);
       return kIOReturnSuccess;
 
     case pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_keyboard_ready:
       if (arguments->scalarOutput && arguments->scalarOutputCount > 0) {
-        arguments->scalarOutput[0] = ivars->keyboardReady;
+        arguments->scalarOutput[0] = (ivars->keyboard && ivars->keyboard->getReady());
         return kIOReturnSuccess;
       }
       return kIOReturnError;
@@ -151,8 +146,6 @@ kern_return_t org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient::ExternalM
 
     case pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_pointing_initialize:
       if (!ivars->pointing) {
-        ivars->pointingReady = false;
-
         IOService* client;
 
         auto kr = Create(this, "VirtualHIDPointingProperties", &client);
@@ -171,13 +164,12 @@ kern_return_t org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient::ExternalM
       return kIOReturnSuccess;
 
     case pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_pointing_terminate:
-      ivars->pointingReady = false;
       OSSafeReleaseNULL(ivars->pointing);
       return kIOReturnSuccess;
 
     case pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_pointing_ready:
       if (arguments->scalarOutput && arguments->scalarOutputCount > 0) {
-        arguments->scalarOutput[0] = ivars->pointingReady;
+        arguments->scalarOutput[0] = (ivars->pointing && ivars->pointing->getReady());
         return kIOReturnSuccess;
       }
       return kIOReturnError;
@@ -207,14 +199,6 @@ kern_return_t org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient::ExternalM
   }
 
   return kIOReturnBadArgument;
-}
-
-void IMPL(org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient, setKeyboardReady) {
-  ivars->keyboardReady = value;
-}
-
-void IMPL(org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient, setPointingReady) {
-  ivars->pointingReady = value;
 }
 
 uint32_t IMPL(org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient, getKeyboardCountryCode) {

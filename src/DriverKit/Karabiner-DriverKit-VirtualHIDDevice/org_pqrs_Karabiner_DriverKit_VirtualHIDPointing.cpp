@@ -82,6 +82,7 @@ const uint8_t reportDescriptor[] = {
 
 struct org_pqrs_Karabiner_DriverKit_VirtualHIDPointing_IVars {
   org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient* provider;
+  bool ready;
 };
 
 bool org_pqrs_Karabiner_DriverKit_VirtualHIDPointing::init() {
@@ -121,7 +122,7 @@ bool org_pqrs_Karabiner_DriverKit_VirtualHIDPointing::handleStart(IOService* pro
     return false;
   }
 
-  ivars->provider->setPointingReady(true);
+  ivars->ready = true;
 
   return true;
 }
@@ -244,4 +245,8 @@ kern_return_t IMPL(org_pqrs_Karabiner_DriverKit_VirtualHIDPointing, reset) {
   }
 
   return kIOReturnSuccess;
+}
+
+bool IMPL(org_pqrs_Karabiner_DriverKit_VirtualHIDPointing, getReady) {
+  return ivars->ready;
 }

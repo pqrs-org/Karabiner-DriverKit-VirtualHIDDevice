@@ -22,6 +22,8 @@ public:
 
     virtual kern_return_t postReport(IOMemoryDescriptor* report);
     virtual kern_return_t reset(void);
+
+    virtual bool getReady(void);
 };
 
 #endif

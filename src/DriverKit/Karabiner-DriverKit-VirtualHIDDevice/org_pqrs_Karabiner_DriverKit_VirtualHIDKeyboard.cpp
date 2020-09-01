@@ -114,6 +114,7 @@ const uint8_t reportDescriptor[] = {
 
 struct org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard_IVars {
   org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient* provider;
+  bool ready;
   uint8_t lastLedState;
 };
 
@@ -154,7 +155,7 @@ bool org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard::handleStart(IOService* pro
     return false;
   }
 
-  ivars->provider->setKeyboardReady(true);
+  ivars->ready = true;
 
   return true;
 }
@@ -349,4 +350,8 @@ kern_return_t IMPL(org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard, reset) {
   }
 
   return kIOReturnSuccess;
+}
+
+bool IMPL(org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard, getReady) {
+  return ivars->ready;
 }
