@@ -20,11 +20,6 @@ int main(void) {
 
   std::filesystem::path client_socket_file_path("/tmp/karabiner_driverkit_virtual_hid_device_service_client.sock");
 
-  {
-    std::error_code error_code;
-    std::filesystem::remove(client_socket_file_path, error_code);
-  }
-
   std::mutex client_mutex;
   auto client = std::make_unique<pqrs::karabiner::driverkit::virtual_hid_device_service::client>(client_socket_file_path);
 
