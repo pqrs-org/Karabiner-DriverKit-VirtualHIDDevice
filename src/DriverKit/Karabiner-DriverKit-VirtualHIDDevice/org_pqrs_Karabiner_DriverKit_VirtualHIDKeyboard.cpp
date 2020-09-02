@@ -115,7 +115,6 @@ const uint8_t reportDescriptor[] = {
 struct org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard_IVars {
   org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient* provider;
   bool ready;
-  uint32_t countryCode;
   uint8_t lastLedState;
 };
 
@@ -213,11 +212,11 @@ OSDictionary* org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard::newDeviceDescript
     locationId->release();
   }
 
-  ivars->countryCode = 0;
+  uint32_t keyboardCountryCode = 0;
   if (ivars->provider) {
-    ivars->countryCode = ivars->provider->getKeyboardCountryCode();
+    keyboardCountryCode = ivars->provider->getKeyboardCountryCode();
   }
-  if (auto countryCode = OSNumber::withNumber(ivars->countryCode, 32)) {
+  if (auto countryCode = OSNumber::withNumber(keyboardCountryCode, 32)) {
     OSDictionarySetValue(dictionary, kIOHIDCountryCodeKey, countryCode);
     countryCode->release();
   }
@@ -355,8 +354,4 @@ kern_return_t IMPL(org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard, reset) {
 
 bool IMPL(org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard, getReady) {
   return ivars->ready;
-}
-
-uint32_t IMPL(org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard, getCountryCode) {
-  return ivars->countryCode;
 }
