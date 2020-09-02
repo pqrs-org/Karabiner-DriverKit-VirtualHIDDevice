@@ -100,27 +100,6 @@ private:
 
   void create_io_service_client(void) {
     io_service_client_ = std::make_unique<io_service_client>();
-
-    io_service_client_->virtual_hid_keyboard_ready_callback.connect([this](auto&& ready) {
-      if (virtual_hid_keyboard_ready_ != ready) {
-        virtual_hid_keyboard_ready_ = ready;
-
-        logger::get_logger()->info(
-            "virtual_hid_device_service_server virtual_hid_keyboard_ready_ is changed: {0}",
-            ready ? (*ready ? "true" : "false") : "std::nullopt");
-      }
-    });
-
-    io_service_client_->virtual_hid_pointing_ready_callback.connect([this](auto&& ready) {
-      if (virtual_hid_pointing_ready_ != ready) {
-        virtual_hid_pointing_ready_ = ready;
-
-        logger::get_logger()->info(
-            "virtual_hid_device_service_server virtual_hid_pointing_ready_ is changed: {0}",
-            ready ? (*ready ? "true" : "false") : "std::nullopt");
-      }
-    });
-
     io_service_client_->async_start();
 
     ready_timer_.start(
@@ -194,7 +173,7 @@ private:
           case pqrs::karabiner::driverkit::virtual_hid_device_service::request::virtual_hid_keyboard_ready:
             async_send_ready_result(
                 pqrs::karabiner::driverkit::virtual_hid_device_service::response::virtual_hid_keyboard_ready_result,
-                virtual_hid_keyboard_ready_,
+                io_service_client_->get_virtual_hid_keyboard_ready(),
                 sender_endpoint);
             break;
 
@@ -219,7 +198,7 @@ private:
           case pqrs::karabiner::driverkit::virtual_hid_device_service::request::virtual_hid_pointing_ready:
             async_send_ready_result(
                 pqrs::karabiner::driverkit::virtual_hid_device_service::response::virtual_hid_pointing_ready_result,
-                virtual_hid_pointing_ready_,
+                io_service_client_->get_virtual_hid_pointing_ready(),
                 sender_endpoint);
             break;
 
@@ -288,7 +267,5 @@ private:
 
   std::unique_ptr<io_service_client> io_service_client_;
   std::unique_ptr<pqrs::local_datagram::server> server_;
-  std::optional<bool> virtual_hid_keyboard_ready_;
-  std::optional<bool> virtual_hid_pointing_ready_;
   pqrs::dispatcher::extra::timer ready_timer_;
 };

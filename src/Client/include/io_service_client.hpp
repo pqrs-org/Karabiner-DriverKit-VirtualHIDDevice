@@ -14,13 +14,6 @@
 
 class io_service_client final : public pqrs::dispatcher::extra::dispatcher_client {
 public:
-  // Signals (invoked from the shared dispatcher thread)
-
-  nod::signal<void(std::optional<bool>)> virtual_hid_keyboard_ready_callback;
-  nod::signal<void(std::optional<bool>)> virtual_hid_pointing_ready_callback;
-
-  // Methods
-
   io_service_client(void) : dispatcher_client() {
   }
 
@@ -30,6 +23,18 @@ public:
 
       service_monitor_ = nullptr;
     });
+  }
+
+  std::optional<bool> get_virtual_hid_keyboard_ready(void) const {
+    std::lock_guard<std::mutex> lock(virtual_hid_keyboard_ready_mutex_);
+
+    return virtual_hid_keyboard_ready_;
+  }
+
+  std::optional<bool> get_virtual_hid_pointing_ready(void) const {
+    std::lock_guard<std::mutex> lock(virtual_hid_pointing_ready_mutex_);
+
+    return virtual_hid_pointing_ready_;
   }
 
   void async_start(void) {
@@ -83,12 +88,20 @@ public:
     });
   }
 
-  void async_virtual_hid_keyboard_ready(void) const {
+  void async_virtual_hid_keyboard_ready(void) {
     enqueue_to_dispatcher([this] {
       auto ready = call_ready(pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_keyboard_ready);
 
       enqueue_to_dispatcher([this, ready] {
-        virtual_hid_keyboard_ready_callback(ready);
+        std::lock_guard<std::mutex> lock(virtual_hid_keyboard_ready_mutex_);
+
+        if (virtual_hid_keyboard_ready_ != ready) {
+          virtual_hid_keyboard_ready_ = ready;
+
+          logger::get_logger()->info(
+              "virtual_hid_keyboard_ready_ is changed: {0}",
+              ready ? (*ready ? "true" : "false") : "std::nullopt");
+        }
       });
     });
   }
@@ -123,12 +136,20 @@ public:
     });
   }
 
-  void async_virtual_hid_pointing_ready(void) const {
+  void async_virtual_hid_pointing_ready(void) {
     enqueue_to_dispatcher([this] {
       auto ready = call_ready(pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_pointing_ready);
 
       enqueue_to_dispatcher([this, ready] {
-        virtual_hid_pointing_ready_callback(ready);
+        std::lock_guard<std::mutex> lock(virtual_hid_pointing_ready_mutex_);
+
+        if (virtual_hid_pointing_ready_ != ready) {
+          virtual_hid_pointing_ready_ = ready;
+
+          logger::get_logger()->info(
+              "virtual_hid_pointing_ready_ is changed: {0}",
+              ready ? (*ready ? "true" : "false") : "std::nullopt");
+        }
       });
     });
   }
@@ -223,6 +244,9 @@ private:
         os_log_error(OS_LOG_DEFAULT, "IOServiceOpen error: %{public}s", r.to_string().c_str());
         connection_.reset();
       }
+
+      virtual_hid_keyboard_ready_ = std::nullopt;
+      virtual_hid_pointing_ready_ = std::nullopt;
     }
   }
 
@@ -231,6 +255,9 @@ private:
     if (connection_) {
       IOServiceClose(*connection_);
       connection_.reset();
+
+      virtual_hid_keyboard_ready_ = std::nullopt;
+      virtual_hid_pointing_ready_ = std::nullopt;
     }
 
     service_.reset();
@@ -307,4 +334,10 @@ private:
   std::unique_ptr<pqrs::osx::iokit_service_monitor> service_monitor_;
   pqrs::osx::iokit_object_ptr service_;
   pqrs::osx::iokit_object_ptr connection_;
+
+  mutable std::mutex virtual_hid_keyboard_ready_mutex_;
+  std::optional<bool> virtual_hid_keyboard_ready_;
+
+  mutable std::mutex virtual_hid_pointing_ready_mutex_;
+  std::optional<bool> virtual_hid_pointing_ready_;
 };
