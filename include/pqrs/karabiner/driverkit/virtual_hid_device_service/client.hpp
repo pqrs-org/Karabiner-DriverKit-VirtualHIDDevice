@@ -140,12 +140,8 @@ private:
     client_->closed.connect([this] {
       enqueue_to_dispatcher([this] {
         closed();
-      });
-    });
-
-    client_->closed.connect([this] {
-      enqueue_to_dispatcher([this] {
-        closed();
+        virtual_hid_keyboard_ready_callback(false);
+        virtual_hid_pointing_ready_callback(false);
       });
     });
 
