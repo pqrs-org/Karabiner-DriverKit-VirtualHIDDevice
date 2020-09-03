@@ -89,18 +89,6 @@ public:
     });
   }
 
-  void async_virtual_hid_keyboard_terminate(void) const {
-    logger::get_logger()->error("io_service_client::{0}", __func__);
-
-    enqueue_to_dispatcher([this] {
-      auto r = call(pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_keyboard_terminate);
-
-      if (!r) {
-        logger::get_logger()->error("virtual_hid_keyboard_terminate error: {0}", r.to_string());
-      }
-    });
-  }
-
   void async_virtual_hid_keyboard_ready(void) {
     enqueue_to_dispatcher([this] {
       auto ready = call_ready(pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_keyboard_ready);
@@ -137,18 +125,6 @@ public:
 
       if (!r) {
         logger::get_logger()->error("virtual_hid_pointing_initialize error: {0}", r.to_string());
-      }
-    });
-  }
-
-  void async_virtual_hid_pointing_terminate(void) const {
-    logger::get_logger()->error("io_service_client::{0}", __func__);
-
-    enqueue_to_dispatcher([this] {
-      auto r = call(pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_pointing_terminate);
-
-      if (!r) {
-        logger::get_logger()->error("virtual_hid_pointing_terminate error: {0}", r.to_string());
       }
     });
   }
