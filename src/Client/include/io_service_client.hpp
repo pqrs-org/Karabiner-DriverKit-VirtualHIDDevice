@@ -14,6 +14,13 @@
 
 class io_service_client final : public pqrs::dispatcher::extra::dispatcher_client {
 public:
+  // Signals (invoked from the dispatcher thread)
+
+  nod::signal<void(void)> opened;
+  nod::signal<void(void)> closed;
+
+  // Methods
+
   io_service_client(void) : dispatcher_client() {
   }
 
@@ -240,6 +247,10 @@ private:
 
       if (r) {
         connection_ = pqrs::osx::iokit_object_ptr(c);
+
+        enqueue_to_dispatcher([this] {
+          opened();
+        });
       } else {
         os_log_error(OS_LOG_DEFAULT, "IOServiceOpen error: %{public}s", r.to_string().c_str());
         connection_.reset();
@@ -258,6 +269,10 @@ private:
 
       virtual_hid_keyboard_ready_ = std::nullopt;
       virtual_hid_pointing_ready_ = std::nullopt;
+
+      enqueue_to_dispatcher([this] {
+        closed();
+      });
     }
 
     service_.reset();
