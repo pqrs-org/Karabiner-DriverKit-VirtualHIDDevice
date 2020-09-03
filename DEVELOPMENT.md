@@ -203,7 +203,7 @@ Implement the actual processing by the following steps.
 ### Prepare provision profile
 
 You have to be granted the permission of `com.apple.developer.driverkit.userclient-access` from Apple.
-(e.g. `client/examples/virtual-keyboard-client/Karabiner-DriverKit-VirtualHIDDeviceClient/entitlements.plist`)
+(e.g. `src/Client/entitlements.plist`)
 
 You have to add a description you want to use `userclient-access` at the DriverKit Entitlement request to Apple.
 <https://developer.apple.com/contact/request/system-extension/>
