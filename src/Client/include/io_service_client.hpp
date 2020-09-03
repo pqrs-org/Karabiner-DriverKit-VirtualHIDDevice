@@ -45,6 +45,8 @@ public:
   }
 
   void async_start(void) {
+    logger::get_logger()->error("io_service_client::{0}", __func__);
+
     enqueue_to_dispatcher([this] {
       if (auto matching_dictionary = IOServiceNameMatching("org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceRoot")) {
         service_monitor_ = std::make_unique<pqrs::osx::iokit_service_monitor>(weak_dispatcher_,
@@ -72,6 +74,8 @@ public:
   }
 
   void async_virtual_hid_keyboard_initialize(pqrs::hid::country_code::value_t country_code) const {
+    logger::get_logger()->error("io_service_client::{0}", __func__);
+
     enqueue_to_dispatcher([this, country_code] {
       std::array<uint64_t, 1> input = {type_safe::get(country_code)};
 
@@ -86,6 +90,8 @@ public:
   }
 
   void async_virtual_hid_keyboard_terminate(void) const {
+    logger::get_logger()->error("io_service_client::{0}", __func__);
+
     enqueue_to_dispatcher([this] {
       auto r = call(pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_keyboard_terminate);
 
@@ -124,6 +130,8 @@ public:
   }
 
   void async_virtual_hid_pointing_initialize(void) const {
+    logger::get_logger()->error("io_service_client::{0}", __func__);
+
     enqueue_to_dispatcher([this] {
       auto r = call(pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_pointing_initialize);
 
@@ -134,6 +142,8 @@ public:
   }
 
   void async_virtual_hid_pointing_terminate(void) const {
+    logger::get_logger()->error("io_service_client::{0}", __func__);
+
     enqueue_to_dispatcher([this] {
       auto r = call(pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_pointing_terminate);
 
@@ -249,6 +259,8 @@ private:
         connection_ = pqrs::osx::iokit_object_ptr(c);
 
         enqueue_to_dispatcher([this] {
+          logger::get_logger()->error("io_service_client::opened");
+
           opened();
         });
       } else {
@@ -271,6 +283,8 @@ private:
       virtual_hid_pointing_ready_ = std::nullopt;
 
       enqueue_to_dispatcher([this] {
+        logger::get_logger()->error("io_service_client::closed");
+
         closed();
       });
     }
