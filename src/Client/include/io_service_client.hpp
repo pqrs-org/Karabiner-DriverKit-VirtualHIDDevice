@@ -22,7 +22,8 @@ public:
 
   // Methods
 
-  io_service_client(void) : dispatcher_client() {
+  io_service_client(void) : dispatcher_client(),
+                            systemextensionsctl_list_timer_(*this) {
   }
 
   ~io_service_client(void) {
@@ -30,6 +31,8 @@ public:
       close_connection();
 
       service_monitor_ = nullptr;
+
+      systemextensionsctl_list_timer_.stop();
     });
   }
 
@@ -49,6 +52,8 @@ public:
     logger::get_logger()->info("io_service_client::{0}", __func__);
 
     enqueue_to_dispatcher([this] {
+      start_systemextensionsctl_list_timer();
+
       if (auto matching_dictionary = IOServiceNameMatching("org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceRoot")) {
         service_monitor_ = std::make_unique<pqrs::osx::iokit_service_monitor>(weak_dispatcher_,
                                                                               matching_dictionary);
@@ -58,6 +63,8 @@ public:
 
           // Use the last matched service.
           open_connection(service_ptr);
+
+          systemextensionsctl_list_timer_.stop();
         });
 
         service_monitor_->service_terminated.connect([this](auto&& registry_entry_id) {
@@ -65,6 +72,8 @@ public:
 
           // Use the next service
           service_monitor_->async_invoke_service_matched();
+
+          start_systemextensionsctl_list_timer();
         });
 
         service_monitor_->async_start();
@@ -208,9 +217,20 @@ public:
   }
 
 private:
-  bool driver_version_matched(void) const {
-    std::lock_guard<std::mutex> lock(driver_version_mutex_);
+  // This method is executed in the dispatcher thread.
+  void start_systemextensionsctl_list_timer(void) {
+    systemextensionsctl_list_timer_.stop();
 
+    systemextensionsctl_list_timer_.start(
+        [] {
+          auto r = system("/usr/bin/systemextensionsctl list");
+          logger::get_logger()->info("/usr/bin/systemextensionsctl list: {0}", r);
+        },
+        std::chrono::milliseconds(5000));
+  }
+
+  // This method is executed in the dispatcher thread.
+  bool driver_version_matched(void) const {
     if (driver_version_ == DRIVER_VERSION_NUMBER) {
       return true;
     } else {
@@ -229,8 +249,6 @@ private:
 
   // This method is executed in the dispatcher thread.
   void set_driver_version(std::optional<uint64_t> value) {
-    std::lock_guard<std::mutex> lock(driver_version_mutex_);
-
     if (driver_version_ != value) {
       driver_version_ = value;
 
@@ -273,39 +291,44 @@ private:
 
   // This method is executed in the dispatcher thread.
   void open_connection(pqrs::osx::iokit_object_ptr s) {
-    if (!connection_) {
-      set_driver_version(std::nullopt);
-      set_virtual_hid_keyboard_ready(std::nullopt);
-      set_virtual_hid_pointing_ready(std::nullopt);
-
-      service_ = s;
-
-      io_connect_t c;
-      pqrs::osx::iokit_return r = IOServiceOpen(*service_, mach_task_self(), 0, &c);
-
-      if (r) {
-        connection_ = pqrs::osx::iokit_object_ptr(c);
-
-        //
-        // Check driver version
-        //
-
-        auto driver_version = call_driver_version();
-        set_driver_version(driver_version);
-        if (!driver_version) {
-          logger::get_logger()->error("io_service_client failed to get driver_version");
-        }
-
-        enqueue_to_dispatcher([this] {
-          logger::get_logger()->info("io_service_client::opened");
-
-          opened();
-        });
-      } else {
-        os_log_error(OS_LOG_DEFAULT, "IOServiceOpen error: %{public}s", r.to_string().c_str());
-        connection_.reset();
-      }
+    if (connection_) {
+      return;
     }
+
+    set_driver_version(std::nullopt);
+    set_virtual_hid_keyboard_ready(std::nullopt);
+    set_virtual_hid_pointing_ready(std::nullopt);
+
+    service_ = s;
+
+    io_connect_t c;
+    pqrs::osx::iokit_return r = IOServiceOpen(*service_, mach_task_self(), 0, &c);
+
+    if (!r) {
+      logger::get_logger()->error("io_service_client IOServiceOpen error: {0}", r.to_string());
+      connection_.reset();
+      return;
+    }
+
+    connection_ = pqrs::osx::iokit_object_ptr(c);
+
+    //
+    // Check driver version
+    //
+
+    auto driver_version = call_driver_version();
+    set_driver_version(driver_version);
+    if (!driver_version) {
+      logger::get_logger()->error("io_service_client failed to get driver_version");
+      connection_.reset();
+      return;
+    }
+
+    enqueue_to_dispatcher([this] {
+      logger::get_logger()->info("io_service_client::opened");
+
+      opened();
+    });
   }
 
   // This method is executed in the dispatcher thread.
@@ -436,11 +459,14 @@ private:
                                      0);
   }
 
+  // The driverkit extension sometimes will not be loaded until `systemextensionsctl list` command is called due to a bug of macOS.
+  // Thus, we call the command until `service_matched` is called.
+  pqrs::dispatcher::extra::timer systemextensionsctl_list_timer_;
+
   std::unique_ptr<pqrs::osx::iokit_service_monitor> service_monitor_;
   pqrs::osx::iokit_object_ptr service_;
   pqrs::osx::iokit_object_ptr connection_;
 
-  mutable std::mutex driver_version_mutex_;
   std::optional<uint64_t> driver_version_;
 
   mutable std::mutex virtual_hid_keyboard_ready_mutex_;
