@@ -46,7 +46,7 @@ codesign \
 #
 cp \
     Client/embedded.provisionprofile \
-    build/Release/Karabiner-DriverKit-VirtualHIDDeviceClient.app/Contents/embedded.provisionprofile
+    Client/build/Release/Karabiner-DriverKit-VirtualHIDDeviceClient.app/Contents/embedded.provisionprofile
 
 # Sign
 codesign \
@@ -55,4 +55,4 @@ codesign \
     --options runtime \
     --verbose \
     --force \
-    build/Release/Karabiner-DriverKit-VirtualHIDDeviceClient.app
+    Client/build/Release/Karabiner-DriverKit-VirtualHIDDeviceClient.app
