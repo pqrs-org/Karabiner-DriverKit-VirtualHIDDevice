@@ -9,10 +9,6 @@ struct ContentView: View {
     @State private var logMessages: [String] = []
     @State private var controlResult: String = ""
 
-    func runList() {
-        controlResult = "systemextensionsctl list\n\n" + ExtensionManager.shared.list()
-    }
-
     var body: some View {
         VStack {
             Text("Karabiner-VirtualHIDDevice-Manager version " + self.version)
@@ -35,27 +31,11 @@ struct ContentView: View {
                 .padding()
             }
             .overlay(RoundedRectangle(cornerRadius: 5).stroke(lineWidth: 1))
-
-            HStack {
-                Button(action: { self.runList() }) {
-                    Text("systemextensionsctl list")
-                }
-            }
-            ScrollView {
-                VStack(alignment: .leading, spacing: 10) {
-                    Text(controlResult)
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-                .padding()
-            }
-            .overlay(RoundedRectangle(cornerRadius: 5).stroke(lineWidth: 1))
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity).padding()
         .onReceive(NotificationCenter.default.publisher(for: ExtensionManager.stateChanged)) { obj in
             self.logMessages.append((obj.object as! ExtensionManager.NotificationObject).message)
-            self.runList()
         }
-        .onAppear { self.runList() }
     }
 }
 

@@ -32,7 +32,7 @@ cp -R files/LaunchDaemons "pkgroot/Library"
 basedir="pkgroot/Applications"
 mkdir -p "$basedir"
 # Note: Rename app (add leading dot) in order to hide from Finder and Launchpad.
-cp -R "src/build/Release/Karabiner-VirtualHIDDevice-Manager.app" "$basedir/.Karabiner-VirtualHIDDevice-Manager.app"
+cp -R "src/Manager/build/Release/Karabiner-VirtualHIDDevice-Manager.app" "$basedir/.Karabiner-VirtualHIDDevice-Manager.app"
 
 bash "scripts/setpermissions.sh" pkginfo
 bash "scripts/setpermissions.sh" pkgroot
