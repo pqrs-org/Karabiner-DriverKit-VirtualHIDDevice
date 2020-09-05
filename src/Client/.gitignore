@@ -1,5 +1,4 @@
 /build
-/Info.plist
 /*.xcodeproj
 
 /vendor/cget/cget.cmake

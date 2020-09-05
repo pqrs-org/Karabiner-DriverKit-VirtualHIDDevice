@@ -21,6 +21,9 @@ targets:
           - -Wall
           - -Werror
           - '-std=gnu++17'
+      - path: Resources
+        excludes:
+          - Info.plist.in
     dependencies:
       - sdk: CoreFoundation.framework
       - sdk: IOKit.framework
