@@ -9,6 +9,8 @@ namespace karabiner {
 namespace driverkit {
 namespace virtual_hid_device_driver {
 enum class user_client_method {
+  driver_version,
+
   //
   // keyboard
   //

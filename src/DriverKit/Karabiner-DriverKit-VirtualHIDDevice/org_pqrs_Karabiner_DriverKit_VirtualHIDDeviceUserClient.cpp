@@ -90,6 +90,13 @@ kern_return_t org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient::ExternalM
                                                                                       OSObject* target,
                                                                                       void* reference) {
   switch (pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method(selector)) {
+    case pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::driver_version:
+      if (arguments->scalarOutput && arguments->scalarOutputCount > 0) {
+        arguments->scalarOutput[0] = KARABINER_DRIVERKIT_VERSION_NUMBER;
+        return kIOReturnSuccess;
+      }
+      return kIOReturnError;
+
     case pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_keyboard_initialize:
       if (!ivars->keyboard) {
         if (arguments->scalarInputCount > 0) {
