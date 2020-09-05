@@ -23,7 +23,7 @@ int main(void) {
   pqrs::dispatcher::extra::initialize_shared_dispatcher();
 
   logger::set_async_rotating_logger("virtual_hid_device_service",
-                                    "/var/log/karabiner/karabiner_driverkit_virtual_hid_device_service.log",
+                                    "/var/log/karabiner/virtual_hid_device_service.log",
                                     pqrs::spdlog::filesystem::log_directory_perms_0755);
 
   logger::get_logger()->info("version {0}", VERSION);
