@@ -17,10 +17,10 @@ package: clean
 notarize:
 	xcrun altool --notarize-app \
 		-t osx \
-		-f dist/Karabiner-DriverKit-VirtualHIDDevice-$(VERSION).dmg \
+		-f dist/Karabiner-DriverKit-VirtualHIDDevice-$(VERSION).pkg \
 		--primary-bundle-id 'org.pqrs.Karabiner-DriverKit-VirtualHIDDevice' \
 		-u 'tekezo@pqrs.org' \
 		-p '@keychain:pqrs.org-notarize-app'
 
 staple:
-		xcrun stapler staple dist/Karabiner-DriverKit-VirtualHIDDevice-$(VERSION).dmg
+		xcrun stapler staple dist/Karabiner-DriverKit-VirtualHIDDevice-$(VERSION).pkg

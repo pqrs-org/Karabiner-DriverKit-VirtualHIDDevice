@@ -43,12 +43,10 @@ chmod 755 pkginfo/Scripts/preinstall
 # --------------------------------------------------
 echo "Create pkg"
 
-pkgName="Karabiner-DriverKit-VirtualHIDDevice.pkg"
+pkgName="Karabiner-DriverKit-VirtualHIDDevice-$version.pkg"
 pkgIdentifier="org.pqrs.Karabiner-DriverKit-VirtualHIDDevice"
-archiveName="Karabiner-DriverKit-VirtualHIDDevice-${version}"
 
-rm -rf $archiveName
-mkdir $archiveName
+rm -f dist/$pkgName
 
 pkgbuild \
     --root pkgroot \
@@ -57,31 +55,10 @@ pkgbuild \
     --identifier $pkgIdentifier \
     --version $version \
     --install-location "/" \
-    $archiveName/Installer.pkg
-
-productbuild \
-    --distribution pkginfo/Distribution.xml \
-    --package-path $archiveName \
-    $archiveName/$pkgName
-
-rm -f $archiveName/Installer.pkg
+    dist/$pkgName
 
 # --------------------------------------------------
 echo "Sign with Developer ID"
 
 set +e # allow command failure
-bash scripts/codesign-pkg.sh $archiveName/$pkgName
-
-# --------------------------------------------------
-echo "Make Archive"
-
-set -e # forbid command failure
-
-# Note:
-# Some third vendor archiver fails to extract zip archive.
-# Therefore, we use dmg instead of zip.
-
-rm -f dist/$archiveName.dmg
-hdiutil create -nospotlight dist/$archiveName.dmg -srcfolder $archiveName -fs 'APFS'
-rm -rf $archiveName
-chmod 644 dist/$archiveName.dmg
+bash scripts/codesign-pkg.sh dist/$pkgName

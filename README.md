@@ -144,8 +144,7 @@ If you want to start without a valid provisioning profile, use Xcode 11 and
 5.  Build by the following command in terminal.
 
     ```shell
-    cd src
-    make
+    make package
     ```
 
-    `build/Release/Karabiner-VirtualHIDDevice-Manager.app` will be generated.
+    `dist/Karabiner-DriverKit-VirtualHIDDevice-X.X.X.pkg` will be generated.
