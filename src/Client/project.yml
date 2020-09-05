@@ -10,6 +10,8 @@ targets:
       SYSTEM_HEADER_SEARCH_PATHS:
         - vendor/include
         - ../../include
+      HEADER_SEARCH_PATHS:
+        - include
     type: application
     platform: macOS
     deploymentTarget: 10.15
@@ -19,9 +21,6 @@ targets:
           - -Wall
           - -Werror
           - '-std=gnu++17'
-      - path: include
-      - path: vendor/include
-      - path: ../../include
     dependencies:
       - sdk: CoreFoundation.framework
       - sdk: IOKit.framework
