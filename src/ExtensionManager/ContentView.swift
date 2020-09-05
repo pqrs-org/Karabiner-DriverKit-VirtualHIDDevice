@@ -13,10 +13,6 @@ struct ContentView: View {
         controlResult = "systemextensionsctl list\n\n" + ExtensionManager.shared.list()
     }
 
-    func runReset() {
-        controlResult = "systemextensionsctl reset\n\n" + ExtensionManager.shared.reset()
-    }
-
     var body: some View {
         VStack {
             Text("Karabiner-VirtualHIDDevice-Manager version " + self.version)
@@ -43,9 +39,6 @@ struct ContentView: View {
             HStack {
                 Button(action: { self.runList() }) {
                     Text("systemextensionsctl list")
-                }
-                Button(action: { self.runReset() }) {
-                    Text("systemextensionsctl reset")
                 }
             }
             ScrollView {

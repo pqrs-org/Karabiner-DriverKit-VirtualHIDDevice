@@ -75,11 +75,6 @@ class ExtensionManager: NSObject, OSSystemExtensionRequestDelegate {
         return runOutput.stdout
     }
 
-    func reset() -> String {
-        let runOutput = run("/usr/bin/systemextensionsctl", "reset")
-        return runOutput.stdout
-    }
-
     //
     // OSSystemExtensionRequestDelegate
     //
