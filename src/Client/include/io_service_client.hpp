@@ -1,6 +1,7 @@
 #pragma once
 
 #include "logger.hpp"
+#include "version.hpp"
 #include <IOKit/IOKitLib.h>
 #include <array>
 #include <nod/nod.hpp>
@@ -45,7 +46,7 @@ public:
   }
 
   void async_start(void) {
-    logger::get_logger()->error("io_service_client::{0}", __func__);
+    logger::get_logger()->info("io_service_client::{0}", __func__);
 
     enqueue_to_dispatcher([this] {
       if (auto matching_dictionary = IOServiceNameMatching("org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceRoot")) {
@@ -74,7 +75,7 @@ public:
   }
 
   void async_virtual_hid_keyboard_initialize(pqrs::hid::country_code::value_t country_code) const {
-    logger::get_logger()->error("io_service_client::{0}", __func__);
+    logger::get_logger()->info("io_service_client::{0}", __func__);
 
     enqueue_to_dispatcher([this, country_code] {
       std::array<uint64_t, 1> input = {type_safe::get(country_code)};
@@ -94,15 +95,7 @@ public:
       auto ready = call_ready(pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_keyboard_ready);
 
       enqueue_to_dispatcher([this, ready] {
-        std::lock_guard<std::mutex> lock(virtual_hid_keyboard_ready_mutex_);
-
-        if (virtual_hid_keyboard_ready_ != ready) {
-          virtual_hid_keyboard_ready_ = ready;
-
-          logger::get_logger()->info(
-              "virtual_hid_keyboard_ready_ is changed: {0}",
-              ready ? (*ready ? "true" : "false") : "std::nullopt");
-        }
+        set_virtual_hid_keyboard_ready(ready);
       });
     });
   }
@@ -118,7 +111,7 @@ public:
   }
 
   void async_virtual_hid_pointing_initialize(void) const {
-    logger::get_logger()->error("io_service_client::{0}", __func__);
+    logger::get_logger()->info("io_service_client::{0}", __func__);
 
     enqueue_to_dispatcher([this] {
       auto r = call(pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_pointing_initialize);
@@ -134,15 +127,7 @@ public:
       auto ready = call_ready(pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_pointing_ready);
 
       enqueue_to_dispatcher([this, ready] {
-        std::lock_guard<std::mutex> lock(virtual_hid_pointing_ready_mutex_);
-
-        if (virtual_hid_pointing_ready_ != ready) {
-          virtual_hid_pointing_ready_ = ready;
-
-          logger::get_logger()->info(
-              "virtual_hid_pointing_ready_ is changed: {0}",
-              ready ? (*ready ? "true" : "false") : "std::nullopt");
-        }
+        set_virtual_hid_pointing_ready(ready);
       });
     });
   }
@@ -223,9 +208,76 @@ public:
   }
 
 private:
+  bool driver_version_matched(void) const {
+    std::lock_guard<std::mutex> lock(driver_version_mutex_);
+
+    if (driver_version_ == DRIVER_VERSION_NUMBER) {
+      return true;
+    } else {
+      if (driver_version_) {
+        logger::get_logger()->warn("driver_version_ is mismatched: client expected: {0}, actual dext: {1}",
+                                   DRIVER_VERSION_NUMBER,
+                                   *driver_version_);
+      } else {
+        logger::get_logger()->warn("driver_version_ is mismatched: client expected: {0}, actual dext: std::nullopt",
+                                   DRIVER_VERSION_NUMBER);
+      }
+
+      return false;
+    }
+  }
+
+  // This method is executed in the dispatcher thread.
+  void set_driver_version(std::optional<uint64_t> value) {
+    std::lock_guard<std::mutex> lock(driver_version_mutex_);
+
+    if (driver_version_ != value) {
+      driver_version_ = value;
+
+      if (value) {
+        logger::get_logger()->info(
+            "driver_version_ is changed: {0}",
+            *value);
+      } else {
+        logger::get_logger()->info(
+            "driver_version_ is changed: std::nullopt");
+      }
+    }
+  }
+
+  // This method is executed in the dispatcher thread.
+  void set_virtual_hid_keyboard_ready(std::optional<bool> value) {
+    std::lock_guard<std::mutex> lock(virtual_hid_keyboard_ready_mutex_);
+
+    if (virtual_hid_keyboard_ready_ != value) {
+      virtual_hid_keyboard_ready_ = value;
+
+      logger::get_logger()->info(
+          "virtual_hid_keyboard_ready_ is changed: {0}",
+          value ? (*value ? "true" : "false") : "std::nullopt");
+    }
+  }
+
+  // This method is executed in the dispatcher thread.
+  void set_virtual_hid_pointing_ready(std::optional<bool> value) {
+    std::lock_guard<std::mutex> lock(virtual_hid_pointing_ready_mutex_);
+
+    if (virtual_hid_pointing_ready_ != value) {
+      virtual_hid_pointing_ready_ = value;
+
+      logger::get_logger()->info(
+          "virtual_hid_pointing_ready_ is changed: {0}",
+          value ? (*value ? "true" : "false") : "std::nullopt");
+    }
+  }
+
   // This method is executed in the dispatcher thread.
   void open_connection(pqrs::osx::iokit_object_ptr s) {
     if (!connection_) {
+      set_driver_version(std::nullopt);
+      set_virtual_hid_keyboard_ready(std::nullopt);
+      set_virtual_hid_pointing_ready(std::nullopt);
+
       service_ = s;
 
       io_connect_t c;
@@ -234,8 +286,18 @@ private:
       if (r) {
         connection_ = pqrs::osx::iokit_object_ptr(c);
 
+        //
+        // Check driver version
+        //
+
+        auto driver_version = call_driver_version();
+        set_driver_version(driver_version);
+        if (!driver_version) {
+          logger::get_logger()->error("io_service_client failed to get driver_version");
+        }
+
         enqueue_to_dispatcher([this] {
-          logger::get_logger()->error("io_service_client::opened");
+          logger::get_logger()->info("io_service_client::opened");
 
           opened();
         });
@@ -243,9 +305,6 @@ private:
         os_log_error(OS_LOG_DEFAULT, "IOServiceOpen error: %{public}s", r.to_string().c_str());
         connection_.reset();
       }
-
-      virtual_hid_keyboard_ready_ = std::nullopt;
-      virtual_hid_pointing_ready_ = std::nullopt;
     }
   }
 
@@ -255,23 +314,52 @@ private:
       IOServiceClose(*connection_);
       connection_.reset();
 
-      virtual_hid_keyboard_ready_ = std::nullopt;
-      virtual_hid_pointing_ready_ = std::nullopt;
-
       enqueue_to_dispatcher([this] {
-        logger::get_logger()->error("io_service_client::closed");
+        logger::get_logger()->info("io_service_client::closed");
 
         closed();
       });
     }
 
     service_.reset();
+
+    set_driver_version(std::nullopt);
+    set_virtual_hid_keyboard_ready(std::nullopt);
+    set_virtual_hid_pointing_ready(std::nullopt);
+  }
+
+  // This method is executed in the dispatcher thread.
+  std::optional<uint64_t> call_driver_version(void) const {
+    if (!connection_) {
+      return std::nullopt;
+    }
+
+    // Do not call `driver_version_matched()` here.
+
+    uint64_t output[1] = {0};
+    uint32_t output_count = 1;
+    auto kr = IOConnectCallScalarMethod(*connection_,
+                                        static_cast<uint32_t>(pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::driver_version),
+                                        nullptr,
+                                        0,
+                                        output,
+                                        &output_count);
+
+    if (kr != kIOReturnSuccess) {
+      return std::nullopt;
+    }
+
+    return output[0];
   }
 
   // This method is executed in the dispatcher thread.
   pqrs::osx::iokit_return call(pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method user_client_method) const {
     if (!connection_) {
       return kIOReturnNotOpen;
+    }
+
+    if (!driver_version_matched()) {
+      return kIOReturnError;
     }
 
     return IOConnectCallStructMethod(*connection_,
@@ -290,6 +378,10 @@ private:
       return kIOReturnNotOpen;
     }
 
+    if (!driver_version_matched()) {
+      return kIOReturnError;
+    }
+
     return IOConnectCallScalarMethod(*connection_,
                                      static_cast<uint32_t>(user_client_method),
                                      input,
@@ -301,6 +393,10 @@ private:
   // This method is executed in the dispatcher thread.
   std::optional<bool> call_ready(pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method user_client_method) const {
     if (!connection_) {
+      return std::nullopt;
+    }
+
+    if (!driver_version_matched()) {
       return std::nullopt;
     }
 
@@ -328,6 +424,10 @@ private:
       return kIOReturnNotOpen;
     }
 
+    if (!driver_version_matched()) {
+      return kIOReturnError;
+    }
+
     return IOConnectCallStructMethod(*connection_,
                                      static_cast<uint32_t>(user_client_method),
                                      report,
@@ -339,6 +439,9 @@ private:
   std::unique_ptr<pqrs::osx::iokit_service_monitor> service_monitor_;
   pqrs::osx::iokit_object_ptr service_;
   pqrs::osx::iokit_object_ptr connection_;
+
+  mutable std::mutex driver_version_mutex_;
+  std::optional<uint64_t> driver_version_;
 
   mutable std::mutex virtual_hid_keyboard_ready_mutex_;
   std::optional<bool> virtual_hid_keyboard_ready_;
