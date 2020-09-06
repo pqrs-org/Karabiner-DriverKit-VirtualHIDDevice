@@ -29,8 +29,6 @@ Virtual devices (keyboard and mouse) implementation for macOS using DriverKit.
 
 -   System Preferences (macOS detects the virtual keyboard)<br/><br />
     <img src="docs/images/system-preferences@2x.png" width="668" alt="System Preferences" /><br /><br />
--   Extension manager<br/><br />
-    <img src="docs/images/extension-manager@2x.png" width="798" alt="Extension manager" /><br /><br />
 
 ---
 
@@ -41,11 +39,10 @@ Virtual devices (keyboard and mouse) implementation for macOS using DriverKit.
 3.  Execute the following command in Terminal.
 
     ```shell
-    open /Applications/.Karabiner-VirtualHIDDevice-Manager.app
+    /Applications/.Karabiner-VirtualHIDDevice-Manager.app/Contents/MacOS/Karabiner-VirtualHIDDevice-Manager activate
     ```
 
-4.  Install driver extension by `Activate driver extension` button.
-5.  Run a client program to test the driver extension.
+4.  Run a client program to test the driver extension.
 
     ```shell
     git clone --depth 1 https://github.com/pqrs-org/Karabiner-DriverKit-VirtualHIDDevice.git
