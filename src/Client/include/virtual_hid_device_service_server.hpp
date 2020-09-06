@@ -15,7 +15,6 @@ public:
     // Preparation
     //
 
-    remove_server_socket_file();
     create_rootonly_directory();
 
     //
@@ -75,23 +74,6 @@ private:
           __func__,
           error_code.message());
       return;
-    }
-  }
-
-  void remove_server_socket_file(void) const {
-    std::filesystem::path path(pqrs::karabiner::driverkit::virtual_hid_device_service::constants::server_socket_file_path);
-
-    if (std::filesystem::exists(path)) {
-      std::error_code error_code;
-      std::filesystem::remove(path, error_code);
-
-      if (error_code) {
-        logger::get_logger()->error(
-            "virtual_hid_device_service_server::{0} remove error: {1}",
-            __func__,
-            error_code.message());
-        return;
-      }
     }
   }
 
