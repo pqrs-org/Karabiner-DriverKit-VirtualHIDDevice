@@ -22,8 +22,7 @@ public:
 
   // Methods
 
-  io_service_client(void) : dispatcher_client(),
-                            systemextensionsctl_list_timer_(*this) {
+  io_service_client(void) : dispatcher_client() {
   }
 
   ~io_service_client(void) {
@@ -31,8 +30,6 @@ public:
       close_connection();
 
       service_monitor_ = nullptr;
-
-      systemextensionsctl_list_timer_.stop();
     });
   }
 
@@ -52,8 +49,6 @@ public:
     logger::get_logger()->info("io_service_client::{0}", __func__);
 
     enqueue_to_dispatcher([this] {
-      start_systemextensionsctl_list_timer();
-
       if (auto matching_dictionary = IOServiceNameMatching("org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceRoot")) {
         service_monitor_ = std::make_unique<pqrs::osx::iokit_service_monitor>(weak_dispatcher_,
                                                                               matching_dictionary);
@@ -63,8 +58,6 @@ public:
 
           // Use the last matched service.
           open_connection(service_ptr);
-
-          systemextensionsctl_list_timer_.stop();
         });
 
         service_monitor_->service_terminated.connect([this](auto&& registry_entry_id) {
@@ -72,8 +65,6 @@ public:
 
           // Use the next service
           service_monitor_->async_invoke_service_matched();
-
-          start_systemextensionsctl_list_timer();
         });
 
         service_monitor_->async_start();
@@ -217,18 +208,6 @@ public:
   }
 
 private:
-  // This method is executed in the dispatcher thread.
-  void start_systemextensionsctl_list_timer(void) {
-    systemextensionsctl_list_timer_.stop();
-
-    systemextensionsctl_list_timer_.start(
-        [] {
-          auto r = system("/usr/bin/systemextensionsctl list");
-          logger::get_logger()->info("/usr/bin/systemextensionsctl list: {0}", r);
-        },
-        std::chrono::milliseconds(5000));
-  }
-
   // This method is executed in the dispatcher thread.
   bool driver_version_matched(void) const {
     if (driver_version_ == DRIVER_VERSION_NUMBER) {
@@ -458,10 +437,6 @@ private:
                                      nullptr,
                                      0);
   }
-
-  // The driverkit extension sometimes will not be loaded until `systemextensionsctl list` command is called due to a bug of macOS.
-  // Thus, we call the command until `service_matched` is called.
-  pqrs::dispatcher::extra::timer systemextensionsctl_list_timer_;
 
   std::unique_ptr<pqrs::osx::iokit_service_monitor> service_monitor_;
   pqrs::osx::iokit_object_ptr service_;
