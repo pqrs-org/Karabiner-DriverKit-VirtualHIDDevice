@@ -74,7 +74,8 @@ class ExtensionManager: NSObject, OSSystemExtensionRequestDelegate {
     //
 
     func request(_ request: OSSystemExtensionRequest,
-                 didFinishWithResult result: OSSystemExtensionRequest.Result) {
+                 didFinishWithResult result: OSSystemExtensionRequest.Result)
+    {
         NotificationCenter.default.post(
             name: ExtensionManager.stateChanged,
             object: NotificationObject(
@@ -102,7 +103,8 @@ class ExtensionManager: NSObject, OSSystemExtensionRequestDelegate {
     }
 
     func request(_ request: OSSystemExtensionRequest,
-                 didFailWithError error: Error) {
+                 didFailWithError error: Error)
+    {
         NotificationCenter.default.post(
             name: ExtensionManager.stateChanged,
             object: NotificationObject(
@@ -126,7 +128,8 @@ class ExtensionManager: NSObject, OSSystemExtensionRequestDelegate {
 
     func request(_ request: OSSystemExtensionRequest,
                  actionForReplacingExtension existing: OSSystemExtensionProperties,
-                 withExtension ext: OSSystemExtensionProperties) -> OSSystemExtensionRequest.ReplacementAction {
+                 withExtension ext: OSSystemExtensionProperties) -> OSSystemExtensionRequest.ReplacementAction
+    {
         let existingVersion = existing.bundleVersion
         let extVersion = ext.bundleVersion
 
