@@ -4,34 +4,16 @@ import SystemExtensions
 class ExtensionManager: NSObject, OSSystemExtensionRequestDelegate {
     static let shared = ExtensionManager()
 
-    //
-    // Notification names
-    //
-
-    static let stateChanged = Notification.Name("stateChanged")
-
-    public enum State {
-        case activationRequested
-        case deactivationRequested
-        case requestFinished
-        case requestFailed
-        case replacingCanceled
-        case willReplace
-        case userApprovalRequired
-        case rebootRequired
-    }
-
-    struct NotificationObject {
-        let bundleIdentifier: String
-        let state: State
-        let message: String
-    }
+    let bundleIdentifier = "org.pqrs.Karabiner-DriverKit-VirtualHIDDevice"
+    var forceReplace = false
 
     //
     // Actions
     //
 
-    func activate(_ bundleIdentifier: String) {
+    func activate(forceReplace: Bool) {
+        self.forceReplace = forceReplace
+
         let request = OSSystemExtensionRequest.activationRequest(
             forExtensionWithIdentifier: bundleIdentifier,
             queue: .main
@@ -40,17 +22,10 @@ class ExtensionManager: NSObject, OSSystemExtensionRequestDelegate {
 
         OSSystemExtensionManager.shared.submitRequest(request)
 
-        NotificationCenter.default.post(
-            name: ExtensionManager.stateChanged,
-            object: NotificationObject(
-                bundleIdentifier: bundleIdentifier,
-                state: .activationRequested,
-                message: "activation of \(bundleIdentifier) is requested"
-            )
-        )
+        print("activation of \(bundleIdentifier) is requested")
     }
 
-    func deactivate(_ bundleIdentifier: String) {
+    func deactivate() {
         let request = OSSystemExtensionRequest.deactivationRequest(
             forExtensionWithIdentifier: bundleIdentifier,
             queue: .main
@@ -59,14 +34,7 @@ class ExtensionManager: NSObject, OSSystemExtensionRequestDelegate {
 
         OSSystemExtensionManager.shared.submitRequest(request)
 
-        NotificationCenter.default.post(
-            name: ExtensionManager.stateChanged,
-            object: NotificationObject(
-                bundleIdentifier: bundleIdentifier,
-                state: .deactivationRequested,
-                message: "deactivation of \(bundleIdentifier) is requested"
-            )
-        )
+        print("deactivation of \(bundleIdentifier) is requested")
     }
 
     //
@@ -76,54 +44,29 @@ class ExtensionManager: NSObject, OSSystemExtensionRequestDelegate {
     func request(_ request: OSSystemExtensionRequest,
                  didFinishWithResult result: OSSystemExtensionRequest.Result)
     {
-        NotificationCenter.default.post(
-            name: ExtensionManager.stateChanged,
-            object: NotificationObject(
-                bundleIdentifier: request.identifier,
-                state: .requestFinished,
-                message: "request of \(request.identifier) is finished"
-            )
-        )
+        print("request of \(request.identifier) is finished")
 
         switch result {
         case .completed:
-            break
+            print("request of \(request.identifier) is completed")
         case .willCompleteAfterReboot:
-            NotificationCenter.default.post(
-                name: ExtensionManager.stateChanged,
-                object: NotificationObject(
-                    bundleIdentifier: request.identifier,
-                    state: .rebootRequired,
-                    message: "request of \(request.identifier) requires reboot"
-                )
-            )
+            print("request of \(request.identifier) requires reboot")
+            break
         @unknown default:
             break
         }
+
+        exit(0)
     }
 
     func request(_ request: OSSystemExtensionRequest,
                  didFailWithError error: Error)
     {
-        NotificationCenter.default.post(
-            name: ExtensionManager.stateChanged,
-            object: NotificationObject(
-                bundleIdentifier: request.identifier,
-                state: .requestFailed,
-                message: "request of \(request.identifier) is failed with error: \(error.localizedDescription)"
-            )
-        )
+        print("request of \(request.identifier) is failed with error: \(error.localizedDescription)")
     }
 
     func requestNeedsUserApproval(_ request: OSSystemExtensionRequest) {
-        NotificationCenter.default.post(
-            name: ExtensionManager.stateChanged,
-            object: NotificationObject(
-                bundleIdentifier: request.identifier,
-                state: .userApprovalRequired,
-                message: "request of \(request.identifier) requires user approval"
-            )
-        )
+        print("request of \(request.identifier) requires user approval")
     }
 
     func request(_ request: OSSystemExtensionRequest,
@@ -133,28 +76,17 @@ class ExtensionManager: NSObject, OSSystemExtensionRequestDelegate {
         let existingVersion = existing.bundleVersion
         let extVersion = ext.bundleVersion
 
-        if extVersion.compare(existingVersion, options: .numeric) == .orderedDescending {
-            NotificationCenter.default.post(
-                name: ExtensionManager.stateChanged,
-                object: NotificationObject(
-                    bundleIdentifier: request.identifier,
-                    state: .willReplace,
-                    message: "\(request.identifier) will replace to \(extVersion) from \(existingVersion)"
-                )
-            )
-
+        if forceReplace {
+            print("\(request.identifier) will be force replaced to \(extVersion) forcely")
             return .replace
         }
 
-        NotificationCenter.default.post(
-            name: ExtensionManager.stateChanged,
-            object: NotificationObject(
-                bundleIdentifier: request.identifier,
-                state: .replacingCanceled,
-                message: "request of \(request.identifier) is canceled because newer version (\(existingVersion)) is already installed"
-            )
-        )
+        if extVersion.compare(existingVersion, options: .numeric) == .orderedDescending {
+            print("\(request.identifier) will be replaced to \(extVersion) from \(existingVersion)")
+            return .replace
+        }
 
+        print("request of \(request.identifier) is canceled because newer version (\(existingVersion)) is already installed")
         return .cancel
     }
 }
