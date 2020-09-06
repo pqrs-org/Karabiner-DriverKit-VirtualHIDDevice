@@ -112,12 +112,6 @@ public:
 
 private:
   void create_client(void) {
-    // Remove client_socket_file_path_ before creating local_datagram::client
-    {
-      std::error_code error_code;
-      std::filesystem::remove(client_socket_file_path_, error_code);
-    }
-
     client_ = std::make_unique<local_datagram::client>(weak_dispatcher_,
                                                        constants::server_socket_file_path.data(),
                                                        client_socket_file_path_,
