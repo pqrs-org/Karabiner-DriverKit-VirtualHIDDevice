@@ -51,6 +51,14 @@ Virtual devices (keyboard and mouse) implementation for macOS using DriverKit.
     sudo ./build/Release/virtual-hid-device-service-client
     ```
 
+## Uninstallation
+
+1.  Run uninstaller in Terminal.
+
+    ```shell
+    bash '/Library/Application Support/org.pqrs/Karabiner-DriverKit-VirtualHIDDevice/scripts/uninstall.sh'
+    ```
+
 ### Installed files
 
 -   `/Applications/.Karabiner-VirtualHIDDevice-Manager.app`
