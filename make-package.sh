@@ -19,7 +19,6 @@ basedir="pkgroot/Library/Application Support/org.pqrs/Karabiner-DriverKit-Virtua
 mkdir -p "$basedir"
 cp files/scripts/uninstall.sh "$basedir"
 cp files/scripts/uninstall_core.sh "$basedir"
-cp files/scripts/uninstaller.applescript "$basedir"
 
 basedir="pkgroot/Library/Application Support/org.pqrs/Karabiner-DriverKit-VirtualHIDDevice/Applications"
 mkdir -p "$basedir"
