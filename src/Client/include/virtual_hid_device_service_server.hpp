@@ -29,7 +29,7 @@ public:
             virtual_hid_keyboard_io_service_client_->async_virtual_hid_keyboard_ready();
           }
 
-          if (virtual_hid_keyboard_io_service_client_) {
+          if (virtual_hid_pointing_io_service_client_) {
             virtual_hid_pointing_io_service_client_->async_virtual_hid_pointing_ready();
           }
         },
