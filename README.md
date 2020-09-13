@@ -153,3 +153,23 @@ If you want to start without a valid provisioning profile, use Xcode 11 and
     ```
 
     `dist/Karabiner-DriverKit-VirtualHIDDevice-X.X.X.pkg` will be generated.
+
+### Components
+
+Karabiner-DriverKit-VirtualHIDDevice consists the following components.
+
+-   Extension Manager (including DriverKit driver)
+    -   `/Applications/.Karabiner-VirtualHIDDevice-Manager.app`
+    -   It provides a command line interface to activate or deactivate DriverKit driver.
+-   VirtualHIDDeviceClient
+    -   `/Library/Application Support/org.pqrs/Karabiner-DriverKit-VirtualHIDDevice/Applications/Karabiner-DriverKit-VirtualHIDDeviceClient.app`
+    -   It mediates between the client app and the driver.
+    -   It allows apps to communicate with the virtual device even if the app is not signed with pqrs.org's code signing identity.
+        (The client app must be running with root privileges.)
+-   Client apps
+    -   Client apps are not included in the distributed package.
+    -   For example, you can build the client app from `client/examples/virtual-hid-device-service-client` in this repository.
+    -   Client apps can send input events by communicating with VirtualHIDDeviceClient via UNIX domain socket.
+        (`/Library/Application Support/org.pqrs/tmp/rootonly/virtual_hid_device_service_server.sock`)
+
+![components.svg](./docs/plantuml/output/components.svg)

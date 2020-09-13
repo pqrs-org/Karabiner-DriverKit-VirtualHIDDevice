@@ -1,0 +1,21 @@
+@startuml components
+
+package "DriverKit driver" {
+  () IOService -- [VirtualHIDDeviceRoot]
+  [VirtualHIDDeviceRoot] --> [VirtualHIDDeviceUserClient]
+  [VirtualHIDDeviceUserClient] --> [VirtualHIDKeyboard]
+  [VirtualHIDDeviceUserClient] --> [VirtualHIDPointing]
+}
+
+package "VirtualHIDDeviceClient" {
+  () "UNIX domain socket" as serversock
+  serversock -- [virtual_hid_device_service_server]
+  [virtual_hid_device_service_server] --> [io_service_client]
+  [io_service_client] --> () IOService
+}
+
+package "Client app" {
+  [pqrs::karabiner::driverkit::virtual_hid_device_service::client] --> serversock
+}
+
+@enduml
