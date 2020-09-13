@@ -76,7 +76,7 @@ Virtual devices (keyboard and mouse) implementation for macOS using DriverKit.
 System requirements to build Karabiner-Elements:
 
 -   macOS 10.15+
--   Xcode 11+
+-   Xcode 12+
 -   Command Line Tools for Xcode
 -   [XcodeGen](https://github.com/yonaskolb/XcodeGen)
 
