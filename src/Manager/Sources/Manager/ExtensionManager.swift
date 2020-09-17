@@ -64,7 +64,7 @@ class ExtensionManager: NSObject, OSSystemExtensionRequestDelegate {
     {
         print("request of \(request.identifier) is failed with error: \(error.localizedDescription)")
 
-        exit(0)
+        exit(1)
     }
 
     func requestNeedsUserApproval(_ request: OSSystemExtensionRequest) {
