@@ -2,16 +2,24 @@ import Foundation
 import SystemExtensions
 
 class ExtensionManager: NSObject, OSSystemExtensionRequestDelegate {
+    enum Mode {
+        case none
+        case activation
+        case deactivation
+    }
+
     static let shared = ExtensionManager()
 
     let bundleIdentifier = "org.pqrs.Karabiner-DriverKit-VirtualHIDDevice"
     var forceReplace = false
+    var mode = Mode.none
 
     //
     // Actions
     //
 
     func activate(forceReplace: Bool) {
+        mode = Mode.activation
         self.forceReplace = forceReplace
 
         let request = OSSystemExtensionRequest.activationRequest(
@@ -26,6 +34,8 @@ class ExtensionManager: NSObject, OSSystemExtensionRequestDelegate {
     }
 
     func deactivate() {
+        mode = Mode.deactivation
+
         let request = OSSystemExtensionRequest.deactivationRequest(
             forExtensionWithIdentifier: bundleIdentifier,
             queue: .main
@@ -63,6 +73,21 @@ class ExtensionManager: NSObject, OSSystemExtensionRequestDelegate {
                  didFailWithError error: Error)
     {
         print("request of \(request.identifier) is failed with error: \(error.localizedDescription)")
+
+        switch mode {
+        case .none:
+            exit(1)
+        case .activation:
+            exit(1)
+        case .deactivation:
+            switch error {
+            case OSSystemExtensionError.extensionNotFound:
+                // Ignorable errors
+                exit(0)
+            default:
+                exit(1)
+            }
+        }
 
         exit(1)
     }
