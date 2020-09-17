@@ -1,5 +1,9 @@
 #!/bin/bash
 
+#
+# Note: This script must be run with root account.
+#
+
 PATH=/bin:/sbin:/usr/bin:/usr/sbin
 export PATH
 

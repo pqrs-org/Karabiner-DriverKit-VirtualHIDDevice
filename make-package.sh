@@ -17,8 +17,7 @@ mkdir -p pkgroot
 
 basedir="pkgroot/Library/Application Support/org.pqrs/Karabiner-DriverKit-VirtualHIDDevice/scripts"
 mkdir -p "$basedir"
-cp files/scripts/uninstall.sh "$basedir"
-cp files/scripts/uninstall_core.sh "$basedir"
+cp -R files/scripts/uninstall "$basedir"
 
 basedir="pkgroot/Library/Application Support/org.pqrs/Karabiner-DriverKit-VirtualHIDDevice/Applications"
 mkdir -p "$basedir"
