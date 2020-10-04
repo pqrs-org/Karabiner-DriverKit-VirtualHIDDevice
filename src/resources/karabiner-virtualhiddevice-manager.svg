@@ -74,7 +74,7 @@
        x2="75.097618"
        y2="128.27588"
        gradientUnits="userSpaceOnUse"
-       gradientTransform="matrix(2.0814422,0,0,2.2321699,-20.844675,-55.450291)" />
+       gradientTransform="matrix(2.0902819,0,0,2.2416497,-21.508516,-56.261098)" />
   </defs>
   <sodipodi:namedview
      inkscape:guide-bbox="true"
@@ -135,14 +135,14 @@
      sodipodi:insensitive="true">
     <rect
        inkscape:label="#bg"
-       style="opacity:1;fill:url(#linearGradient20);fill-opacity:1;fill-rule:evenodd;stroke:#3e3a49;stroke-width:8.299;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="opacity:1;fill:url(#linearGradient20);fill-opacity:1;fill-rule:evenodd;stroke:#3e3a49;stroke-width:8.46667;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="bg"
-       width="209.71768"
-       height="209.71768"
-       x="30.607826"
-       y="30.607826"
-       ry="59.266666"
-       rx="59.266666"
+       width="210.60834"
+       height="210.60834"
+       x="30.162498"
+       y="30.162498"
+       ry="47.625"
+       rx="47.625"
        sodipodi:insensitive="true" />
   </g>
   <g
