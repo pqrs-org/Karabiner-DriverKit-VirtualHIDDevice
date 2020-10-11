@@ -1,0 +1,20 @@
+name: HIDManagerTool
+
+targets:
+  HIDManagerTool:
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: org.pqrs.HIDManagerTool
+      CODE_SIGN_ENTITLEMENTS: ''
+      CODE_SIGN_IDENTITY: '-'
+      CODE_SIGN_STYLE: Manual
+    type: application
+    platform: macOS
+    deploymentTarget: 10.15
+    sources:
+      - path: Sources
+        compilerFlags:
+          - -Wall
+          - -Werror
+      - path: Resources
+        excludes:
+          - Info.plist.in
