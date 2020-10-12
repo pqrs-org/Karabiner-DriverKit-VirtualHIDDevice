@@ -245,6 +245,10 @@ kern_return_t org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard::setReport(IOMemor
                                                                          IOOptionBits options,
                                                                          uint32_t completionTimeout,
                                                                          OSAction* action) {
+  if (!report) {
+    return kIOReturnBadArgument;
+  }
+
   uint64_t address;
   uint64_t len;
   report->Map(0, 0, 0, 0, &address, &len);
