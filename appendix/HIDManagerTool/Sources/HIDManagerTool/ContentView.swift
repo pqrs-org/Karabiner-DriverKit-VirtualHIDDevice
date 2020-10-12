@@ -12,7 +12,7 @@ struct ContentView: View {
                 Text("Set HIDValue 1")
             }
 
-            Button(action: { DeviceManager.shared.setHIDValue(1) }) {
+            Button(action: { DeviceManager.shared.setHIDValue(0) }) {
                 Text("Set HIDValue 0")
             }
         }.padding()

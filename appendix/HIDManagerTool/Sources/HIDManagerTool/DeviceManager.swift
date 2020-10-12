@@ -50,6 +50,7 @@ class DeviceManager: ObservableObject {
                                                                  element,
                                                                  mach_absolute_time(),
                                                                  integerValue)
+                    print("setHIDValue \(integerValue)")
                     print(element)
                     IOHIDDeviceSetValueWithCallback(virtualHIDKeyboard!, element, value, 0.1, { _, _, _, _ in
                         print("IOHIDDeviceSetValue callback")
