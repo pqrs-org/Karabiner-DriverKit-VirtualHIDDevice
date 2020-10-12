@@ -46,6 +46,10 @@ class DeviceManager: ObservableObject {
                     IOHIDElementGetUsage(element) == kHIDUsage_LED_CapsLock,
                     IOHIDElementGetType(element) == kIOHIDElementTypeOutput
                 {
+                    //
+                    // Value
+                    //
+
                     let value = IOHIDValueCreateWithIntegerValue(kCFAllocatorDefault,
                                                                  element,
                                                                  mach_absolute_time(),
@@ -54,6 +58,14 @@ class DeviceManager: ObservableObject {
                     print(element)
                     IOHIDDeviceSetValueWithCallback(virtualHIDKeyboard!, element, value, 0.1, { _, _, _, _ in
                         print("IOHIDDeviceSetValue callback")
+                    }, nil)
+
+                    //
+                    // Report
+                    //
+
+                    IOHIDDeviceSetReportWithCallback(virtualHIDKeyboard!, kIOHIDReportTypeOutput, 5, [], 0, 0.1, { _, _, _, _, _, _, _ in
+                        print("IOHIDDeviceSetReport callback")
                     }, nil)
                 }
             }
