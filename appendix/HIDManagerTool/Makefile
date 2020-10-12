@@ -10,5 +10,8 @@ clean:
 xcode:
 	open *.xcodeproj
 
-run:
+codesign:
+	bash scripts/codesign.sh
+
+run: codesign
 	open build/Release/HIDManagerTool.app
