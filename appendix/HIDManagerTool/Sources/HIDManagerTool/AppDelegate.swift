@@ -4,9 +4,10 @@ import SwiftUI
 @NSApplicationMain
 class AppDelegate: NSObject, NSApplicationDelegate {
     var window: NSWindow!
+    var deviceManager: DeviceManager?
 
     func applicationDidFinishLaunching(_: Notification) {
-        let contentView = ContentView()
+        deviceManager = DeviceManager()
 
         window = NSWindow(
             contentRect: .zero,
@@ -19,7 +20,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             defer: false
         )
         window.isReleasedWhenClosed = false
-        window.contentView = NSHostingView(rootView: contentView)
+        window.contentView = NSHostingView(rootView: ContentView())
 
         window.center()
         window.makeKeyAndOrderFront(nil)
