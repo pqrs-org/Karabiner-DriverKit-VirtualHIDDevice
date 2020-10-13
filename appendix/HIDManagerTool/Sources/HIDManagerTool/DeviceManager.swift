@@ -59,7 +59,25 @@ class DeviceManager: ObservableObject {
                     IOHIDDeviceSetValueWithCallback(virtualHIDKeyboard!, element, value, 0.1, { _, _, _, _ in
                         print("IOHIDDeviceSetValue callback")
                     }, nil)
+                }
+            }
+        }
+    }
 
+    func setInvalidHIDReport() {
+        if virtualHIDKeyboard == nil {
+            return
+        }
+
+        if let elements = IOHIDDeviceCopyMatchingElements(virtualHIDKeyboard!,
+                                                          nil,
+                                                          IOOptionBits(kIOHIDOptionsTypeNone)) as NSArray? as? [IOHIDElement]
+        {
+            for element in elements {
+                if IOHIDElementGetUsagePage(element) == kHIDPage_LEDs,
+                    IOHIDElementGetUsage(element) == kHIDUsage_LED_CapsLock,
+                    IOHIDElementGetType(element) == kIOHIDElementTypeOutput
+                {
                     //
                     // Report
                     //
