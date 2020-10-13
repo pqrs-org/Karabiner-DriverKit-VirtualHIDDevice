@@ -249,9 +249,13 @@ kern_return_t org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard::setReport(IOMemor
     return kIOReturnBadArgument;
   }
 
-  uint64_t address;
-  uint64_t len;
-  report->Map(0, 0, 0, 0, &address, &len);
+  uint64_t address = 0;
+  uint64_t len = 0;
+  auto kr = report->Map(0, 0, 0, 0, &address, &len);
+  if (kr != kIOReturnSuccess) {
+    os_log(OS_LOG_DEFAULT, LOG_PREFIX " setReport Map error: 0x%x", kr);
+    return kr;
+  }
 
   if (len < 2) {
     return kIOReturnBadArgument;
@@ -285,9 +289,9 @@ kern_return_t org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard::setReport(IOMemor
 
   IOMemoryDescriptor* memory = nullptr;
 
-  auto kr = IOBufferMemoryDescriptorUtility::createWithBytes(&ledReport,
-                                                             sizeof(ledReport),
-                                                             &memory);
+  kr = IOBufferMemoryDescriptorUtility::createWithBytes(&ledReport,
+                                                        sizeof(ledReport),
+                                                        &memory);
   if (kr != kIOReturnSuccess) {
     os_log(OS_LOG_DEFAULT, LOG_PREFIX " setReport createWithBytes error: 0x%x", kr);
     return kr;

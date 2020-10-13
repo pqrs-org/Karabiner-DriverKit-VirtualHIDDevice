@@ -13,18 +13,23 @@ inline kern_return_t createWithBytes(const void* bytes, size_t length, IOMemoryD
 
   IOBufferMemoryDescriptor* m = nullptr;
   auto kr = IOBufferMemoryDescriptor::Create(kIOMemoryDirectionOut, length, 0, &m);
-  if (kr == kIOReturnSuccess) {
-    uint64_t address;
-    uint64_t len;
-    m->Map(0, 0, 0, 0, &address, &len);
-
-    if (length != len) {
-      kr = kIOReturnNoMemory;
-      goto error;
-    }
-
-    memcpy(reinterpret_cast<void*>(address), bytes, length);
+  if (kr != kIOReturnSuccess) {
+    goto error;
   }
+
+  uint64_t address;
+  uint64_t len;
+  kr = m->Map(0, 0, 0, 0, &address, &len);
+  if (kr != kIOReturnSuccess) {
+    goto error;
+  }
+
+  if (length != len) {
+    kr = kIOReturnNoMemory;
+    goto error;
+  }
+
+  memcpy(reinterpret_cast<void*>(address), bytes, length);
 
   *memory = m;
 
