@@ -33,6 +33,25 @@ public:
     });
   }
 
+  bool driver_version_matched(void) const {
+    std::lock_guard<std::mutex> lock(driver_version_mutex_);
+
+    if (driver_version_ == DRIVER_VERSION_NUMBER) {
+      return true;
+    } else {
+      if (driver_version_) {
+        logger::get_logger()->warn("driver_version_ is mismatched: client expected: {0}, actual dext: {1}",
+                                   DRIVER_VERSION_NUMBER,
+                                   *driver_version_);
+      } else {
+        logger::get_logger()->warn("driver_version_ is mismatched: client expected: {0}, actual dext: std::nullopt",
+                                   DRIVER_VERSION_NUMBER);
+      }
+
+      return false;
+    }
+  }
+
   std::optional<bool> get_virtual_hid_keyboard_ready(void) const {
     std::lock_guard<std::mutex> lock(virtual_hid_keyboard_ready_mutex_);
 
@@ -209,25 +228,9 @@ public:
 
 private:
   // This method is executed in the dispatcher thread.
-  bool driver_version_matched(void) const {
-    if (driver_version_ == DRIVER_VERSION_NUMBER) {
-      return true;
-    } else {
-      if (driver_version_) {
-        logger::get_logger()->warn("driver_version_ is mismatched: client expected: {0}, actual dext: {1}",
-                                   DRIVER_VERSION_NUMBER,
-                                   *driver_version_);
-      } else {
-        logger::get_logger()->warn("driver_version_ is mismatched: client expected: {0}, actual dext: std::nullopt",
-                                   DRIVER_VERSION_NUMBER);
-      }
-
-      return false;
-    }
-  }
-
-  // This method is executed in the dispatcher thread.
   void set_driver_version(std::optional<uint64_t> value) {
+    std::lock_guard<std::mutex> lock(driver_version_mutex_);
+
     if (driver_version_ != value) {
       driver_version_ = value;
 
@@ -442,6 +445,7 @@ private:
   pqrs::osx::iokit_object_ptr service_;
   pqrs::osx::iokit_object_ptr connection_;
 
+  mutable std::mutex driver_version_mutex_;
   std::optional<uint64_t> driver_version_;
 
   mutable std::mutex virtual_hid_keyboard_ready_mutex_;
