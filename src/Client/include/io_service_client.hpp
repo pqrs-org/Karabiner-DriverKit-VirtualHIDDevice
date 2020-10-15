@@ -33,6 +33,12 @@ public:
     });
   }
 
+  bool driver_loaded(void) const {
+    std::lock_guard<std::mutex> lock(driver_version_mutex_);
+
+    return driver_version_ != std::nullopt;
+  }
+
   bool driver_version_matched(void) const {
     std::lock_guard<std::mutex> lock(driver_version_mutex_);
 

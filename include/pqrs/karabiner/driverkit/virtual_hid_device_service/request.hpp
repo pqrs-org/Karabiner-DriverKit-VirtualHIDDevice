@@ -12,6 +12,8 @@ namespace driverkit {
 namespace virtual_hid_device_service {
 enum class request : uint8_t {
   none,
+  driver_loaded,
+  driver_version_matched,
   virtual_hid_keyboard_initialize,
   virtual_hid_keyboard_terminate,
   virtual_hid_keyboard_ready,

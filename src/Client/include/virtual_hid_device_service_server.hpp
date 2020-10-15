@@ -22,6 +22,7 @@ public:
     //
 
     create_server();
+    create_nop_io_service_client();
 
     ready_timer_.start(
         [this] {
@@ -43,6 +44,7 @@ public:
       ready_timer_.stop();
 
       server_ = nullptr;
+      nop_io_service_client_ = nullptr;
       virtual_hid_keyboard_io_service_client_ = nullptr;
       virtual_hid_pointing_io_service_client_ = nullptr;
     });
@@ -130,6 +132,14 @@ private:
 
         switch (request) {
           case pqrs::karabiner::driverkit::virtual_hid_device_service::request::none:
+            break;
+
+          case pqrs::karabiner::driverkit::virtual_hid_device_service::request::driver_loaded:
+            async_send_driver_loaded_result(sender_endpoint);
+            break;
+
+          case pqrs::karabiner::driverkit::virtual_hid_device_service::request::driver_version_matched:
+            async_send_driver_version_matched_result(sender_endpoint);
             break;
 
           case pqrs::karabiner::driverkit::virtual_hid_device_service::request::virtual_hid_keyboard_initialize: {
@@ -234,6 +244,13 @@ private:
     server_->async_start();
   }
 
+  // This method is only called in the constructor.
+  void create_nop_io_service_client(void) {
+    nop_io_service_client_ = std::make_unique<io_service_client>();
+
+    nop_io_service_client_->async_start();
+  }
+
   // This method is executed in the dispatcher thread.
   void create_virtual_hid_keyboard_io_service_client(pqrs::hid::country_code::value_t country_code) {
     virtual_hid_keyboard_io_service_client_ = std::make_unique<io_service_client>();
@@ -257,13 +274,53 @@ private:
   }
 
   // This method is executed in the dispatcher thread.
+  void async_send_driver_loaded_result(std::shared_ptr<asio::local::datagram_protocol::endpoint> endpoint) {
+    if (server_) {
+      if (!endpoint->path().empty()) {
+        bool driver_loaded = false;
+        if (nop_io_service_client_) {
+          driver_loaded = nop_io_service_client_->driver_loaded();
+        }
+
+        auto response = pqrs::karabiner::driverkit::virtual_hid_device_service::response::driver_loaded_result;
+        uint8_t buffer[] = {
+            static_cast<std::underlying_type<decltype(response)>::type>(response),
+            driver_loaded,
+        };
+
+        server_->async_send(buffer, sizeof(buffer), endpoint);
+      }
+    }
+  }
+
+  // This method is executed in the dispatcher thread.
+  void async_send_driver_version_matched_result(std::shared_ptr<asio::local::datagram_protocol::endpoint> endpoint) {
+    if (server_) {
+      if (!endpoint->path().empty()) {
+        bool driver_version_matched = false;
+        if (nop_io_service_client_) {
+          driver_version_matched = nop_io_service_client_->driver_version_matched();
+        }
+
+        auto response = pqrs::karabiner::driverkit::virtual_hid_device_service::response::driver_version_matched_result;
+        uint8_t buffer[] = {
+            static_cast<std::underlying_type<decltype(response)>::type>(response),
+            driver_version_matched,
+        };
+
+        server_->async_send(buffer, sizeof(buffer), endpoint);
+      }
+    }
+  }
+
+  // This method is executed in the dispatcher thread.
   void async_send_ready_result(pqrs::karabiner::driverkit::virtual_hid_device_service::response response,
                                std::optional<bool> ready,
                                std::shared_ptr<asio::local::datagram_protocol::endpoint> endpoint) {
     if (server_) {
       if (!endpoint->path().empty()) {
         uint8_t buffer[] = {
-            static_cast<std::underlying_type<pqrs::karabiner::driverkit::virtual_hid_device_service::response>::type>(response),
+            static_cast<std::underlying_type<decltype(response)>::type>(response),
             ready ? *ready : false,
         };
 
@@ -287,6 +344,9 @@ private:
     }
   }
 
+  // `nop_io_service_client_` does not control virtual devices.
+  // It is used for `driver_loaded` and `driver_version_matched`.
+  std::unique_ptr<io_service_client> nop_io_service_client_;
   std::unique_ptr<io_service_client> virtual_hid_keyboard_io_service_client_;
   std::optional<pqrs::hid::country_code::value_t> virtual_hid_keyboard_country_code_;
   std::unique_ptr<io_service_client> virtual_hid_pointing_io_service_client_;
