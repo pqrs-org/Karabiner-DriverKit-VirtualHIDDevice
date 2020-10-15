@@ -29,6 +29,8 @@ int main(void) {
         std::lock_guard<std::mutex> lock(client_mutex);
 
         if (client) {
+          client->async_driver_loaded();
+          client->async_driver_version_matched();
           client->async_virtual_hid_keyboard_ready();
           client->async_virtual_hid_pointing_ready();
         }
@@ -58,9 +60,25 @@ int main(void) {
   client->error_occurred.connect([](auto&& error_code) {
     std::cout << "error_occurred " << error_code << std::endl;
   });
-  client->virtual_hid_keyboard_ready_callback.connect([&client, &keyboard_post](auto&& ready) {
+  client->driver_loaded_response.connect([](auto&& driver_loaded) {
+    static std::optional<bool> previous_value;
+
+    if (previous_value != driver_loaded) {
+      std::cout << "driver_loaded " << driver_loaded << std::endl;
+      previous_value = driver_loaded;
+    }
+  });
+  client->driver_version_matched_response.connect([](auto&& driver_version_matched) {
+    static std::optional<bool> previous_value;
+
+    if (previous_value != driver_version_matched) {
+      std::cout << "driver_version_matched " << driver_version_matched << std::endl;
+      previous_value = driver_version_matched;
+    }
+  });
+  client->virtual_hid_keyboard_ready_response.connect([&client, &keyboard_post](auto&& ready) {
     if (!keyboard_post) {
-      std::cout << "virtual_hid_keyboard_ready_callback " << ready << std::endl;
+      std::cout << "virtual_hid_keyboard_ready " << ready << std::endl;
     }
 
     if (ready) {
@@ -82,9 +100,9 @@ int main(void) {
       }
     }
   });
-  client->virtual_hid_pointing_ready_callback.connect([&client, &client_mutex, &pointing_thread, &pointing_thread_mutex](auto&& ready) {
+  client->virtual_hid_pointing_ready_response.connect([&client, &client_mutex, &pointing_thread, &pointing_thread_mutex](auto&& ready) {
     if (!pointing_thread) {
-      std::cout << "virtual_hid_pointing_ready_callback " << ready << std::endl;
+      std::cout << "virtual_hid_pointing_ready " << ready << std::endl;
     }
 
     if (ready) {
