@@ -12,7 +12,7 @@ namespace driverkit {
 namespace virtual_hid_device_service {
 namespace constants {
 constexpr std::string_view rootonly_directory = "/Library/Application Support/org.pqrs/tmp/rootonly";
-constexpr std::string_view server_socket_file_path = "/Library/Application Support/org.pqrs/tmp/rootonly/virtual_hid_device_service_server.sock";
+constexpr std::string_view server_socket_file_path = "/Library/Application Support/org.pqrs/tmp/rootonly/virtual_hid_device_service_server.v2.sock";
 constexpr std::size_t local_datagram_buffer_size = 1024;
 } // namespace constants
 } // namespace virtual_hid_device_service
