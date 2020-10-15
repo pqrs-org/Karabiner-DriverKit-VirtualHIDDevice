@@ -23,10 +23,10 @@ public:
   nod::signal<void(const asio::error_code&)> connect_failed;
   nod::signal<void(void)> closed;
   nod::signal<void(const asio::error_code&)> error_occurred;
-  nod::signal<void(bool)> driver_loaded_callback;
-  nod::signal<void(bool)> driver_version_matched_callback;
-  nod::signal<void(bool)> virtual_hid_keyboard_ready_callback;
-  nod::signal<void(bool)> virtual_hid_pointing_ready_callback;
+  nod::signal<void(bool)> driver_loaded_response;
+  nod::signal<void(bool)> driver_version_matched_response;
+  nod::signal<void(bool)> virtual_hid_keyboard_ready_response;
+  nod::signal<void(bool)> virtual_hid_pointing_ready_response;
 
   // Methods
 
@@ -58,6 +58,14 @@ public:
     enqueue_to_dispatcher([this] {
       client_ = nullptr;
     });
+  }
+
+  void async_driver_loaded(void) {
+    async_send(request::driver_loaded);
+  }
+
+  void async_driver_version_matched(void) {
+    async_send(request::driver_version_matched);
   }
 
   void async_virtual_hid_keyboard_initialize(hid::country_code::value_t country_code) {
@@ -136,8 +144,8 @@ private:
     client_->closed.connect([this] {
       enqueue_to_dispatcher([this] {
         closed();
-        virtual_hid_keyboard_ready_callback(false);
-        virtual_hid_pointing_ready_callback(false);
+        virtual_hid_keyboard_ready_response(false);
+        virtual_hid_pointing_ready_response(false);
       });
     });
 
@@ -166,23 +174,25 @@ private:
 
           case response::driver_loaded_result:
             if (size == 1) {
-              driver_loaded_callback(*p);
+              driver_loaded_response(*p);
             }
+            break;
 
           case response::driver_version_matched_result:
             if (size == 1) {
-              driver_version_matched_callback(*p);
+              driver_version_matched_response(*p);
             }
+            break;
 
           case response::virtual_hid_keyboard_ready_result:
             if (size == 1) {
-              virtual_hid_keyboard_ready_callback(*p);
+              virtual_hid_keyboard_ready_response(*p);
             }
             break;
 
           case response::virtual_hid_pointing_ready_result:
             if (size == 1) {
-              virtual_hid_pointing_ready_callback(*p);
+              virtual_hid_pointing_ready_response(*p);
             }
             break;
         }
