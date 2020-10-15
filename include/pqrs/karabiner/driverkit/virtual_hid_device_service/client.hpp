@@ -23,6 +23,8 @@ public:
   nod::signal<void(const asio::error_code&)> connect_failed;
   nod::signal<void(void)> closed;
   nod::signal<void(const asio::error_code&)> error_occurred;
+  nod::signal<void(bool)> driver_loaded_callback;
+  nod::signal<void(bool)> driver_version_matched_callback;
   nod::signal<void(bool)> virtual_hid_keyboard_ready_callback;
   nod::signal<void(bool)> virtual_hid_pointing_ready_callback;
 
@@ -161,6 +163,16 @@ private:
         switch (r) {
           case response::none:
             break;
+
+          case response::driver_loaded_result:
+            if (size == 1) {
+              driver_loaded_callback(*p);
+            }
+
+          case response::driver_version_matched_result:
+            if (size == 1) {
+              driver_version_matched_callback(*p);
+            }
 
           case response::virtual_hid_keyboard_ready_result:
             if (size == 1) {
