@@ -7,9 +7,7 @@ build:
 	$(MAKE) -C src
 
 clean:
-	$(MAKE) -C src clean
-	$(MAKE) -C client/examples/virtual-hid-device-service-client clean
-	$(MAKE) -C tests clean
+	git clean -x -f -d *
 
 package: clean
 	bash make-package.sh
