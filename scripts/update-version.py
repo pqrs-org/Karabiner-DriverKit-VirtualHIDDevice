@@ -8,7 +8,7 @@ from itertools import chain
 
 topDirectory = Path(__file__).resolve(True).parents[1]
 
-with topDirectory.joinpath('version').open() as versionFile, topDirectory.joinpath('driver-version').open() as driverVersionFile:
+with topDirectory.joinpath('version').open() as versionFile, topDirectory.joinpath('driver-version').open() as driverVersionFile, topDirectory.joinpath('driver-bundle-version').open() as driverBundleVersionFile:
     version = versionFile.readline().strip()
     versionNumber = 0
     for v in version.split('.'):
@@ -18,6 +18,11 @@ with topDirectory.joinpath('version').open() as versionFile, topDirectory.joinpa
     driverVersionNumber = 0
     for v in driverVersion.split('.'):
         driverVersionNumber = driverVersionNumber * 100 + int(v)
+
+    driverBundleVersion = driverBundleVersionFile.readline().strip()
+    driverBundleVersionNumber = 0
+    for v in driverBundleVersion.split('.'):
+        driverBundleVersionNumber = driverBundleVersionNumber * 100 + int(v)
 
     for templateFilePath in chain(topDirectory.rglob('*.hpp.in'),
                                   topDirectory.rglob('*.plist.in'),
@@ -43,6 +48,8 @@ with topDirectory.joinpath('version').open() as versionFile, topDirectory.joinpa
                 line = line.replace('@VERSION_NUMBER@', str(versionNumber))
                 line = line.replace('@DRIVER_VERSION@', driverVersion)
                 line = line.replace('@DRIVER_VERSION_NUMBER@', str(driverVersionNumber))
+                line = line.replace('@DRIVER_BUNDLE_VERSION@', driverBundleVersion)
+                line = line.replace('@DRIVER_BUNDLE_VERSION_NUMBER@', str(driverBundleVersionNumber))
 
                 if (replacedLines[index] != line):
                     needsUpdate = True
