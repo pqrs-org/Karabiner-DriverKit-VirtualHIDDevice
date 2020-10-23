@@ -30,7 +30,5 @@
     <true/>
     <key>LSUIElement</key>
     <true/>
-    <key>KarabinerDriverKitVirtualHIDDeviceDriverVersion</key>
-    <string>@DRIVER_VERSION@</string>
   </dict>
 </plist>
