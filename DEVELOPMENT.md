@@ -75,6 +75,24 @@ plutil -convert xml1 -o - /Library/SystemExtensions/db.plist
         -   If you want to develop driver extension without the capability, build your code without entitlements and inject entitlements at codesigning stage.
             See `src/scripts/codesign.sh` for details.
 
+## OSSystemExtensionError.Code
+
+| Code | Name                            | Description                                                                                                                                |
+| ---- | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| 1    | unknown                         | An error code that indicates an unknown error occurred.                                                                                    |
+| 2    | missingEntitlement              | An error code that indicates the system extension lacks a required entitlement.                                                            |
+| 3    | unsupportedParentBundleLocation | An error code that indicates the extension’s parent app isn’t in a valid location for activation.                                          |
+| 4    | extensionNotFound               | An error code that indicates the manager can’t find the system extension.                                                                  |
+| 5    | extensionMissingIdentifier      | An error code that indicates the extension identifier is missing.                                                                          |
+| 6    | duplicateExtensionIdentifer     | An error code that indicates the extension identifier duplicates an existing identifier.                                                   |
+| 7    | unknownExtensionCategory        | An error code that indicates the extension manager can’t recognize the extension’s category identifier.                                    |
+| 8    | codeSignatureInvalid            | An error code that indicates the extension’s signature is invalid.                                                                         |
+| 9    | validationFailed                | An error code that indicates the manager can’t validate the extension.                                                                     |
+| 10   | forbiddenBySystemPolicy         | An error code that indicates the system policy prohibits activating the system extension.                                                  |
+| 11   | requestCanceled                 | ExtensionsAn error code that indicates the system extension manager request was canceled.                                                  |
+| 12   | requestSuperseded               | An error code that indicates the system extension request failed because the system already has a pending request for the same identifier. |
+| 13   | authorizationRequired           | An error code that indicates the system was unable to obtain the proper authorization.                                                     |
+
 ---
 
 ## How to register IOUserHIDDevice
