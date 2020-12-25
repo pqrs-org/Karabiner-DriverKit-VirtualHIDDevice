@@ -4,6 +4,7 @@
 // Distributed under the Boost Software License, Version 1.0.
 // (See http://www.boost.org/LICENSE_1_0.txt)
 
+#include <compare>
 #include <functional>
 #include <iostream>
 #include <type_safe/strong_typedef.hpp>
@@ -13,13 +14,21 @@ namespace hid {
 namespace usage {
 struct value_t : type_safe::strong_typedef<value_t, int32_t>,
                  type_safe::strong_typedef_op::equality_comparison<value_t>,
-                 type_safe::strong_typedef_op::relational_comparison<value_t> {
+                 type_safe::strong_typedef_op::relational_comparison<value_t>,
+                 type_safe::strong_typedef_op::increment<value_t>,
+                 type_safe::strong_typedef_op::decrement<value_t> {
   using strong_typedef::strong_typedef;
+
+  constexpr auto operator<=>(const value_t& other) const {
+    return type_safe::get(*this) <=> type_safe::get(other);
+  }
 };
 
 inline std::ostream& operator<<(std::ostream& stream, const value_t& value) {
   return stream << type_safe::get(value);
 }
+
+constexpr value_t undefined(0x00);
 
 //
 // usage_page::generic_desktop
@@ -299,6 +308,7 @@ constexpr value_t scan_next_track(0x00b5);
 constexpr value_t scan_previous_track(0x00b6);
 constexpr value_t eject(0x00b8);
 constexpr value_t play_or_pause(0x00cd);
+constexpr value_t voice_command(0x00cf);
 constexpr value_t mute(0x00e2);
 constexpr value_t volume_increment(0x00e9);
 constexpr value_t volume_decrement(0x00ea);
