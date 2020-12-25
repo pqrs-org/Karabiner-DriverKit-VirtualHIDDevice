@@ -40,7 +40,8 @@ int main(void) {
     }
   });
 
-  std::atomic<bool> keyboard_post;
+  std::mutex keyboard_thread_mutex;
+  std::unique_ptr<std::thread> keyboard_thread;
 
   std::mutex pointing_thread_mutex;
   std::unique_ptr<std::thread> pointing_thread;
@@ -76,27 +77,38 @@ int main(void) {
       previous_value = driver_version_matched;
     }
   });
-  client->virtual_hid_keyboard_ready_response.connect([&client, &keyboard_post](auto&& ready) {
-    if (!keyboard_post) {
+  client->virtual_hid_keyboard_ready_response.connect([&client, &client_mutex, &keyboard_thread, &keyboard_thread_mutex](auto&& ready) {
+    if (!keyboard_thread) {
       std::cout << "virtual_hid_keyboard_ready " << ready << std::endl;
     }
 
     if (ready) {
-      if (!keyboard_post) {
-        keyboard_post = true;
-        // key down (control+up)
-        {
-          pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report::keyboard_input report;
-          report.modifiers.insert(pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report::modifier::left_control);
-          report.keys.insert(type_safe::get(pqrs::hid::usage::keyboard_or_keypad::keyboard_up_arrow));
-          client->async_post_report(report);
-        }
+      std::lock_guard<std::mutex> lock(keyboard_thread_mutex);
 
-        // key up
-        {
-          pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report::keyboard_input report;
-          client->async_post_report(report);
-        }
+      if (!keyboard_thread) {
+        keyboard_thread = std::make_unique<std::thread>([&client, &client_mutex] {
+          std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
+          {
+            std::lock_guard<std::mutex> lock(client_mutex);
+
+            if (client) {
+              // key down (control+up)
+              {
+                pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report::keyboard_input report;
+                report.modifiers.insert(pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report::modifier::left_control);
+                report.keys.insert(type_safe::get(pqrs::hid::usage::keyboard_or_keypad::keyboard_up_arrow));
+                client->async_post_report(report);
+              }
+
+              // key up
+              {
+                pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report::keyboard_input report;
+                client->async_post_report(report);
+              }
+            }
+          }
+        });
       }
     }
   });
@@ -153,6 +165,13 @@ int main(void) {
   {
     std::lock_guard<std::mutex> lock(client_mutex);
     client = nullptr;
+  }
+
+  {
+    std::lock_guard<std::mutex> lock(keyboard_thread_mutex);
+    if (keyboard_thread) {
+      keyboard_thread->join();
+    }
   }
 
   {
