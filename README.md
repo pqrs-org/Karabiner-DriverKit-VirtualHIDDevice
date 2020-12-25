@@ -46,7 +46,7 @@ Virtual devices (keyboard and mouse) implementation for macOS using DriverKit.
 
     ```shell
     git clone --depth 1 https://github.com/pqrs-org/Karabiner-DriverKit-VirtualHIDDevice.git
-    cd Karabiner-DriverKit-VirtualHIDDevice/client/examples/virtual-hid-device-service-client
+    cd Karabiner-DriverKit-VirtualHIDDevice/examples/virtual-hid-device-service-client
     make
     sudo ./build/Release/virtual-hid-device-service-client
     ```
@@ -169,7 +169,7 @@ Karabiner-DriverKit-VirtualHIDDevice consists the following components.
         (The client app must be running with root privileges.)
 -   Client apps
     -   Client apps are not included in the distributed package.
-    -   For example, you can build the client app from `client/examples/virtual-hid-device-service-client` in this repository.
+    -   For example, you can build the client app from `examples/virtual-hid-device-service-client` in this repository.
     -   Client apps can send input events by communicating with VirtualHIDDeviceClient via UNIX domain socket.
         (`/Library/Application Support/org.pqrs/tmp/rootonly/virtual_hid_device_service_server.*.sock`)
 
