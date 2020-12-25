@@ -21,6 +21,7 @@ targets:
           - -Wall
           - -Werror
           - '-std=gnu++2a'
+      - path: vendor/src/pqrs/osx/process_info
       - path: Resources
         excludes:
           - Info.plist.in
