@@ -51,7 +51,7 @@ public:
 
       clients_[endpoint_path] = c;
 
-      logger::get_logger()->info("virtual_hid_device_service_clients_manager({0}) client is added (size: {1})",
+      logger::get_logger()->info("virtual_hid_device_service_clients_manager ({0}) client is added (size: {1})",
                                  name_,
                                  clients_.size());
     });
@@ -66,7 +66,7 @@ private:
 
     clients_.erase(endpoint_path);
 
-    logger::get_logger()->info("virtual_hid_device_service_clients_manager({0}) client is removed (size: {1})",
+    logger::get_logger()->info("virtual_hid_device_service_clients_manager ({0}) client is removed (size: {1})",
                                name_,
                                clients_.size());
 
