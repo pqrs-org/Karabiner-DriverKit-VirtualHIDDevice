@@ -1,5 +1,6 @@
 #pragma once
 
+#include "logger.hpp"
 #include <nod/nod.hpp>
 #include <pqrs/dispatcher.hpp>
 #include <pqrs/karabiner/driverkit/virtual_hid_device_service.hpp>
@@ -14,7 +15,8 @@ public:
 
   // Methods
 
-  virtual_hid_device_service_clients_manager(void) : dispatcher_client() {
+  virtual_hid_device_service_clients_manager(const std::string& name) : dispatcher_client(),
+                                                                        name_(name) {
   }
 
   virtual ~virtual_hid_device_service_clients_manager(void) {
@@ -48,6 +50,10 @@ public:
       c->async_start();
 
       clients_[endpoint_path] = c;
+
+      logger::get_logger()->info("virtual_hid_device_service_clients_manager({0}) client is added (size: {1})",
+                                 name_,
+                                 clients_.size());
     });
   }
 
@@ -60,6 +66,10 @@ private:
 
     clients_.erase(endpoint_path);
 
+    logger::get_logger()->info("virtual_hid_device_service_clients_manager({0}) client is removed (size: {1})",
+                               name_,
+                               clients_.size());
+
     if (clients_.empty()) {
       enqueue_to_dispatcher([this] {
         all_clients_disconnected();
@@ -68,5 +78,6 @@ private:
   }
 
 private:
+  std::string name_;
   std::unordered_map<std::string, std::shared_ptr<pqrs::local_datagram::client>> clients_;
 };

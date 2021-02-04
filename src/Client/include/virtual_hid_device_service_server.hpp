@@ -18,12 +18,12 @@ public:
 
     create_rootonly_directory();
 
-    virtual_hid_device_service_keyboard_clients_manager_ = std::make_unique<virtual_hid_device_service_clients_manager>();
+    virtual_hid_device_service_keyboard_clients_manager_ = std::make_unique<virtual_hid_device_service_clients_manager>("keyboard");
     virtual_hid_device_service_keyboard_clients_manager_->all_clients_disconnected.connect([this] {
       terminate_virtual_hid_keyboard_io_service_client();
     });
 
-    virtual_hid_device_service_pointing_clients_manager_ = std::make_unique<virtual_hid_device_service_clients_manager>();
+    virtual_hid_device_service_pointing_clients_manager_ = std::make_unique<virtual_hid_device_service_clients_manager>("pointing");
     virtual_hid_device_service_pointing_clients_manager_->all_clients_disconnected.connect([this] {
       terminate_virtual_hid_pointing_io_service_client();
     });
