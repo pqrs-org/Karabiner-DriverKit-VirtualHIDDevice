@@ -1,6 +1,7 @@
 #pragma once
 
 #include "logger.hpp"
+#include "virtual_hid_device_service_clients_manager.hpp"
 #include <filesystem>
 #include <pqrs/dispatcher.hpp>
 #include <pqrs/karabiner/driverkit/virtual_hid_device_driver.hpp>
@@ -16,6 +17,16 @@ public:
     //
 
     create_rootonly_directory();
+
+    virtual_hid_device_service_keyboard_clients_manager_ = std::make_unique<virtual_hid_device_service_clients_manager>();
+    virtual_hid_device_service_keyboard_clients_manager_->all_clients_disconnected.connect([this] {
+      terminate_virtual_hid_keyboard_io_service_client();
+    });
+
+    virtual_hid_device_service_pointing_clients_manager_ = std::make_unique<virtual_hid_device_service_clients_manager>();
+    virtual_hid_device_service_pointing_clients_manager_->all_clients_disconnected.connect([this] {
+      terminate_virtual_hid_pointing_io_service_client();
+    });
 
     //
     // Creation
@@ -47,6 +58,9 @@ public:
       nop_io_service_client_ = nullptr;
       virtual_hid_keyboard_io_service_client_ = nullptr;
       virtual_hid_pointing_io_service_client_ = nullptr;
+
+      virtual_hid_device_service_keyboard_clients_manager_ = nullptr;
+      virtual_hid_device_service_pointing_clients_manager_ = nullptr;
     });
 
     logger::get_logger()->info("virtual_hid_device_service_server is terminated");
@@ -123,6 +137,11 @@ private:
           return;
         }
 
+        if (sender_endpoint->path().empty()) {
+          logger::get_logger()->error("virtual_hid_device_service_server: sender_endpoint path is empty");
+          return;
+        }
+
         auto p = &((*buffer)[0]);
         auto size = buffer->size();
 
@@ -151,20 +170,20 @@ private:
             auto country_code = *(reinterpret_cast<pqrs::hid::country_code::value_t*>(p));
 
             if (virtual_hid_keyboard_country_code_ != country_code) {
+              terminate_virtual_hid_keyboard_io_service_client();
               virtual_hid_keyboard_country_code_ = country_code;
-
-              virtual_hid_keyboard_io_service_client_ = nullptr;
             }
 
             if (!virtual_hid_keyboard_io_service_client_) {
               create_virtual_hid_keyboard_io_service_client(country_code);
             }
+
+            virtual_hid_device_service_keyboard_clients_manager_->async_insert_client(sender_endpoint->path());
             break;
           }
 
           case pqrs::karabiner::driverkit::virtual_hid_device_service::request::virtual_hid_keyboard_terminate:
-            virtual_hid_keyboard_io_service_client_ = nullptr;
-            virtual_hid_keyboard_country_code_ = std::nullopt;
+            terminate_virtual_hid_keyboard_io_service_client();
             break;
 
           case pqrs::karabiner::driverkit::virtual_hid_device_service::request::virtual_hid_keyboard_ready:
@@ -184,10 +203,12 @@ private:
             if (!virtual_hid_pointing_io_service_client_) {
               create_virtual_hid_pointing_io_service_client();
             }
+
+            virtual_hid_device_service_pointing_clients_manager_->async_insert_client(sender_endpoint->path());
             break;
 
           case pqrs::karabiner::driverkit::virtual_hid_device_service::request::virtual_hid_pointing_terminate:
-            virtual_hid_pointing_io_service_client_ = nullptr;
+            terminate_virtual_hid_pointing_io_service_client();
             break;
 
           case pqrs::karabiner::driverkit::virtual_hid_device_service::request::virtual_hid_pointing_ready:
@@ -251,8 +272,14 @@ private:
     nop_io_service_client_->async_start();
   }
 
+  //
+  // virtual_hid_keyboard
+  //
+
   // This method is executed in the dispatcher thread.
   void create_virtual_hid_keyboard_io_service_client(pqrs::hid::country_code::value_t country_code) {
+    logger::get_logger()->info("create_virtual_hid_keyboard_io_service_client");
+
     virtual_hid_keyboard_io_service_client_ = std::make_unique<io_service_client>();
 
     virtual_hid_keyboard_io_service_client_->opened.connect([this, country_code] {
@@ -263,7 +290,21 @@ private:
   }
 
   // This method is executed in the dispatcher thread.
+  void terminate_virtual_hid_keyboard_io_service_client(void) {
+    logger::get_logger()->info("terminate_virtual_hid_keyboard_io_service_client");
+
+    virtual_hid_keyboard_io_service_client_ = nullptr;
+    virtual_hid_keyboard_country_code_ = std::nullopt;
+  }
+
+  //
+  // virtual_hid_pointing
+  //
+
+  // This method is executed in the dispatcher thread.
   void create_virtual_hid_pointing_io_service_client(void) {
+    logger::get_logger()->info("create_virtual_hid_pointing_io_service_client");
+
     virtual_hid_pointing_io_service_client_ = std::make_unique<io_service_client>();
 
     virtual_hid_pointing_io_service_client_->opened.connect([this] {
@@ -272,6 +313,16 @@ private:
 
     virtual_hid_pointing_io_service_client_->async_start();
   }
+
+  void terminate_virtual_hid_pointing_io_service_client(void) {
+    logger::get_logger()->info("terminate_virtual_hid_pointing_io_service_client");
+
+    virtual_hid_pointing_io_service_client_ = nullptr;
+  }
+
+  //
+  // async_send to virtual_hid_device_service::client
+  //
 
   // This method is executed in the dispatcher thread.
   void async_send_driver_loaded_result(std::shared_ptr<asio::local::datagram_protocol::endpoint> endpoint) {
@@ -329,6 +380,10 @@ private:
     }
   }
 
+  //
+  // async_post to io_service_client
+  //
+
   // This method is executed in the dispatcher thread.
   template <typename T>
   void async_post_report(const std::unique_ptr<io_service_client>& io_service_client,
@@ -348,8 +403,10 @@ private:
   // It is used for `driver_loaded` and `driver_version_matched`.
   std::unique_ptr<io_service_client> nop_io_service_client_;
   std::unique_ptr<io_service_client> virtual_hid_keyboard_io_service_client_;
+  std::unique_ptr<virtual_hid_device_service_clients_manager> virtual_hid_device_service_keyboard_clients_manager_;
   std::optional<pqrs::hid::country_code::value_t> virtual_hid_keyboard_country_code_;
   std::unique_ptr<io_service_client> virtual_hid_pointing_io_service_client_;
+  std::unique_ptr<virtual_hid_device_service_clients_manager> virtual_hid_device_service_pointing_clients_manager_;
   std::unique_ptr<pqrs::local_datagram::server> server_;
   pqrs::dispatcher::extra::timer ready_timer_;
 };
