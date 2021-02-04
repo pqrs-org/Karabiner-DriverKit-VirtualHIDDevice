@@ -157,9 +157,6 @@ int main(void) {
   // Termination
   //
 
-  client->async_virtual_hid_keyboard_terminate();
-  client->async_virtual_hid_pointing_terminate();
-
   std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
   {
