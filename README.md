@@ -171,7 +171,7 @@ Karabiner-DriverKit-VirtualHIDDevice consists the following components.
     -   Client apps are not included in the distributed package.
     -   For example, you can build the client app from `examples/virtual-hid-device-service-client` in this repository.
     -   Client apps can send input events by communicating with VirtualHIDDeviceClient via UNIX domain socket.
-        (`/Library/Application Support/org.pqrs/tmp/rootonly/virtual_hid_device_service_server.*.sock`)
+        (`/Library/Application Support/org.pqrs/tmp/rootonly/vhidd_server/*.sock`)
 
 ![components.svg](./docs/plantuml/output/components.svg)
 

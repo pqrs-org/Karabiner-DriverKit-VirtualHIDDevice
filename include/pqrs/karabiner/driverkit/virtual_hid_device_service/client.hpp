@@ -7,9 +7,11 @@
 #include "constants.hpp"
 #include "request.hpp"
 #include "response.hpp"
+#include <glob/glob.hpp>
 #include <pqrs/dispatcher.hpp>
 #include <pqrs/hid.hpp>
 #include <pqrs/local_datagram.hpp>
+#include <sstream>
 
 namespace pqrs {
 namespace karabiner {
@@ -121,83 +123,101 @@ public:
   }
 
 private:
+  std::optional<std::string> find_server_socket_file_path(void) const {
+    std::stringstream ss;
+    ss << pqrs::karabiner::driverkit::virtual_hid_device_service::constants::server_socket_directory_path
+       << "/*.sock";
+
+    auto pattern = ss.str();
+    auto paths = glob::glob(pattern);
+    std::sort(std::begin(paths), std::end(paths));
+
+    if (!paths.empty()) {
+      return paths.back();
+    }
+
+    return std::nullopt;
+  }
+
   void create_client(void) {
-    client_ = std::make_unique<local_datagram::client>(weak_dispatcher_,
-                                                       constants::server_socket_file_path.data(),
-                                                       client_socket_file_path_,
-                                                       constants::local_datagram_buffer_size);
-    client_->set_server_check_interval(std::chrono::milliseconds(3000));
-    client_->set_reconnect_interval(std::chrono::milliseconds(1000));
+    if (auto server_socket_file_path = find_server_socket_file_path()) {
+      client_ = std::make_unique<local_datagram::client>(weak_dispatcher_,
+                                                         *server_socket_file_path,
+                                                         client_socket_file_path_,
+                                                         constants::local_datagram_buffer_size);
+      client_->set_server_check_interval(std::chrono::milliseconds(3000));
+      client_->set_reconnect_interval(std::chrono::milliseconds(1000));
 
-    client_->connected.connect([this] {
-      enqueue_to_dispatcher([this] {
-        connected();
+      client_->connected.connect([this] {
+        enqueue_to_dispatcher([this] {
+          connected();
+        });
       });
-    });
 
-    client_->connect_failed.connect([this](auto&& error_code) {
-      enqueue_to_dispatcher([this, error_code] {
-        connect_failed(error_code);
+      client_->connect_failed.connect([this](auto&& error_code) {
+        enqueue_to_dispatcher([this, error_code] {
+          connect_failed(error_code);
+        });
       });
-    });
 
-    client_->closed.connect([this] {
-      enqueue_to_dispatcher([this] {
-        closed();
-        virtual_hid_keyboard_ready_response(false);
-        virtual_hid_pointing_ready_response(false);
+      client_->closed.connect([this] {
+        enqueue_to_dispatcher([this] {
+          closed();
+          virtual_hid_keyboard_ready_response(false);
+          virtual_hid_pointing_ready_response(false);
+        });
       });
-    });
 
-    client_->error_occurred.connect([this](auto&& error_code) {
-      enqueue_to_dispatcher([this, error_code] {
-        error_occurred(error_code);
+      client_->error_occurred.connect([this](auto&& error_code) {
+        enqueue_to_dispatcher([this, error_code] {
+          error_occurred(error_code);
+        });
       });
-    });
 
-    client_->received.connect([this](auto&& buffer, auto&& sender_endpoint) {
-      if (buffer) {
-        if (buffer->empty()) {
-          return;
+      client_->received.connect([this](auto&& buffer, auto&& sender_endpoint) {
+        if (buffer) {
+          if (buffer->empty()) {
+            return;
+          }
+
+          auto p = &((*buffer)[0]);
+          auto size = buffer->size();
+
+          auto r = response(*p);
+          ++p;
+          --size;
+
+          switch (r) {
+            case response::none:
+              break;
+
+            case response::driver_loaded_result:
+              if (size == 1) {
+                driver_loaded_response(*p);
+              }
+              break;
+
+            case response::driver_version_matched_result:
+              if (size == 1) {
+                driver_version_matched_response(*p);
+              }
+              break;
+
+            case response::virtual_hid_keyboard_ready_result:
+              if (size == 1) {
+                virtual_hid_keyboard_ready_response(*p);
+              }
+              break;
+
+            case response::virtual_hid_pointing_ready_result:
+              if (size == 1) {
+                virtual_hid_pointing_ready_response(*p);
+              }
+              break;
+          }
         }
-
-        auto p = &((*buffer)[0]);
-        auto size = buffer->size();
-
-        auto r = response(*p);
-        ++p;
-        --size;
-
-        switch (r) {
-          case response::none:
-            break;
-
-          case response::driver_loaded_result:
-            if (size == 1) {
-              driver_loaded_response(*p);
-            }
-            break;
-
-          case response::driver_version_matched_result:
-            if (size == 1) {
-              driver_version_matched_response(*p);
-            }
-            break;
-
-          case response::virtual_hid_keyboard_ready_result:
-            if (size == 1) {
-              virtual_hid_keyboard_ready_response(*p);
-            }
-            break;
-
-          case response::virtual_hid_pointing_ready_result:
-            if (size == 1) {
-              virtual_hid_pointing_ready_response(*p);
-            }
-            break;
-        }
-      }
-    });
+      });
+    }
   }
 
   void async_send(request r) {

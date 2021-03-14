@@ -30,6 +30,7 @@ rm -rf '/Applications/.Karabiner-VirtualHIDDevice-Manager.app'
 rm -rf '/Library/Application Support/org.pqrs/Karabiner-DriverKit-VirtualHIDDevice'
 
 rm -f '/Library/Application Support/org.pqrs/tmp/rootonly/virtual_hid_device_service_server.*'
+rm -rf '/Library/Application Support/org.pqrs/tmp/rootonly/vhidd_server'
 rmdir '/Library/Application Support/org.pqrs/tmp/rootonly'
 rmdir '/Library/Application Support/org.pqrs/tmp'
 rmdir '/Library/Application Support/org.pqrs'

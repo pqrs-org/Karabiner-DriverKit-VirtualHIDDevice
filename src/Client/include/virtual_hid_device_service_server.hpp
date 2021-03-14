@@ -7,6 +7,7 @@
 #include <pqrs/karabiner/driverkit/virtual_hid_device_driver.hpp>
 #include <pqrs/karabiner/driverkit/virtual_hid_device_service.hpp>
 #include <pqrs/local_datagram.hpp>
+#include <sstream>
 
 class virtual_hid_device_service_server final : public pqrs::dispatcher::extra::dispatcher_client {
 public:
@@ -93,33 +94,38 @@ private:
     }
   }
 
-  void set_server_socket_file_permissions(void) const {
-    std::error_code error_code;
-    std::filesystem::permissions(
-        pqrs::karabiner::driverkit::virtual_hid_device_service::constants::server_socket_file_path,
-        std::filesystem::perms::owner_read | std::filesystem::perms::owner_write,
-        error_code);
-    if (error_code) {
-      logger::get_logger()->error(
-          "virtual_hid_device_service_server::{0} permissions error: {1}",
-          __func__,
-          error_code.message());
-      return;
-    }
+  std::string server_socket_file_path(void) const {
+    auto now = std::chrono::system_clock::now();
+    auto duration = now.time_since_epoch();
+
+    std::stringstream ss;
+    ss << pqrs::karabiner::driverkit::virtual_hid_device_service::constants::server_socket_directory_path
+       << "/"
+       << std::hex
+       << std::chrono::duration_cast<std::chrono::nanoseconds>(duration).count()
+       << ".sock";
+
+    return ss.str();
   }
 
   void create_server(void) {
+    // Remove old socket files.
+    {
+      auto directory_path = pqrs::karabiner::driverkit::virtual_hid_device_service::constants::server_socket_directory_path;
+      std::error_code ec;
+      std::filesystem::remove_all(directory_path, ec);
+      std::filesystem::create_directory(directory_path, ec);
+    }
+
     server_ = std::make_unique<pqrs::local_datagram::server>(
         weak_dispatcher_,
-        pqrs::karabiner::driverkit::virtual_hid_device_service::constants::server_socket_file_path.data(),
+        server_socket_file_path(),
         pqrs::karabiner::driverkit::virtual_hid_device_service::constants::local_datagram_buffer_size);
     server_->set_server_check_interval(std::chrono::milliseconds(3000));
     server_->set_reconnect_interval(std::chrono::milliseconds(1000));
 
-    server_->bound.connect([this] {
+    server_->bound.connect([] {
       logger::get_logger()->info("virtual_hid_device_service_server: bound");
-
-      set_server_socket_file_permissions();
     });
 
     server_->bind_failed.connect([](auto&& error_code) {
