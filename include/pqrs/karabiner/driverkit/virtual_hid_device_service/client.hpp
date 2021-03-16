@@ -147,6 +147,12 @@ private:
                                                          constants::local_datagram_buffer_size);
       client_->set_server_check_interval(std::chrono::milliseconds(3000));
       client_->set_reconnect_interval(std::chrono::milliseconds(1000));
+      client_->set_server_socket_file_path_resolver([server_socket_file_path] {
+        if (auto path = find_server_socket_file_path()) {
+          return *path;
+        }
+        return server_socket_file_path;
+      });
 
       client_->connected.connect([this] {
         enqueue_to_dispatcher([this] {
