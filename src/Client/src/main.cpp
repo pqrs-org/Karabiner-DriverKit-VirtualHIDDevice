@@ -10,18 +10,14 @@
 #include <pqrs/osx/process_info.hpp>
 #include <thread>
 
-namespace {
-auto global_wait = pqrs::make_thread_wait();
-}
-
 int main(void) {
-  std::signal(SIGINT, [](int) {
-    global_wait->notify();
-  });
+  std::signal(SIGINT, SIG_IGN);
+  std::signal(SIGTERM, SIG_IGN);
   std::signal(SIGUSR1, SIG_IGN);
   std::signal(SIGUSR2, SIG_IGN);
 
-  pqrs::osx::process_info::enable_sudden_termination();
+  // We should not enable sudden termination to ensure terminating DriverKit devices in order to avoid macOS issue around HID handling.
+  // pqrs::osx::process_info::enable_sudden_termination();
 
   pqrs::dispatcher::extra::initialize_shared_dispatcher();
 
@@ -33,11 +29,38 @@ int main(void) {
 
   auto server = std::make_unique<virtual_hid_device_service_server>();
 
-  global_wait->wait_notice();
+  //
+  // Set signal handler
+  //
 
-  server = nullptr;
+  auto termination_handler = [&server] {
+    server = nullptr;
+    pqrs::dispatcher::extra::terminate_shared_dispatcher();
+    exit(0);
+  };
 
-  pqrs::dispatcher::extra::terminate_shared_dispatcher();
+  {
+    dispatch_source_t sigint_source = dispatch_source_create(DISPATCH_SOURCE_TYPE_SIGNAL, SIGINT, 0, dispatch_get_main_queue());
+    dispatch_source_set_event_handler(sigint_source, ^{
+      logger::get_logger()->info("SIGINT");
+      termination_handler();
+    });
+    dispatch_resume(sigint_source);
+  }
+  {
+    dispatch_source_t sigterm_source = dispatch_source_create(DISPATCH_SOURCE_TYPE_SIGNAL, SIGTERM, 0, dispatch_get_main_queue());
+    dispatch_source_set_event_handler(sigterm_source, ^{
+      logger::get_logger()->info("SIGTERM");
+      termination_handler();
+    });
+    dispatch_resume(sigterm_source);
+  }
+
+  //
+  // Run
+  //
+
+  dispatch_main();
 
   return 0;
 }
