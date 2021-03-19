@@ -16,8 +16,7 @@ int main(void) {
   std::signal(SIGUSR1, SIG_IGN);
   std::signal(SIGUSR2, SIG_IGN);
 
-  // We should not enable sudden termination to ensure terminating DriverKit devices in order to avoid macOS issue around HID handling.
-  // pqrs::osx::process_info::enable_sudden_termination();
+  pqrs::osx::process_info::enable_sudden_termination();
 
   pqrs::dispatcher::extra::initialize_shared_dispatcher();
 
