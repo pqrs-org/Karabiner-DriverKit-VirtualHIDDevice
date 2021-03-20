@@ -20,6 +20,26 @@ inline bool driver_running(void) {
   IOObjectRelease(service);
   return true;
 }
+
+inline bool virtual_hid_keyboard_exists(void) {
+  auto service = IOServiceGetMatchingService(kIOMasterPortDefault, IOServiceNameMatching("org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard"));
+  if (!service) {
+    return false;
+  }
+
+  IOObjectRelease(service);
+  return true;
+}
+
+inline bool virtual_hid_pointing_exists(void) {
+  auto service = IOServiceGetMatchingService(kIOMasterPortDefault, IOServiceNameMatching("org_pqrs_Karabiner_DriverKit_VirtualHIDPointing"));
+  if (!service) {
+    return false;
+  }
+
+  IOObjectRelease(service);
+  return true;
+}
 } // namespace utility
 } // namespace virtual_hid_device_service
 } // namespace driverkit
