@@ -6,6 +6,8 @@
     <string>org.pqrs.Karabiner-DriverKit-VirtualHIDDeviceClient</string>
     <key>Disabled</key>
     <false/>
+    <key>ExitTimeOut</key>
+    <integer>60</integer>
     <key>KeepAlive</key>
     <true/>
     <key>ProcessType</key>
