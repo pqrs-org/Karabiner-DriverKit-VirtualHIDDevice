@@ -123,12 +123,8 @@ public:
   }
 
 private:
-  std::optional<std::string> find_server_socket_file_path(void) const {
-    std::stringstream ss;
-    ss << pqrs::karabiner::driverkit::virtual_hid_device_service::constants::server_socket_directory_path
-       << "/*.sock";
-
-    auto pattern = ss.str();
+  std::filesystem::path find_server_socket_file_path(void) const {
+    auto pattern = (pqrs::karabiner::driverkit::virtual_hid_device_service::constants::get_server_socket_directory_path() / "*.sock").string();
     auto paths = glob::glob(pattern);
     std::sort(std::begin(paths), std::end(paths));
 
@@ -136,94 +132,89 @@ private:
       return paths.back();
     }
 
-    return std::nullopt;
+    return pqrs::karabiner::driverkit::virtual_hid_device_service::constants::get_server_socket_directory_path() / "not_found.sock";
   }
 
   void create_client(void) {
-    if (auto server_socket_file_path = find_server_socket_file_path()) {
-      client_ = std::make_unique<local_datagram::client>(weak_dispatcher_,
-                                                         *server_socket_file_path,
-                                                         client_socket_file_path_,
-                                                         constants::local_datagram_buffer_size);
-      client_->set_server_check_interval(std::chrono::milliseconds(3000));
-      client_->set_reconnect_interval(std::chrono::milliseconds(1000));
-      client_->set_server_socket_file_path_resolver([this, server_socket_file_path] {
-        if (auto path = find_server_socket_file_path()) {
-          return *path;
+    client_ = std::make_unique<local_datagram::client>(weak_dispatcher_,
+                                                       find_server_socket_file_path(),
+                                                       client_socket_file_path_,
+                                                       constants::local_datagram_buffer_size);
+    client_->set_server_check_interval(std::chrono::milliseconds(3000));
+    client_->set_reconnect_interval(std::chrono::milliseconds(1000));
+    client_->set_server_socket_file_path_resolver([this] {
+      return find_server_socket_file_path();
+    });
+
+    client_->connected.connect([this] {
+      enqueue_to_dispatcher([this] {
+        connected();
+      });
+    });
+
+    client_->connect_failed.connect([this](auto&& error_code) {
+      enqueue_to_dispatcher([this, error_code] {
+        connect_failed(error_code);
+      });
+    });
+
+    client_->closed.connect([this] {
+      enqueue_to_dispatcher([this] {
+        closed();
+        virtual_hid_keyboard_ready_response(false);
+        virtual_hid_pointing_ready_response(false);
+      });
+    });
+
+    client_->error_occurred.connect([this](auto&& error_code) {
+      enqueue_to_dispatcher([this, error_code] {
+        error_occurred(error_code);
+      });
+    });
+
+    client_->received.connect([this](auto&& buffer, auto&& sender_endpoint) {
+      if (buffer) {
+        if (buffer->empty()) {
+          return;
         }
-        return *server_socket_file_path;
-      });
 
-      client_->connected.connect([this] {
-        enqueue_to_dispatcher([this] {
-          connected();
-        });
-      });
+        auto p = &((*buffer)[0]);
+        auto size = buffer->size();
 
-      client_->connect_failed.connect([this](auto&& error_code) {
-        enqueue_to_dispatcher([this, error_code] {
-          connect_failed(error_code);
-        });
-      });
+        auto r = response(*p);
+        ++p;
+        --size;
 
-      client_->closed.connect([this] {
-        enqueue_to_dispatcher([this] {
-          closed();
-          virtual_hid_keyboard_ready_response(false);
-          virtual_hid_pointing_ready_response(false);
-        });
-      });
+        switch (r) {
+          case response::none:
+            break;
 
-      client_->error_occurred.connect([this](auto&& error_code) {
-        enqueue_to_dispatcher([this, error_code] {
-          error_occurred(error_code);
-        });
-      });
+          case response::driver_loaded_result:
+            if (size == 1) {
+              driver_loaded_response(*p);
+            }
+            break;
 
-      client_->received.connect([this](auto&& buffer, auto&& sender_endpoint) {
-        if (buffer) {
-          if (buffer->empty()) {
-            return;
-          }
+          case response::driver_version_matched_result:
+            if (size == 1) {
+              driver_version_matched_response(*p);
+            }
+            break;
 
-          auto p = &((*buffer)[0]);
-          auto size = buffer->size();
+          case response::virtual_hid_keyboard_ready_result:
+            if (size == 1) {
+              virtual_hid_keyboard_ready_response(*p);
+            }
+            break;
 
-          auto r = response(*p);
-          ++p;
-          --size;
-
-          switch (r) {
-            case response::none:
-              break;
-
-            case response::driver_loaded_result:
-              if (size == 1) {
-                driver_loaded_response(*p);
-              }
-              break;
-
-            case response::driver_version_matched_result:
-              if (size == 1) {
-                driver_version_matched_response(*p);
-              }
-              break;
-
-            case response::virtual_hid_keyboard_ready_result:
-              if (size == 1) {
-                virtual_hid_keyboard_ready_response(*p);
-              }
-              break;
-
-            case response::virtual_hid_pointing_ready_result:
-              if (size == 1) {
-                virtual_hid_pointing_ready_response(*p);
-              }
-              break;
-          }
+          case response::virtual_hid_pointing_ready_result:
+            if (size == 1) {
+              virtual_hid_pointing_ready_response(*p);
+            }
+            break;
         }
-      });
-    }
+      }
+    });
   }
 
   void async_send(request r) {

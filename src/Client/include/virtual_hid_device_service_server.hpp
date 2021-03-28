@@ -71,7 +71,7 @@ private:
   void create_rootonly_directory(void) const {
     std::error_code error_code;
     std::filesystem::create_directories(
-        pqrs::karabiner::driverkit::virtual_hid_device_service::constants::rootonly_directory,
+        pqrs::karabiner::driverkit::virtual_hid_device_service::constants::get_rootonly_directory(),
         error_code);
     if (error_code) {
       logger::get_logger()->error(
@@ -82,7 +82,7 @@ private:
     }
 
     std::filesystem::permissions(
-        pqrs::karabiner::driverkit::virtual_hid_device_service::constants::rootonly_directory,
+        pqrs::karabiner::driverkit::virtual_hid_device_service::constants::get_rootonly_directory(),
         std::filesystem::perms::owner_all,
         error_code);
     if (error_code) {
@@ -99,7 +99,7 @@ private:
     auto duration = now.time_since_epoch();
 
     std::stringstream ss;
-    ss << pqrs::karabiner::driverkit::virtual_hid_device_service::constants::server_socket_directory_path
+    ss << pqrs::karabiner::driverkit::virtual_hid_device_service::constants::get_server_socket_directory_path().string()
        << "/"
        << std::hex
        << std::chrono::duration_cast<std::chrono::nanoseconds>(duration).count()
@@ -111,7 +111,7 @@ private:
   void create_server(void) {
     // Remove old socket files.
     {
-      auto directory_path = pqrs::karabiner::driverkit::virtual_hid_device_service::constants::server_socket_directory_path;
+      auto directory_path = pqrs::karabiner::driverkit::virtual_hid_device_service::constants::get_server_socket_directory_path();
       std::error_code ec;
       std::filesystem::remove_all(directory_path, ec);
       std::filesystem::create_directory(directory_path, ec);
