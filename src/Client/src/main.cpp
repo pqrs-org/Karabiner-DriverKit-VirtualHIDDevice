@@ -7,6 +7,7 @@
 #include <pqrs/hid.hpp>
 #include <pqrs/local_datagram.hpp>
 #include <pqrs/osx/iokit_return.hpp>
+#include <pqrs/osx/process_info.hpp>
 #include <thread>
 
 int main(void) {
@@ -14,6 +15,8 @@ int main(void) {
   std::signal(SIGTERM, SIG_IGN);
   std::signal(SIGUSR1, SIG_IGN);
   std::signal(SIGUSR2, SIG_IGN);
+
+  pqrs::osx::process_info::enable_sudden_termination();
 
   pqrs::dispatcher::extra::initialize_shared_dispatcher();
 
