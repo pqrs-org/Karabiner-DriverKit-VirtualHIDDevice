@@ -32,8 +32,8 @@ public:
 
   // Methods
 
-  client(const std::string& client_socket_file_path) : dispatcher_client(),
-                                                       client_socket_file_path_(client_socket_file_path) {
+  client(const std::filesystem::path& client_socket_file_path) : dispatcher_client(),
+                                                                 client_socket_file_path_(client_socket_file_path) {
   }
 
   virtual ~client(void) {
@@ -247,7 +247,7 @@ private:
     *(reinterpret_cast<T*>(&(buffer[size]))) = data;
   }
 
-  std::string client_socket_file_path_;
+  std::filesystem::path client_socket_file_path_;
   std::unique_ptr<local_datagram::client> client_;
 };
 } // namespace virtual_hid_device_service
