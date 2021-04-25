@@ -47,8 +47,9 @@ Virtual devices (keyboard and mouse) implementation for macOS using DriverKit.
     ```shell
     git clone --depth 1 https://github.com/pqrs-org/Karabiner-DriverKit-VirtualHIDDevice.git
     cd Karabiner-DriverKit-VirtualHIDDevice/examples/virtual-hid-device-service-client
+    brew install xcodegen
     make
-    sudo ./build/Release/virtual-hid-device-service-client
+    make run
     ```
 
 ## Uninstallation
