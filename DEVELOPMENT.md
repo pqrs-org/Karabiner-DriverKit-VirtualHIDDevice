@@ -120,7 +120,7 @@ OSDictionary* org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard::newDeviceDescript
 }
 ```
 
-The `RegisterService` invokes `registerService()` at [IOHIDDevice::start](https://github.com/pqrs-org/Karabiner-DriverKit-VirtualHIDDevice/blob/master/docs/vendor/IOHIDFamily/IOHIDDevice.cpp#L476-L479).
+The `RegisterService` invokes `registerService()` at [IOHIDDevice::start](https://github.com/pqrs-org/Karabiner-DriverKit-VirtualHIDDevice/blob/main/docs/vendor/IOHIDFamily/IOHIDDevice.cpp#L476-L479).
 
 ---
 
