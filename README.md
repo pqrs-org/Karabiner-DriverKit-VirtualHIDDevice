@@ -7,9 +7,11 @@ Virtual devices (keyboard and mouse) implementation for macOS using DriverKit.
 
 ## Supported systems
 
--   macOS Big Sur (11.0)
+-   macOS 12 Monterey
     -   Both Intel-based Macs and Apple Silicon Macs
--   macOS Catalina (10.15)
+-   macOS 11 Big Sur
+    -   Both Intel-based Macs and Apple Silicon Macs
+-   macOS 10.15 Catalina
     -   Intel-based Macs
 
 ## Status
