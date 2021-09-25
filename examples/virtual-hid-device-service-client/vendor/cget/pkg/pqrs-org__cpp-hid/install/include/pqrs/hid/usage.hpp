@@ -300,6 +300,7 @@ constexpr value_t button_32(0x20);
 namespace consumer {
 constexpr value_t consumer_control(0x0001);
 constexpr value_t power(0x0030);
+constexpr value_t menu(0x0040);
 constexpr value_t display_brightness_increment(0x006f); // from macOS IOHIDUsageTables.h
 constexpr value_t display_brightness_decrement(0x0070); // from macOS IOHIDUsageTables.h
 constexpr value_t fast_forward(0x00b3);
@@ -312,6 +313,7 @@ constexpr value_t voice_command(0x00cf);
 constexpr value_t mute(0x00e2);
 constexpr value_t volume_increment(0x00e9);
 constexpr value_t volume_decrement(0x00ea);
+constexpr value_t al_terminal_lock_or_screensaver(0x019e);
 constexpr value_t ac_pan(0x0238);
 } // namespace consumer
 
