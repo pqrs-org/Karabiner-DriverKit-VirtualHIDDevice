@@ -23,7 +23,7 @@ notarize:
 staple:
 	xcrun stapler staple dist/Karabiner-DriverKit-VirtualHIDDevice-$(VERSION).pkg
 
-check-stample:
+check-staple:
 	for f in dist/*.pkg; do xcrun stapler validate $$f || exit 1; done
 
 update_vendor:
