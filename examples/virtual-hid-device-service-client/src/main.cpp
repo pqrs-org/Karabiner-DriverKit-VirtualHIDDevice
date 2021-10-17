@@ -149,6 +149,8 @@ int main(void) {
 
   std::cout << "Press control+c to quit." << std::endl;
 
+  std::cout << "pqrs::karabiner::driverkit::driver_version::embedded_driver_version: " << pqrs::karabiner::driverkit::driver_version::embedded_driver_version << std::endl;
+
   while (!exit_flag) {
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
   }
