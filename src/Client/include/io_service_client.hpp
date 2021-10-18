@@ -68,16 +68,28 @@ public:
     }
   }
 
-  std::optional<bool> get_virtual_hid_keyboard_ready(void) const {
-    std::lock_guard<std::mutex> lock(virtual_hid_keyboard_ready_mutex_);
+  std::optional<bool> get_virtual_hid_keyboard_ready(pqrs::karabiner::driverkit::driver_version::value_t expected_driver_version) const {
+    if (!driver_version_matched(expected_driver_version)) {
+      return std::nullopt;
+    }
 
-    return virtual_hid_keyboard_ready_;
+    {
+      std::lock_guard<std::mutex> lock(virtual_hid_keyboard_ready_mutex_);
+
+      return virtual_hid_keyboard_ready_;
+    }
   }
 
-  std::optional<bool> get_virtual_hid_pointing_ready(void) const {
-    std::lock_guard<std::mutex> lock(virtual_hid_pointing_ready_mutex_);
+  std::optional<bool> get_virtual_hid_pointing_ready(pqrs::karabiner::driverkit::driver_version::value_t expected_driver_version) const {
+    if (!driver_version_matched(expected_driver_version)) {
+      return std::nullopt;
+    }
 
-    return virtual_hid_pointing_ready_;
+    {
+      std::lock_guard<std::mutex> lock(virtual_hid_pointing_ready_mutex_);
+
+      return virtual_hid_pointing_ready_;
+    }
   }
 
   void async_start(void) {
