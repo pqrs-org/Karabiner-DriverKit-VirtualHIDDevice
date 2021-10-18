@@ -7,7 +7,7 @@ TEST_CASE("keys") {
 
   {
     hid_report::keys keys;
-    uint8_t expected[32];
+    uint16_t expected[32];
 
     REQUIRE(keys.count() == 0);
     REQUIRE(keys.empty());
