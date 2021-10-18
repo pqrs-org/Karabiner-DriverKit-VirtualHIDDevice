@@ -1,4 +1,3 @@
 #pragma once
 
 #define VERSION "@VERSION@"
-#define DRIVER_VERSION_NUMBER @DRIVER_VERSION_NUMBER@
