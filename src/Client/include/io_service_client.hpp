@@ -9,6 +9,7 @@
 #include <os/log.h>
 #include <pqrs/dispatcher.hpp>
 #include <pqrs/hid.hpp>
+#include <pqrs/karabiner/driverkit/version.hpp>
 #include <pqrs/karabiner/driverkit/virtual_hid_device_driver.hpp>
 #include <pqrs/osx/iokit_return.hpp>
 #include <pqrs/osx/iokit_service_monitor.hpp>
@@ -39,19 +40,28 @@ public:
     return driver_version_ != std::nullopt;
   }
 
-  bool driver_version_matched(void) const {
+  bool driver_version_matched(pqrs::karabiner::driverkit::driver_version::value_t expected_driver_version) const {
     std::lock_guard<std::mutex> lock(driver_version_mutex_);
 
-    if (driver_version_ == DRIVER_VERSION_NUMBER) {
+    // expected_driver_version is passed from pqrs::karabiner::driverkit::virtual_hid_device_service::client that is embedded into other apps. (e.g., Karabiner-Elements)
+    // So, the value might be different from DRIVER_VERSION_NUMBER that is embedded into Karabiner-DriverKit-VirtualHIDDeviceClient.
+    if (expected_driver_version != pqrs::karabiner::driverkit::driver_version::embedded_driver_version) {
+      logger::get_logger()->warn("driver_version_ is mismatched: client expected: {0}, actual: {1}",
+                                 type_safe::get(expected_driver_version),
+                                 type_safe::get(pqrs::karabiner::driverkit::driver_version::embedded_driver_version));
+      return false;
+    }
+
+    if (driver_version_ == pqrs::karabiner::driverkit::driver_version::embedded_driver_version) {
       return true;
     } else {
       if (driver_version_) {
-        logger::get_logger()->warn("driver_version_ is mismatched: client expected: {0}, actual dext: {1}",
-                                   DRIVER_VERSION_NUMBER,
-                                   *driver_version_);
+        logger::get_logger()->warn("driver_version_ is mismatched: Karabiner-DriverKit-VirtualHIDDeviceClient expected: {0}, actual dext: {1}",
+                                   type_safe::get(pqrs::karabiner::driverkit::driver_version::embedded_driver_version),
+                                   type_safe::get(*driver_version_));
       } else {
-        logger::get_logger()->warn("driver_version_ is mismatched: client expected: {0}, actual dext: std::nullopt",
-                                   DRIVER_VERSION_NUMBER);
+        logger::get_logger()->warn("driver_version_ is mismatched: Karabiner-DriverKit-VirtualHIDDeviceClient expected: {0}, actual dext: std::nullopt",
+                                   type_safe::get(pqrs::karabiner::driverkit::driver_version::embedded_driver_version));
       }
 
       return false;
@@ -99,13 +109,15 @@ public:
     });
   }
 
-  void async_virtual_hid_keyboard_initialize(pqrs::hid::country_code::value_t country_code) const {
+  void async_virtual_hid_keyboard_initialize(pqrs::karabiner::driverkit::driver_version::value_t expected_driver_version,
+                                             pqrs::hid::country_code::value_t country_code) const {
     logger::get_logger()->info("io_service_client::{0}", __func__);
 
-    enqueue_to_dispatcher([this, country_code] {
+    enqueue_to_dispatcher([this, expected_driver_version, country_code] {
       std::array<uint64_t, 1> input = {type_safe::get(country_code)};
 
-      auto r = call_scalar_method(pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_keyboard_initialize,
+      auto r = call_scalar_method(expected_driver_version,
+                                  pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_keyboard_initialize,
                                   input.data(),
                                   input.size());
 
@@ -115,9 +127,10 @@ public:
     });
   }
 
-  void async_virtual_hid_keyboard_ready(void) {
-    enqueue_to_dispatcher([this] {
-      auto ready = call_ready(pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_keyboard_ready);
+  void async_virtual_hid_keyboard_ready(pqrs::karabiner::driverkit::driver_version::value_t expected_driver_version) {
+    enqueue_to_dispatcher([this, expected_driver_version] {
+      auto ready = call_ready(expected_driver_version,
+                              pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_keyboard_ready);
 
       enqueue_to_dispatcher([this, ready] {
         set_virtual_hid_keyboard_ready(ready);
@@ -125,9 +138,10 @@ public:
     });
   }
 
-  void async_virtual_hid_keyboard_reset(void) const {
-    enqueue_to_dispatcher([this] {
-      auto r = call(pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_keyboard_reset);
+  void async_virtual_hid_keyboard_reset(pqrs::karabiner::driverkit::driver_version::value_t expected_driver_version) const {
+    enqueue_to_dispatcher([this, expected_driver_version] {
+      auto r = call(expected_driver_version,
+                    pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_keyboard_reset);
 
       if (!r) {
         logger::get_logger()->error("virtual_hid_keyboard_reset error: {0}", r.to_string());
@@ -135,11 +149,12 @@ public:
     });
   }
 
-  void async_virtual_hid_pointing_initialize(void) const {
+  void async_virtual_hid_pointing_initialize(pqrs::karabiner::driverkit::driver_version::value_t expected_driver_version) const {
     logger::get_logger()->info("io_service_client::{0}", __func__);
 
-    enqueue_to_dispatcher([this] {
-      auto r = call(pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_pointing_initialize);
+    enqueue_to_dispatcher([this, expected_driver_version] {
+      auto r = call(expected_driver_version,
+                    pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_pointing_initialize);
 
       if (!r) {
         logger::get_logger()->error("virtual_hid_pointing_initialize error: {0}", r.to_string());
@@ -147,9 +162,10 @@ public:
     });
   }
 
-  void async_virtual_hid_pointing_ready(void) {
-    enqueue_to_dispatcher([this] {
-      auto ready = call_ready(pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_pointing_ready);
+  void async_virtual_hid_pointing_ready(pqrs::karabiner::driverkit::driver_version::value_t expected_driver_version) {
+    enqueue_to_dispatcher([this, expected_driver_version] {
+      auto ready = call_ready(expected_driver_version,
+                              pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_pointing_ready);
 
       enqueue_to_dispatcher([this, ready] {
         set_virtual_hid_pointing_ready(ready);
@@ -157,9 +173,10 @@ public:
     });
   }
 
-  void async_virtual_hid_pointing_reset(void) const {
-    enqueue_to_dispatcher([this] {
-      auto r = call(pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_pointing_reset);
+  void async_virtual_hid_pointing_reset(pqrs::karabiner::driverkit::driver_version::value_t expected_driver_version) const {
+    enqueue_to_dispatcher([this, expected_driver_version] {
+      auto r = call(expected_driver_version,
+                    pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_pointing_reset);
 
       if (!r) {
         logger::get_logger()->error("virtual_hid_pointing_reset error: {0}", r.to_string());
@@ -167,9 +184,11 @@ public:
     });
   }
 
-  void async_post_report(const pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report::keyboard_input& report) const {
-    enqueue_to_dispatcher([this, report] {
+  void async_post_report(pqrs::karabiner::driverkit::driver_version::value_t expected_driver_version,
+                         const pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report::keyboard_input& report) const {
+    enqueue_to_dispatcher([this, expected_driver_version, report] {
       auto r = post_report(
+          expected_driver_version,
           pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_keyboard_post_report,
           &report,
           sizeof(report));
@@ -180,9 +199,11 @@ public:
     });
   }
 
-  void async_post_report(const pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report::consumer_input& report) const {
-    enqueue_to_dispatcher([this, report] {
+  void async_post_report(pqrs::karabiner::driverkit::driver_version::value_t expected_driver_version,
+                         const pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report::consumer_input& report) const {
+    enqueue_to_dispatcher([this, expected_driver_version, report] {
       auto r = post_report(
+          expected_driver_version,
           pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_keyboard_post_report,
           &report,
           sizeof(report));
@@ -193,9 +214,11 @@ public:
     });
   }
 
-  void async_post_report(const pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report::apple_vendor_keyboard_input& report) const {
-    enqueue_to_dispatcher([this, report] {
+  void async_post_report(pqrs::karabiner::driverkit::driver_version::value_t expected_driver_version,
+                         const pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report::apple_vendor_keyboard_input& report) const {
+    enqueue_to_dispatcher([this, expected_driver_version, report] {
       auto r = post_report(
+          expected_driver_version,
           pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_keyboard_post_report,
           &report,
           sizeof(report));
@@ -206,9 +229,11 @@ public:
     });
   }
 
-  void async_post_report(const pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report::apple_vendor_top_case_input& report) const {
-    enqueue_to_dispatcher([this, report] {
+  void async_post_report(pqrs::karabiner::driverkit::driver_version::value_t expected_driver_version,
+                         const pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report::apple_vendor_top_case_input& report) const {
+    enqueue_to_dispatcher([this, expected_driver_version, report] {
       auto r = post_report(
+          expected_driver_version,
           pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_keyboard_post_report,
           &report,
           sizeof(report));
@@ -219,9 +244,11 @@ public:
     });
   }
 
-  void async_post_report(const pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report::pointing_input& report) const {
-    enqueue_to_dispatcher([this, report] {
+  void async_post_report(pqrs::karabiner::driverkit::driver_version::value_t expected_driver_version,
+                         const pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report::pointing_input& report) const {
+    enqueue_to_dispatcher([this, expected_driver_version, report] {
       auto r = post_report(
+          expected_driver_version,
           pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_pointing_post_report,
           &report,
           sizeof(report));
@@ -234,7 +261,7 @@ public:
 
 private:
   // This method is executed in the dispatcher thread.
-  void set_driver_version(std::optional<uint64_t> value) {
+  void set_driver_version(std::optional<pqrs::karabiner::driverkit::driver_version::value_t> value) {
     std::lock_guard<std::mutex> lock(driver_version_mutex_);
 
     if (driver_version_ != value) {
@@ -243,7 +270,7 @@ private:
       if (value) {
         logger::get_logger()->info(
             "driver_version_ is changed: {0}",
-            *value);
+            type_safe::get(*value));
       } else {
         logger::get_logger()->info(
             "driver_version_ is changed: std::nullopt");
@@ -340,7 +367,7 @@ private:
   }
 
   // This method is executed in the dispatcher thread.
-  std::optional<uint64_t> call_driver_version(void) const {
+  std::optional<pqrs::karabiner::driverkit::driver_version::value_t> call_driver_version(void) const {
     if (!connection_) {
       return std::nullopt;
     }
@@ -360,16 +387,17 @@ private:
       return std::nullopt;
     }
 
-    return output[0];
+    return pqrs::karabiner::driverkit::driver_version::value_t(output[0]);
   }
 
   // This method is executed in the dispatcher thread.
-  pqrs::osx::iokit_return call(pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method user_client_method) const {
+  pqrs::osx::iokit_return call(pqrs::karabiner::driverkit::driver_version::value_t expected_driver_version,
+                               pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method user_client_method) const {
     if (!connection_) {
       return kIOReturnNotOpen;
     }
 
-    if (!driver_version_matched()) {
+    if (!driver_version_matched(expected_driver_version)) {
       return kIOReturnError;
     }
 
@@ -382,14 +410,15 @@ private:
   }
 
   // This method is executed in the dispatcher thread.
-  pqrs::osx::iokit_return call_scalar_method(pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method user_client_method,
+  pqrs::osx::iokit_return call_scalar_method(pqrs::karabiner::driverkit::driver_version::value_t expected_driver_version,
+                                             pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method user_client_method,
                                              const uint64_t* input,
                                              uint32_t input_count) const {
     if (!connection_) {
       return kIOReturnNotOpen;
     }
 
-    if (!driver_version_matched()) {
+    if (!driver_version_matched(expected_driver_version)) {
       return kIOReturnError;
     }
 
@@ -402,12 +431,13 @@ private:
   }
 
   // This method is executed in the dispatcher thread.
-  std::optional<bool> call_ready(pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method user_client_method) const {
+  std::optional<bool> call_ready(pqrs::karabiner::driverkit::driver_version::value_t expected_driver_version,
+                                 pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method user_client_method) const {
     if (!connection_) {
       return std::nullopt;
     }
 
-    if (!driver_version_matched()) {
+    if (!driver_version_matched(expected_driver_version)) {
       return std::nullopt;
     }
 
@@ -428,14 +458,15 @@ private:
   }
 
   // This method is executed in the dispatcher thread.
-  pqrs::osx::iokit_return post_report(pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method user_client_method,
+  pqrs::osx::iokit_return post_report(pqrs::karabiner::driverkit::driver_version::value_t expected_driver_version,
+                                      pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method user_client_method,
                                       const void* report,
                                       size_t report_size) const {
     if (!connection_) {
       return kIOReturnNotOpen;
     }
 
-    if (!driver_version_matched()) {
+    if (!driver_version_matched(expected_driver_version)) {
       return kIOReturnError;
     }
 
@@ -452,7 +483,7 @@ private:
   pqrs::osx::iokit_object_ptr connection_;
 
   mutable std::mutex driver_version_mutex_;
-  std::optional<uint64_t> driver_version_;
+  std::optional<pqrs::karabiner::driverkit::driver_version::value_t> driver_version_;
 
   mutable std::mutex virtual_hid_keyboard_ready_mutex_;
   std::optional<bool> virtual_hid_keyboard_ready_;
