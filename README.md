@@ -186,8 +186,3 @@ Karabiner-DriverKit-VirtualHIDDevice consists the following components.
 -   `driver-version`:
     -   DriverKit driver internal version.
     -   Increment when the driver source code is updated.
--   `driver-bundle-version`:
-    -   DriverKit driver bundle version.
-    -   Keep 1.0.0 while Karabiner-DriverKit-VirtualHIDDevice supports macOS Catalina.
-        Because macOS Catalina does not support driver replacing, and the limitation causes driver deactivation error (version mismatched) when the bundle version is updated.
-    -   Synchronize with `driver-version` after Karabiner-DriverKit-VirtualHIDDevice drops macOS Catalina support.

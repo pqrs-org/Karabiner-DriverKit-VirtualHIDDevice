@@ -15,9 +15,9 @@
     <key>CFBundlePackageType</key>
     <string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
     <key>CFBundleShortVersionString</key>
-    <string>@DRIVER_BUNDLE_VERSION@</string>
+    <string>@DRIVER_VERSION@</string>
     <key>CFBundleVersion</key>
-    <string>@DRIVER_BUNDLE_VERSION@</string>
+    <string>@DRIVER_VERSION@</string>
     <key>IOKitPersonalities</key>
     <dict>
       <key>org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceRoot</key>
