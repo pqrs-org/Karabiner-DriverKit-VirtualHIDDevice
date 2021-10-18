@@ -215,7 +215,7 @@ private:
                                                             country_code);
             }
 
-            virtual_hid_device_service_keyboard_clients_manager_->async_insert_client(sender_endpoint->path());
+            virtual_hid_device_service_keyboard_clients_manager_->insert_client(sender_endpoint->path());
             break;
           }
 
@@ -242,7 +242,7 @@ private:
               create_virtual_hid_pointing_io_service_client(expected_driver_version);
             }
 
-            virtual_hid_device_service_pointing_clients_manager_->async_insert_client(sender_endpoint->path());
+            virtual_hid_device_service_pointing_clients_manager_->insert_client(sender_endpoint->path());
             break;
 
           case pqrs::karabiner::driverkit::virtual_hid_device_service::request::virtual_hid_pointing_terminate:

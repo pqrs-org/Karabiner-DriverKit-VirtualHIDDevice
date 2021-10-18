@@ -25,36 +25,35 @@ public:
     });
   }
 
-  void async_insert_client(const std::string& endpoint_path) {
-    enqueue_to_dispatcher([this, endpoint_path] {
-      if (clients_.contains(endpoint_path)) {
-        return;
-      }
+  // This method needs to be called inside the dispatcher thread.
+  void insert_client(const std::string& endpoint_path) {
+    if (clients_.contains(endpoint_path)) {
+      return;
+    }
 
-      auto c = std::make_shared<pqrs::local_datagram::client>(
-          weak_dispatcher_,
-          endpoint_path,
-          std::nullopt,
-          pqrs::karabiner::driverkit::virtual_hid_device_service::constants::local_datagram_buffer_size);
+    auto c = std::make_shared<pqrs::local_datagram::client>(
+        weak_dispatcher_,
+        endpoint_path,
+        std::nullopt,
+        pqrs::karabiner::driverkit::virtual_hid_device_service::constants::local_datagram_buffer_size);
 
-      c->set_server_check_interval(std::chrono::milliseconds(1000));
+    c->set_server_check_interval(std::chrono::milliseconds(1000));
 
-      c->connect_failed.connect([this, endpoint_path](auto&& error_code) {
-        erase_client(endpoint_path);
-      });
-
-      c->closed.connect([this, endpoint_path] {
-        erase_client(endpoint_path);
-      });
-
-      c->async_start();
-
-      clients_[endpoint_path] = c;
-
-      logger::get_logger()->info("virtual_hid_device_service_clients_manager ({0}) client is added (size: {1})",
-                                 name_,
-                                 clients_.size());
+    c->connect_failed.connect([this, endpoint_path](auto&& error_code) {
+      erase_client(endpoint_path);
     });
+
+    c->closed.connect([this, endpoint_path] {
+      erase_client(endpoint_path);
+    });
+
+    c->async_start();
+
+    clients_[endpoint_path] = c;
+
+    logger::get_logger()->info("virtual_hid_device_service_clients_manager ({0}) client is added (size: {1})",
+                               name_,
+                               clients_.size());
   }
 
 private:
