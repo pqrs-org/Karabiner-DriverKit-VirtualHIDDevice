@@ -4,6 +4,7 @@
 // Distributed under the Boost Software License, Version 1.0.
 // (See https://www.boost.org/LICENSE_1_0.txt)
 
+#include "../version.hpp"
 #include "constants.hpp"
 #include "request.hpp"
 #include "response.hpp"
@@ -71,7 +72,8 @@ public:
   }
 
   void async_virtual_hid_keyboard_initialize(hid::country_code::value_t country_code) {
-    async_send(request::virtual_hid_keyboard_initialize, country_code);
+    async_send(request::virtual_hid_keyboard_initialize,
+               country_code);
   }
 
   void async_virtual_hid_keyboard_terminate(void) {
@@ -220,10 +222,10 @@ private:
   void async_send(request r) {
     enqueue_to_dispatcher([this, r] {
       if (client_) {
-        uint8_t buffer[] = {
-            static_cast<std::underlying_type<request>::type>(r),
-        };
-        client_->async_send(buffer, sizeof(buffer));
+        std::vector<uint8_t> buffer;
+        append_data(buffer, driver_version::embedded_driver_version);
+        append_data(buffer, r);
+        client_->async_send(buffer);
       }
     });
   }
@@ -233,6 +235,7 @@ private:
     enqueue_to_dispatcher([this, r, data] {
       if (client_) {
         std::vector<uint8_t> buffer;
+        append_data(buffer, driver_version::embedded_driver_version);
         append_data(buffer, r);
         append_data(buffer, data);
         client_->async_send(buffer);
