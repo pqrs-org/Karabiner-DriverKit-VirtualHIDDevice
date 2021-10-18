@@ -29,12 +29,12 @@ const uint8_t reportDescriptor[] = {
     0x81, 0x01,       //   Input...................(Constant)
                       //
     0x95, 0x20,       //   Report Count............ (32)
-    0x75, 0x08,       //   Report Size............. (8)
+    0x75, 0x10,       //   Report Size............. (16)
     0x15, 0x00,       //   Logical Minimum......... (0)
-    0x26, 0xff, 0x00, //   Logical Maximum......... (255)
+    0x26, 0xff, 0xff, //   Logical Maximum......... (65535)
     0x05, 0x07,       //   Usage Page (Keyboard/Keypad)
     0x19, 0x00,       //   Usage Minimum........... (0)
-    0x29, 0xff,       //   Usage Maximum........... (255)
+    0x2a, 0xff, 0xff, //   Usage Maximum........... (65535)
     0x81, 0x00,       //   Input...................(Data, Array, Absolute)
     0xc0,             // End Collection
 
@@ -44,11 +44,11 @@ const uint8_t reportDescriptor[] = {
     0x85, 0x02,       //   Report Id (2)
     0x05, 0x0c,       //   Usage Page (Consumer)
     0x95, 0x20,       //   Report Count............ (32)
-    0x75, 0x08,       //   Report Size............. (8)
+    0x75, 0x10,       //   Report Size............. (16)
     0x15, 0x00,       //   Logical Minimum......... (0)
-    0x26, 0xff, 0x00, //   Logical Maximum......... (255)
+    0x26, 0xff, 0xff, //   Logical Maximum......... (65535)
     0x19, 0x00,       //   Usage Minimum........... (0)
-    0x29, 0xff,       //   Usage Maximum........... (255)
+    0x2a, 0xff, 0xff, //   Usage Maximum........... (65535)
     0x81, 0x00,       //   Input...................(Data, Array, Absolute)
     0xc0,             // End Collection
 
@@ -58,11 +58,11 @@ const uint8_t reportDescriptor[] = {
     0x85, 0x03,       //   Report Id (3)
     0x05, 0xff,       //   Usage Page (kHIDPage_AppleVendorTopCase)
     0x95, 0x20,       //   Report Count............ (32)
-    0x75, 0x08,       //   Report Size............. (8)
+    0x75, 0x10,       //   Report Size............. (16)
     0x15, 0x00,       //   Logical Minimum......... (0)
-    0x26, 0xff, 0x00, //   Logical Maximum......... (255)
+    0x26, 0xff, 0xff, //   Logical Maximum......... (65535)
     0x19, 0x00,       //   Usage Minimum........... (0)
-    0x29, 0xff,       //   Usage Maximum........... (255)
+    0x2a, 0xff, 0xff, //   Usage Maximum........... (65535)
     0x81, 0x00,       //   Input...................(Data, Array, Absolute)
     0xc0,             // End Collection
 
@@ -72,11 +72,11 @@ const uint8_t reportDescriptor[] = {
     0x85, 0x04,       //   Report Id (4)
     0x06, 0x01, 0xff, //   Usage Page (kHIDPage_AppleVendorKeyboard)
     0x95, 0x20,       //   Report Count............ (32)
-    0x75, 0x08,       //   Report Size............. (8)
+    0x75, 0x10,       //   Report Size............. (16)
     0x15, 0x00,       //   Logical Minimum......... (0)
-    0x26, 0xff, 0x00, //   Logical Maximum......... (255)
+    0x26, 0xff, 0xff, //   Logical Maximum......... (65535)
     0x19, 0x00,       //   Usage Minimum........... (0)
-    0x29, 0xff,       //   Usage Maximum........... (255)
+    0x2a, 0xff, 0xff, //   Usage Maximum........... (65535)
     0x81, 0x00,       //   Input...................(Data, Array, Absolute)
     0xc0,             // End Collection
 

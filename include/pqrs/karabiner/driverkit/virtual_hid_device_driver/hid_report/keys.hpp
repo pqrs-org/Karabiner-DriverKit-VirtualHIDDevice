@@ -16,7 +16,7 @@ class __attribute__((packed)) keys final {
 public:
   keys(void) : keys_{} {}
 
-  const uint8_t (&get_raw_value(void) const)[32] {
+  const uint16_t (&get_raw_value(void) const)[32] {
     return keys_;
   }
 
@@ -33,7 +33,7 @@ public:
     memset(keys_, 0, sizeof(keys_));
   }
 
-  void insert(uint8_t key) {
+  void insert(uint16_t key) {
     if (!exists(key)) {
       for (auto&& k : keys_) {
         if (k == 0) {
@@ -44,7 +44,7 @@ public:
     }
   }
 
-  void erase(uint8_t key) {
+  void erase(uint16_t key) {
     for (auto&& k : keys_) {
       if (k == key) {
         k = 0;
@@ -52,7 +52,7 @@ public:
     }
   }
 
-  bool exists(uint8_t key) const {
+  bool exists(uint16_t key) const {
     for (const auto& k : keys_) {
       if (k == key) {
         return true;
@@ -76,7 +76,7 @@ public:
   bool operator!=(const keys& other) const { return !(*this == other); }
 
 private:
-  uint8_t keys_[32];
+  uint16_t keys_[32];
 };
 
 } // namespace hid_report
