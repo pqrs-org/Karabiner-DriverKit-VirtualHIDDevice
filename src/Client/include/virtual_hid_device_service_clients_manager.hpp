@@ -21,13 +21,18 @@ public:
 
   virtual ~virtual_hid_device_service_clients_manager(void) {
     detach_from_dispatcher([this] {
-      clients_.clear();
+      entries_.clear();
     });
   }
 
-  // This method needs to be called inside the dispatcher thread.
-  void insert_client(const std::string& endpoint_path) {
-    if (clients_.contains(endpoint_path)) {
+  // This method needs to be called in the dispatcher thread.
+  void insert_client(const std::string& endpoint_path,
+                     pqrs::karabiner::driverkit::driver_version::value_t expected_driver_version) {
+    if (!dispatcher_thread()) {
+      throw std::logic_error("virtual_hid_device_service_clients_manager::insert_client is called in wrong thread");
+    }
+
+    if (entries_.contains(endpoint_path)) {
       return;
     }
 
@@ -49,27 +54,28 @@ public:
 
     c->async_start();
 
-    clients_[endpoint_path] = c;
+    entries_[endpoint_path] = std::make_unique<entry>(c,
+                                                      expected_driver_version);
 
     logger::get_logger()->info("virtual_hid_device_service_clients_manager ({0}) client is added (size: {1})",
                                name_,
-                               clients_.size());
+                               entries_.size());
   }
 
 private:
   // This method is executed in the dispatcher thread.
   void erase_client(const std::string& endpoint_path) {
-    if (clients_.empty()) {
+    if (entries_.empty()) {
       return;
     }
 
-    clients_.erase(endpoint_path);
+    entries_.erase(endpoint_path);
 
     logger::get_logger()->info("virtual_hid_device_service_clients_manager ({0}) client is removed (size: {1})",
                                name_,
-                               clients_.size());
+                               entries_.size());
 
-    if (clients_.empty()) {
+    if (entries_.empty()) {
       enqueue_to_dispatcher([this] {
         all_clients_disconnected();
       });
@@ -77,6 +83,27 @@ private:
   }
 
 private:
+  class entry final {
+  public:
+    entry(std::shared_ptr<pqrs::local_datagram::client> client,
+          pqrs::karabiner::driverkit::driver_version::value_t expected_driver_version)
+        : client_(client),
+          expected_driver_version_(expected_driver_version) {
+    }
+
+    std::shared_ptr<pqrs::local_datagram::client> get_client(void) const {
+      return client_;
+    }
+
+    pqrs::karabiner::driverkit::driver_version::value_t get_expected_driver_version(void) const {
+      return expected_driver_version_;
+    }
+
+  private:
+    std::shared_ptr<pqrs::local_datagram::client> client_;
+    pqrs::karabiner::driverkit::driver_version::value_t expected_driver_version_;
+  };
+
   std::string name_;
-  std::unordered_map<std::string, std::shared_ptr<pqrs::local_datagram::client>> clients_;
+  std::unordered_map<std::string, std::unique_ptr<entry>> entries_;
 };
