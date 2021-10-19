@@ -9,12 +9,6 @@
 
 class virtual_hid_device_service_clients_manager final : public pqrs::dispatcher::extra::dispatcher_client {
 public:
-  // Signals (invoked from the dispatcher thread)
-
-  nod::signal<void(void)> all_clients_disconnected;
-
-  // Methods
-
   virtual_hid_device_service_clients_manager(const std::string& name) : dispatcher_client(),
                                                                         name_(name) {
   }
@@ -27,14 +21,15 @@ public:
 
   // This method needs to be called in the dispatcher thread.
   void insert_client(const std::string& endpoint_path,
+                     std::shared_ptr<io_service_client> io_service_client,
                      pqrs::karabiner::driverkit::driver_version::value_t expected_driver_version) {
     if (!dispatcher_thread()) {
-      throw std::logic_error("virtual_hid_device_service_clients_manager::insert_client is called in wrong thread");
+      throw std::logic_error(fmt::format("{0} is called in wrong thread", __func__));
     }
 
-    if (entries_.contains(endpoint_path)) {
-      return;
-    }
+    //
+    // Create pqrs::local_datagram::client
+    //
 
     auto c = std::make_shared<pqrs::local_datagram::client>(
         weak_dispatcher_,
@@ -55,6 +50,7 @@ public:
     c->async_start();
 
     entries_[endpoint_path] = std::make_unique<entry>(c,
+                                                      io_service_client,
                                                       expected_driver_version);
 
     logger::get_logger()->info("virtual_hid_device_service_clients_manager ({0}) client is added (size: {1})",
@@ -62,11 +58,10 @@ public:
                                entries_.size());
   }
 
-private:
-  // This method is executed in the dispatcher thread.
+  // This method needs to be called in the dispatcher thread.
   void erase_client(const std::string& endpoint_path) {
-    if (entries_.empty()) {
-      return;
+    if (!dispatcher_thread()) {
+      throw std::logic_error(fmt::format("{0} is called in wrong thread", __func__));
     }
 
     entries_.erase(endpoint_path);
@@ -74,25 +69,135 @@ private:
     logger::get_logger()->info("virtual_hid_device_service_clients_manager ({0}) client is removed (size: {1})",
                                name_,
                                entries_.size());
+  }
 
-    if (entries_.empty()) {
-      enqueue_to_dispatcher([this] {
-        all_clients_disconnected();
-      });
+  // This method needs to be called in the dispatcher thread.
+  void call_async_virtual_hid_keyboard_ready(void) const {
+    if (!dispatcher_thread()) {
+      throw std::logic_error(fmt::format("{0} is called in wrong thread", __func__));
+    }
+
+    for (const auto& [k, v] : entries_) {
+      if (auto c = v->get_io_service_client()) {
+        c->async_virtual_hid_keyboard_ready(v->get_expected_driver_version());
+      }
+    }
+  }
+
+  // This method needs to be called in the dispatcher thread.
+  void call_async_virtual_hid_pointing_ready(void) const {
+    if (!dispatcher_thread()) {
+      throw std::logic_error(fmt::format("{0} is called in wrong thread", __func__));
+    }
+
+    for (const auto& [k, v] : entries_) {
+      if (auto c = v->get_io_service_client()) {
+        c->async_virtual_hid_pointing_ready(v->get_expected_driver_version());
+      }
+    }
+  }
+
+  // This method needs to be called in the dispatcher thread.
+  std::optional<bool> virtual_hid_keyboard_ready(const std::string& endpoint_path) const {
+    if (!dispatcher_thread()) {
+      throw std::logic_error(fmt::format("{0} is called in wrong thread", __func__));
+    }
+
+    auto it = entries_.find(endpoint_path);
+    if (it != std::end(entries_)) {
+      if (auto c = it->second->get_io_service_client()) {
+        return c->get_virtual_hid_keyboard_ready(it->second->get_expected_driver_version());
+      }
+    }
+
+    return std::nullopt;
+  }
+
+  // This method needs to be called in the dispatcher thread.
+  std::optional<bool> virtual_hid_pointing_ready(const std::string& endpoint_path) const {
+    if (!dispatcher_thread()) {
+      throw std::logic_error(fmt::format("{0} is called in wrong thread", __func__));
+    }
+
+    auto it = entries_.find(endpoint_path);
+    if (it != std::end(entries_)) {
+      if (auto c = it->second->get_io_service_client()) {
+        return c->get_virtual_hid_pointing_ready(it->second->get_expected_driver_version());
+      }
+    }
+
+    return std::nullopt;
+  }
+
+  // This method needs to be called in the dispatcher thread.
+  void virtual_hid_keyboard_reset(const std::string& endpoint_path) const {
+    if (!dispatcher_thread()) {
+      throw std::logic_error(fmt::format("{0} is called in wrong thread", __func__));
+    }
+
+    auto it = entries_.find(endpoint_path);
+    if (it != std::end(entries_)) {
+      if (auto c = it->second->get_io_service_client()) {
+        c->async_virtual_hid_keyboard_reset(it->second->get_expected_driver_version());
+      }
+    }
+  }
+
+  // This method needs to be called in the dispatcher thread.
+  void virtual_hid_pointing_reset(const std::string& endpoint_path) const {
+    if (!dispatcher_thread()) {
+      throw std::logic_error(fmt::format("{0} is called in wrong thread", __func__));
+    }
+
+    auto it = entries_.find(endpoint_path);
+    if (it != std::end(entries_)) {
+      if (auto c = it->second->get_io_service_client()) {
+        c->async_virtual_hid_pointing_reset(it->second->get_expected_driver_version());
+      }
+    }
+  }
+
+  // This method needs to be called in the dispatcher thread.
+  template <typename T>
+  void post_report(const std::string& endpoint_path,
+                   const uint8_t* buffer,
+                   size_t buffer_size) const {
+    if (!dispatcher_thread()) {
+      throw std::logic_error(fmt::format("{0} is called in wrong thread", __func__));
+    }
+
+    if (sizeof(T) != buffer_size) {
+      logger::get_logger()->warn(fmt::format("{0}: buffer size error", __func__));
+      return;
+    }
+
+    auto it = entries_.find(endpoint_path);
+    if (it != std::end(entries_)) {
+      if (auto c = it->second->get_io_service_client()) {
+        c->async_post_report(
+            it->second->get_expected_driver_version(),
+            *(reinterpret_cast<const T*>(buffer)));
+      }
     }
   }
 
 private:
   class entry final {
   public:
-    entry(std::shared_ptr<pqrs::local_datagram::client> client,
+    entry(std::shared_ptr<pqrs::local_datagram::client> local_datagram_client,
+          std::shared_ptr<io_service_client> io_service_client,
           pqrs::karabiner::driverkit::driver_version::value_t expected_driver_version)
-        : client_(client),
+        : local_datagram_client_(local_datagram_client),
+          io_service_client_(io_service_client),
           expected_driver_version_(expected_driver_version) {
     }
 
-    std::shared_ptr<pqrs::local_datagram::client> get_client(void) const {
-      return client_;
+    std::shared_ptr<pqrs::local_datagram::client> get_local_datagram_client(void) const {
+      return local_datagram_client_;
+    }
+
+    std::shared_ptr<io_service_client> get_io_service_client(void) const {
+      return io_service_client_;
     }
 
     pqrs::karabiner::driverkit::driver_version::value_t get_expected_driver_version(void) const {
@@ -100,7 +205,8 @@ private:
     }
 
   private:
-    std::shared_ptr<pqrs::local_datagram::client> client_;
+    std::shared_ptr<pqrs::local_datagram::client> local_datagram_client_;
+    std::shared_ptr<io_service_client> io_service_client_;
     pqrs::karabiner::driverkit::driver_version::value_t expected_driver_version_;
   };
 
