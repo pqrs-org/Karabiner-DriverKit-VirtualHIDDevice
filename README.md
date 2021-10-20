@@ -36,7 +36,7 @@ Virtual devices (keyboard and mouse) implementation for macOS using DriverKit.
 
 ## Usage
 
-1.  Open `dist/Karabiner-DriverKit-VirtualHIDDevice-x.x.x.dmg`, and then open `Karabiner-DriverKit-VirtualHIDDevice.pkg` (installer).
+1.  Open `dist/Karabiner-DriverKit-VirtualHIDDevice-x.x.x.pkg`.
 2.  Install files via installer.
 3.  Execute the following command in Terminal.
 
