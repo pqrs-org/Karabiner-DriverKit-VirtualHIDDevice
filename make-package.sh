@@ -3,6 +3,17 @@
 set -u # forbid undefined variables
 set -e # forbid command failure
 
+# Check Xcode version
+
+if [ $(xcrun --show-sdk-version) != '11.3' ]; then
+    echo
+    echo 'ERROR:'
+    echo '  Xcode version is not 13.0.'
+    echo '  You have to use Xcode 13.0 to support macOS 11 Big Sur.'
+    echo
+    exit 1
+fi
+
 # Package build into a signed .dmg file
 
 version=$(cat version)
