@@ -10,6 +10,13 @@
 #define LOG_PREFIX "Karabiner-DriverKit-VirtualHIDKeyboard " KARABINER_DRIVERKIT_VERSION
 
 namespace {
+
+//
+// Note:
+// Too large usage maximum, e.g. 2048, causes high CPU usage with `ioreg -l ` on macOS Monterey 12.0.1.
+// Thus, we have to set a smallest value to usage maximum.
+//
+
 const uint8_t reportDescriptor[] = {
     0x05, 0x01,       // Usage Page (Generic Desktop)
     0x09, 0x06,       // Usage (Keyboard)
@@ -31,10 +38,10 @@ const uint8_t reportDescriptor[] = {
     0x95, 0x20,       //   Report Count............ (32)
     0x75, 0x10,       //   Report Size............. (16)
     0x15, 0x00,       //   Logical Minimum......... (0)
-    0x26, 0xff, 0xff, //   Logical Maximum......... (65535)
+    0x26, 0xff, 0x00, //   Logical Maximum......... (255)
     0x05, 0x07,       //   Usage Page (Keyboard/Keypad)
     0x19, 0x00,       //   Usage Minimum........... (0)
-    0x2a, 0xff, 0xff, //   Usage Maximum........... (65535)
+    0x2a, 0xff, 0x00, //   Usage Maximum........... (255)
     0x81, 0x00,       //   Input...................(Data, Array, Absolute)
     0xc0,             // End Collection
 
@@ -46,9 +53,9 @@ const uint8_t reportDescriptor[] = {
     0x95, 0x20,       //   Report Count............ (32)
     0x75, 0x10,       //   Report Size............. (16)
     0x15, 0x00,       //   Logical Minimum......... (0)
-    0x26, 0xff, 0xff, //   Logical Maximum......... (65535)
+    0x26, 0x00, 0x03, //   Logical Maximum......... (768) (Consumer usage 29d-ffff is reserved)
     0x19, 0x00,       //   Usage Minimum........... (0)
-    0x2a, 0xff, 0xff, //   Usage Maximum........... (65535)
+    0x2a, 0x00, 0x03, //   Usage Maximum........... (768)
     0x81, 0x00,       //   Input...................(Data, Array, Absolute)
     0xc0,             // End Collection
 
@@ -60,9 +67,9 @@ const uint8_t reportDescriptor[] = {
     0x95, 0x20,       //   Report Count............ (32)
     0x75, 0x10,       //   Report Size............. (16)
     0x15, 0x00,       //   Logical Minimum......... (0)
-    0x26, 0xff, 0xff, //   Logical Maximum......... (65535)
+    0x26, 0xff, 0x00, //   Logical Maximum......... (255)
     0x19, 0x00,       //   Usage Minimum........... (0)
-    0x2a, 0xff, 0xff, //   Usage Maximum........... (65535)
+    0x2a, 0xff, 0x00, //   Usage Maximum........... (255)
     0x81, 0x00,       //   Input...................(Data, Array, Absolute)
     0xc0,             // End Collection
 
@@ -74,9 +81,9 @@ const uint8_t reportDescriptor[] = {
     0x95, 0x20,       //   Report Count............ (32)
     0x75, 0x10,       //   Report Size............. (16)
     0x15, 0x00,       //   Logical Minimum......... (0)
-    0x26, 0xff, 0xff, //   Logical Maximum......... (65535)
+    0x26, 0xff, 0x00, //   Logical Maximum......... (255)
     0x19, 0x00,       //   Usage Minimum........... (0)
-    0x2a, 0xff, 0xff, //   Usage Maximum........... (65535)
+    0x2a, 0xff, 0x00, //   Usage Maximum........... (255)
     0x81, 0x00,       //   Input...................(Data, Array, Absolute)
     0xc0,             // End Collection
 
@@ -110,7 +117,7 @@ const uint8_t reportDescriptor[] = {
     0x81, 0x01, //   Input...................(Constant)
     0xc0,       // End Collection
 };
-}
+} // namespace
 
 struct org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard_IVars {
   org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient* provider;
