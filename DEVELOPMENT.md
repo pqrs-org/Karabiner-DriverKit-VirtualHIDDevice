@@ -158,7 +158,7 @@ The `RegisterService` invokes `registerService()` at [IOHIDDevice::start](https:
 
     ```cpp
       io_connect_t connect = IO_OBJECT_NULL;
-      auto service = IOServiceGetMatchingService(kIOMasterPortDefault, IOServiceNameMatching("org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceRoot"));
+      auto service = IOServiceGetMatchingService(kIOMainPortDefault, IOServiceNameMatching("org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceRoot"));
       if (!service) {
         std::cerr << "IOServiceGetMatchingService error" << std::endl;
         goto finish;
