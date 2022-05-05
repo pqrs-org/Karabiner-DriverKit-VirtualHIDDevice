@@ -13,12 +13,12 @@ package: clean
 	bash make-package.sh
 
 notarize:
-	xcrun altool --notarize-app \
-		-t osx \
-		-f dist/Karabiner-DriverKit-VirtualHIDDevice-$(VERSION).pkg \
-		--primary-bundle-id 'org.pqrs.Karabiner-DriverKit-VirtualHIDDevice' \
-		-u 'tekezo@pqrs.org' \
-		-p '@keychain:pqrs.org-notarize-app'
+	xcrun notarytool \
+		submit dist/Karabiner-DriverKit-VirtualHIDDevice-$(VERSION).pkg \
+		--keychain-profile "pqrs.org notarization" \
+		--wait
+	$(MAKE) staple
+	say "notarization completed"
 
 staple:
 	xcrun stapler staple dist/Karabiner-DriverKit-VirtualHIDDevice-$(VERSION).pkg
