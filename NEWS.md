@@ -1,5 +1,12 @@
 # Changelog
 
+## Karabiner-DriverKit-VirtualHIDDevice 1.28.0
+
+-   📅 Release date
+    -   May 5, 2022
+-   ⚡️ Improvements
+    -   Remove dependency of deprecated `kIOMasterPortDefault`.
+
 ## Karabiner-DriverKit-VirtualHIDDevice 1.27.0
 
 -   📅 Release date
