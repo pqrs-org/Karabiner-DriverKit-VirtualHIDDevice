@@ -1,5 +1,12 @@
 # Changelog
 
+## Karabiner-DriverKit-VirtualHIDDevice 1.29.0
+
+-   📅 Release date
+    -   May 6, 2022
+-   ⚡️ Improvements
+    -   The duplicated `driver_version_ is mismatched` warning log messages have suppressed.
+
 ## Karabiner-DriverKit-VirtualHIDDevice 1.28.0
 
 -   📅 Release date
