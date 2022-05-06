@@ -24,7 +24,7 @@ staple:
 	xcrun stapler staple dist/Karabiner-DriverKit-VirtualHIDDevice-$(VERSION).pkg
 
 check-staple:
-	for f in dist/*.pkg; do xcrun stapler validate $$f || exit 1; done
+	@xcrun stapler validate `find dist | sort -V | tail -n 1`
 
 update_vendor:
 	for f in $$(find * -name 'cget-requirements.txt'); do make -C $$(dirname $$f) update_vendor; done
