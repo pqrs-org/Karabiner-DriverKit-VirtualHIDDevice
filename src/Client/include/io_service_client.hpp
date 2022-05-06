@@ -46,9 +46,13 @@ public:
     // expected_driver_version is passed from pqrs::karabiner::driverkit::virtual_hid_device_service::client that is embedded into other apps. (e.g., Karabiner-Elements)
     // So, the value might be different from DRIVER_VERSION_NUMBER that is embedded into Karabiner-DriverKit-VirtualHIDDeviceClient.
     if (expected_driver_version != pqrs::karabiner::driverkit::driver_version::embedded_driver_version) {
-      logger::get_logger()->warn("driver_version_ is mismatched: client expected: {0}, actual: {1}",
+      auto message = fmt::format("driver_version_ is mismatched: client expected: {0}, actual: {1}",
                                  type_safe::get(expected_driver_version),
                                  type_safe::get(pqrs::karabiner::driverkit::driver_version::embedded_driver_version));
+      if (driver_version_matched_log_message_ != message) {
+        driver_version_matched_log_message_ = message;
+        logger::get_logger()->warn(message);
+      }
       return false;
     }
 
@@ -56,12 +60,20 @@ public:
       return true;
     } else {
       if (driver_version_) {
-        logger::get_logger()->warn("driver_version_ is mismatched: Karabiner-DriverKit-VirtualHIDDeviceClient expected: {0}, actual dext: {1}",
+        auto message = fmt::format("driver_version_ is mismatched: Karabiner-DriverKit-VirtualHIDDeviceClient expected: {0}, actual dext: {1}",
                                    type_safe::get(pqrs::karabiner::driverkit::driver_version::embedded_driver_version),
                                    type_safe::get(*driver_version_));
+        if (driver_version_matched_log_message_ != message) {
+          driver_version_matched_log_message_ = message;
+          logger::get_logger()->warn(message);
+        }
       } else {
-        logger::get_logger()->warn("driver_version_ is mismatched: Karabiner-DriverKit-VirtualHIDDeviceClient expected: {0}, actual dext: std::nullopt",
+        auto message = fmt::format("driver_version_ is mismatched: Karabiner-DriverKit-VirtualHIDDeviceClient expected: {0}, actual dext: std::nullopt",
                                    type_safe::get(pqrs::karabiner::driverkit::driver_version::embedded_driver_version));
+        if (driver_version_matched_log_message_ != message) {
+          driver_version_matched_log_message_ = message;
+          logger::get_logger()->warn(message);
+        }
       }
 
       return false;
@@ -496,6 +508,8 @@ private:
 
   mutable std::mutex driver_version_mutex_;
   std::optional<pqrs::karabiner::driverkit::driver_version::value_t> driver_version_;
+  // Remember last log message in order to suppress duplicated messages.
+  mutable std::string driver_version_matched_log_message_;
 
   mutable std::mutex virtual_hid_keyboard_ready_mutex_;
   std::optional<bool> virtual_hid_keyboard_ready_;
