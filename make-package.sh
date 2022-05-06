@@ -5,7 +5,10 @@ set -e # forbid command failure
 
 # Check Xcode version
 
-if [ $(xcrun --show-sdk-version) != '11.3' ]; then
+xcodePath=$(xcode-select -p | sed 's|\.app/.*|.app|g')
+xcodeVersion=$(plutil -extract CFBundleShortVersionString raw "$xcodePath/Contents/version.plist")
+
+if [ "$xcodeVersion" != '13.0' ]; then
     echo
     echo 'ERROR:'
     echo '  Xcode version is not 13.0.'
