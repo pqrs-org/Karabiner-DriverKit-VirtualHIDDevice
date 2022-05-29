@@ -13,9 +13,5 @@ project (test)
 
 add_executable(
   test
-  buttons_test.cpp
-  keys_test.cpp
-  modifiers_test.cpp
-  sizeof_test.cpp
   test.cpp
 )
