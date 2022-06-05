@@ -1,5 +1,12 @@
 # Changelog
 
+## Karabiner-DriverKit-VirtualHIDDevice 1.30.0
+
+-   📅 Release date
+    -   Jun 5, 2022
+-   ⚡️ Improvements
+    -   Ignore `async_virtual_hid_keyboard_initialize` and `async_virtual_hid_pointing_initialize` if the device is already initialized.
+
 ## Karabiner-DriverKit-VirtualHIDDevice 1.29.0
 
 -   📅 Release date
