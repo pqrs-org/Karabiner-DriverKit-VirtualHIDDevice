@@ -71,7 +71,17 @@ public:
     async_send(request::driver_version_matched);
   }
 
-  void async_virtual_hid_keyboard_initialize(hid::country_code::value_t country_code) {
+  void async_virtual_hid_keyboard_initialize(hid::country_code::value_t country_code,
+                                             bool force = false) {
+    if (!force) {
+      if (last_virtual_hid_keyboard_ready_ == true &&
+          last_virtual_hid_keyboard_initialize_country_code_ == country_code) {
+        return;
+      }
+    }
+
+    last_virtual_hid_keyboard_initialize_country_code_ = country_code;
+
     async_send(request::virtual_hid_keyboard_initialize,
                country_code);
   }
@@ -88,7 +98,13 @@ public:
     async_send(request::virtual_hid_keyboard_reset);
   }
 
-  void async_virtual_hid_pointing_initialize(void) {
+  void async_virtual_hid_pointing_initialize(bool force = false) {
+    if (!force) {
+      if (last_virtual_hid_pointing_ready_ == true) {
+        return;
+      }
+    }
+
     async_send(request::virtual_hid_pointing_initialize);
   }
 
@@ -163,7 +179,11 @@ private:
     client_->closed.connect([this] {
       enqueue_to_dispatcher([this] {
         closed();
+
+        last_virtual_hid_keyboard_ready_ = false;
         virtual_hid_keyboard_ready_response(false);
+
+        last_virtual_hid_pointing_ready_ = false;
         virtual_hid_pointing_ready_response(false);
       });
     });
@@ -205,12 +225,14 @@ private:
 
           case response::virtual_hid_keyboard_ready_result:
             if (size == 1) {
+              last_virtual_hid_keyboard_ready_ = *p;
               virtual_hid_keyboard_ready_response(*p);
             }
             break;
 
           case response::virtual_hid_pointing_ready_result:
             if (size == 1) {
+              last_virtual_hid_pointing_ready_ = *p;
               virtual_hid_pointing_ready_response(*p);
             }
             break;
@@ -252,6 +274,11 @@ private:
 
   std::filesystem::path client_socket_file_path_;
   std::unique_ptr<local_datagram::client> client_;
+
+  std::optional<bool> last_virtual_hid_keyboard_ready_;
+  std::optional<bool> last_virtual_hid_pointing_ready_;
+
+  std::optional<hid::country_code::value_t> last_virtual_hid_keyboard_initialize_country_code_;
 };
 } // namespace virtual_hid_device_service
 } // namespace driverkit
