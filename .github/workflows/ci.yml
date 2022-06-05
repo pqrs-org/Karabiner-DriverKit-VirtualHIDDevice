@@ -7,9 +7,9 @@ jobs:
     runs-on: macos-12
 
     steps:
-      - uses: actions/checkout@v1
-        with:
-          fetch-depth: 1
+      - uses: actions/checkout@v2
+      - name: brew install
+        run: brew install xcodegen
       - name: examples
         run: make -C examples
       - name: tests
