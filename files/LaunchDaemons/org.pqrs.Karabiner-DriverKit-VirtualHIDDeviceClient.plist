@@ -4,6 +4,8 @@
   <dict>
     <key>Label</key>
     <string>org.pqrs.Karabiner-DriverKit-VirtualHIDDeviceClient</string>
+    <key>AssociatedBundleIdentifiers</key>
+    <string>org.pqrs.Karabiner-VirtualHIDDevice-Manager</string>
     <key>Disabled</key>
     <false/>
     <key>KeepAlive</key>
