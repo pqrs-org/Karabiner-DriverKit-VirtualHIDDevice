@@ -1,16 +1,26 @@
 
 #pragma once
 #include <cassert>
-#include <filesystem>
 #include <functional>
 #include <iostream>
 #include <map>
 #include <regex>
 #include <string>
 #include <vector>
-namespace fs = std::filesystem;
+
+#ifdef GLOB_USE_GHC_FILESYSTEM
+#include <ghc/filesystem.hpp>
+#else
+#include <filesystem>
+#endif
 
 namespace glob {
+
+#ifdef GLOB_USE_GHC_FILESYSTEM
+namespace fs = ghc::filesystem;
+#else
+namespace fs = std::filesystem;
+#endif
 
 namespace {
 
@@ -133,7 +143,7 @@ std::regex compile_pattern(const std::string &pattern) {
 }
 
 static inline 
-bool fnmatch_case(const fs::path &name, const std::string &pattern) {
+bool fnmatch(const fs::path &name, const std::string &pattern) {
   return std::regex_match(name.string(), compile_pattern(pattern));
 }
 
@@ -144,7 +154,7 @@ std::vector<fs::path> filter(const std::vector<fs::path> &names,
   std::vector<fs::path> result;
   for (auto &name : names) {
     // std::cout << "Checking for " << name.string() << "\n";
-    if (fnmatch_case(name, pattern)) {
+    if (fnmatch(name, pattern)) {
       result.push_back(name);
     }
   }
@@ -154,13 +164,13 @@ std::vector<fs::path> filter(const std::vector<fs::path> &names,
 static inline 
 fs::path expand_tilde(fs::path path) {
   if (path.empty()) return path;
+
 #ifdef _WIN32
-  char* home;
-  size_t sz;
-  _dupenv_s(&home, &sz, "USERPROFILE");
+  const char * home_variable = "USERNAME";
 #else
-  const char * home = std::getenv("HOME");
+  const char * home_variable = "USER";
 #endif
+  const char * home = std::getenv(home_variable);
   if (home == nullptr) {
     throw std::invalid_argument("error: Unable to expand `~` - HOME environment variable not set.");
   }
@@ -374,8 +384,8 @@ std::vector<fs::path> rglob(const std::string &pathname) {
 }
 
 static inline 
-std::vector<std::filesystem::path> glob(const std::vector<std::string> &pathnames) {
-  std::vector<std::filesystem::path> result;
+std::vector<fs::path> glob(const std::vector<std::string> &pathnames) {
+  std::vector<fs::path> result;
   for (auto &pathname : pathnames) {
     for (auto &match : glob(pathname, false)) {
       result.push_back(std::move(match));
@@ -385,8 +395,8 @@ std::vector<std::filesystem::path> glob(const std::vector<std::string> &pathname
 }
 
 static inline 
-std::vector<std::filesystem::path> rglob(const std::vector<std::string> &pathnames) {
-  std::vector<std::filesystem::path> result;
+std::vector<fs::path> rglob(const std::vector<std::string> &pathnames) {
+  std::vector<fs::path> result;
   for (auto &pathname : pathnames) {
     for (auto &match : glob(pathname, true)) {
       result.push_back(std::move(match));
@@ -396,13 +406,13 @@ std::vector<std::filesystem::path> rglob(const std::vector<std::string> &pathnam
 }
 
 static inline 
-std::vector<std::filesystem::path>
+std::vector<fs::path>
 glob(const std::initializer_list<std::string> &pathnames) {
   return glob(std::vector<std::string>(pathnames));
 }
 
 static inline 
-std::vector<std::filesystem::path>
+std::vector<fs::path>
 rglob(const std::initializer_list<std::string> &pathnames) {
   return rglob(std::vector<std::string>(pathnames));
 }
