@@ -28,3 +28,6 @@ check-staple:
 
 update_vendor:
 	for f in $$(find * -name 'cget-requirements.txt'); do make -C $$(dirname $$f) update_vendor; done
+
+swift-format:
+	find * -name '*.swift' -print0 | xargs -0 swift-format -i
