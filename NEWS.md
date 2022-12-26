@@ -1,5 +1,13 @@
 # Changelog
 
+## Karabiner-DriverKit-VirtualHIDDevice 1.31.0
+
+-   📅 Release date
+    -   Dec 27, 2022
+-   ⚡️ Improvements
+    -   Added `AssociatedBundleIdentifiers` into `LaunchDaemons/org.pqrs.Karabiner-DriverKit-VirtualHIDDeviceClient.plist`
+    -   Improved error recovery by enhanced status check of local datagram communication between virtual_hid_device_service_server and virtual_hid_device_service::client.
+
 ## Karabiner-DriverKit-VirtualHIDDevice 1.30.0
 
 -   📅 Release date
