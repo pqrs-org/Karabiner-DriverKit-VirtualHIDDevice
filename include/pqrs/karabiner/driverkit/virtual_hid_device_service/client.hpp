@@ -194,6 +194,15 @@ private:
       });
     });
 
+    client_->next_heartbeat_deadline_exceeded.connect([this](auto&& sender_endpoint) {
+      enqueue_to_dispatcher([this] {
+        if (client_) {
+          async_stop();
+          async_start();
+        }
+      });
+    });
+
     client_->received.connect([this](auto&& buffer, auto&& sender_endpoint) {
       if (buffer) {
         if (buffer->empty()) {

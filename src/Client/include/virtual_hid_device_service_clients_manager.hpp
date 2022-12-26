@@ -38,6 +38,7 @@ public:
         pqrs::karabiner::driverkit::virtual_hid_device_service::constants::local_datagram_buffer_size);
 
     c->set_server_check_interval(std::chrono::milliseconds(1000));
+    c->set_next_heartbeat_deadline(std::chrono::milliseconds(3000));
 
     c->connect_failed.connect([this, endpoint_path](auto&& error_code) {
       erase_client(endpoint_path);
