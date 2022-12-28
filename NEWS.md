@@ -1,5 +1,12 @@
 # Changelog
 
+## Karabiner-DriverKit-VirtualHIDDevice 1.32.0
+
+-   📅 Release date
+    -   Dec 28, 2022
+-   ⚡️ Improvements
+    -   Update dependent vendor code
+
 ## Karabiner-DriverKit-VirtualHIDDevice 1.31.0
 
 -   📅 Release date
