@@ -24,9 +24,12 @@ public:
   // Methods
 
   io_service_client(void) : dispatcher_client() {
+    logger::get_logger()->info("io_service_client::{0}", __func__);
   }
 
   ~io_service_client(void) {
+    logger::get_logger()->info("io_service_client::{0}", __func__);
+
     detach_from_dispatcher([this] {
       close_connection();
 
@@ -113,6 +116,8 @@ public:
                                                                               matching_dictionary);
 
         service_monitor_->service_matched.connect([this](auto&& registry_entry_id, auto&& service_ptr) {
+          logger::get_logger()->info("iokit_service_monitor::service_matched");
+
           close_connection();
 
           // Use the last matched service.
@@ -120,6 +125,8 @@ public:
         });
 
         service_monitor_->service_terminated.connect([this](auto&& registry_entry_id) {
+          logger::get_logger()->info("iokit_service_monitor::service_terminated");
+
           close_connection();
 
           // Use the next service

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "logger.hpp"
+#include <filesystem>
 #include <nod/nod.hpp>
 #include <pqrs/dispatcher.hpp>
 #include <pqrs/karabiner/driverkit/virtual_hid_device_service.hpp>
@@ -27,9 +28,16 @@ public:
       throw std::logic_error(fmt::format("{0} is called in wrong thread", __func__));
     }
 
+    auto endpoint_filename = std::filesystem::path(endpoint_path).filename();
+
     //
     // Create pqrs::local_datagram::client
     //
+
+    logger::get_logger()->info(
+        "create a client for virtual_hid_device_service::client: {0} {1}",
+        name_,
+        endpoint_filename.c_str());
 
     auto c = std::make_shared<pqrs::local_datagram::client>(
         weak_dispatcher_,
@@ -40,11 +48,21 @@ public:
     c->set_server_check_interval(std::chrono::milliseconds(1000));
     c->set_next_heartbeat_deadline(std::chrono::milliseconds(3000));
 
-    c->connect_failed.connect([this, endpoint_path](auto&& error_code) {
+    c->connect_failed.connect([this, endpoint_path, endpoint_filename](auto&& error_code) {
+      logger::get_logger()->info(
+          "client connect_failed: {0} {1}",
+          name_,
+          endpoint_filename.c_str());
+
       erase_client(endpoint_path);
     });
 
-    c->closed.connect([this, endpoint_path] {
+    c->closed.connect([this, endpoint_path, endpoint_filename] {
+      logger::get_logger()->info(
+          "client closed: {0} {1}",
+          name_,
+          endpoint_filename.c_str());
+
       erase_client(endpoint_path);
     });
 
@@ -54,8 +72,9 @@ public:
                                                       io_service_client,
                                                       expected_driver_version);
 
-    logger::get_logger()->info("virtual_hid_device_service_clients_manager ({0}) client is added (size: {1})",
+    logger::get_logger()->info("virtual_hid_device_service_clients_manager ({0} {1}) client is added (size: {2})",
                                name_,
+                               endpoint_filename.c_str(),
                                entries_.size());
   }
 
@@ -65,10 +84,13 @@ public:
       throw std::logic_error(fmt::format("{0} is called in wrong thread", __func__));
     }
 
+    auto endpoint_filename = std::filesystem::path(endpoint_path).filename();
+
     entries_.erase(endpoint_path);
 
-    logger::get_logger()->info("virtual_hid_device_service_clients_manager ({0}) client is removed (size: {1})",
+    logger::get_logger()->info("virtual_hid_device_service_clients_manager ({0} {1}) client is removed (size: {2})",
                                name_,
+                               endpoint_filename.c_str(),
                                entries_.size());
   }
 

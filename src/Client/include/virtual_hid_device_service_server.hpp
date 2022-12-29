@@ -131,6 +131,8 @@ private:
           return;
         }
 
+        auto sender_endpoint_filename = std::filesystem::path(sender_endpoint->path()).filename();
+
         auto p = &((*buffer)[0]);
         auto size = buffer->size();
 
@@ -179,6 +181,9 @@ private:
           }
 
           case pqrs::karabiner::driverkit::virtual_hid_device_service::request::virtual_hid_keyboard_initialize: {
+            logger::get_logger()->info("received request::virtual_hid_keyboard_initialize: {0}",
+                                       sender_endpoint_filename.c_str());
+
             if (sizeof(pqrs::hid::country_code::value_t) != size) {
               logger::get_logger()->warn("virtual_hid_device_service_server: received: virtual_hid_keyboard_initialize buffer size error");
               return;
@@ -196,6 +201,9 @@ private:
           }
 
           case pqrs::karabiner::driverkit::virtual_hid_device_service::request::virtual_hid_keyboard_terminate:
+            logger::get_logger()->info("received request::virtual_hid_keyboard_terminate: {0}",
+                                       sender_endpoint_filename.c_str());
+
             virtual_hid_device_service_keyboard_clients_manager_->erase_client(sender_endpoint->path());
             break;
 
@@ -211,6 +219,9 @@ private:
             break;
 
           case pqrs::karabiner::driverkit::virtual_hid_device_service::request::virtual_hid_pointing_initialize: {
+            logger::get_logger()->info("received request::virtual_hid_pointing_initialize: {0}",
+                                       sender_endpoint_filename.c_str());
+
             auto io_service_client = create_virtual_hid_pointing_io_service_client(expected_driver_version);
 
             virtual_hid_device_service_pointing_clients_manager_->insert_client(sender_endpoint->path(),
@@ -220,6 +231,9 @@ private:
           }
 
           case pqrs::karabiner::driverkit::virtual_hid_device_service::request::virtual_hid_pointing_terminate:
+            logger::get_logger()->info("received request::virtual_hid_pointing_terminate: {0}",
+                                       sender_endpoint_filename.c_str());
+
             virtual_hid_device_service_pointing_clients_manager_->erase_client(sender_endpoint->path());
             break;
 
@@ -289,7 +303,7 @@ private:
   // This method is executed in the dispatcher thread.
   std::shared_ptr<io_service_client> create_virtual_hid_keyboard_io_service_client(pqrs::karabiner::driverkit::driver_version::value_t expected_driver_version,
                                                                                    pqrs::hid::country_code::value_t country_code) {
-    logger::get_logger()->info("create_virtual_hid_keyboard_io_service_client");
+    logger::get_logger()->info("{0}", __func__);
 
     auto c = std::make_shared<io_service_client>();
     auto w = std::weak_ptr<io_service_client>(c);
@@ -312,7 +326,7 @@ private:
 
   // This method is executed in the dispatcher thread.
   std::shared_ptr<io_service_client> create_virtual_hid_pointing_io_service_client(pqrs::karabiner::driverkit::driver_version::value_t expected_driver_version) {
-    logger::get_logger()->info("create_virtual_hid_pointing_io_service_client");
+    logger::get_logger()->info("{0}", __func__);
 
     auto c = std::make_shared<io_service_client>();
     auto w = std::weak_ptr<io_service_client>(c);
