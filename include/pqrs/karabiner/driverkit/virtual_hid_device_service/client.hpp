@@ -22,6 +22,7 @@ class client final : public dispatcher::extra::dispatcher_client {
 public:
   // Signals (invoked from the dispatcher thread)
 
+  nod::signal<void(const std::string&)> warning_reported;
   nod::signal<void(void)> connected;
   nod::signal<void(const asio::error_code&)> connect_failed;
   nod::signal<void(void)> closed;
@@ -162,6 +163,12 @@ private:
     client_->set_reconnect_interval(std::chrono::milliseconds(1000));
     client_->set_server_socket_file_path_resolver([this] {
       return find_server_socket_file_path();
+    });
+
+    client_->warning_reported.connect([this](auto&& message) {
+      enqueue_to_dispatcher([this, message] {
+        warning_reported(message);
+      });
     });
 
     client_->connected.connect([this] {

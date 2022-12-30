@@ -60,6 +60,10 @@ int main(void) {
   // client1
   //
 
+  client1->warning_reported.connect([](auto&& message) {
+    std::cout << "warning: " << message << std::endl;
+  });
+
   client1->connected.connect([&client1] {
     std::cout << "connected" << std::endl;
 

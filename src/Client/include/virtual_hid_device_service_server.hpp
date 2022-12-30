@@ -111,6 +111,11 @@ private:
     server_->set_server_check_interval(std::chrono::milliseconds(3000));
     server_->set_reconnect_interval(std::chrono::milliseconds(1000));
 
+    server_->warning_reported.connect([](auto&& message) {
+      logger::get_logger()->warn("virtual_hid_device_service_server: {0}",
+                                 message);
+    });
+
     server_->bound.connect([] {
       logger::get_logger()->info("virtual_hid_device_service_server: bound");
     });
@@ -126,7 +131,7 @@ private:
 
     server_->received.connect([this](auto&& buffer, auto&& sender_endpoint) {
       if (buffer) {
-        if (sender_endpoint->path().empty()) {
+        if (!pqrs::local_datagram::non_empty_filesystem_endpoint_path(*sender_endpoint)) {
           logger::get_logger()->error("virtual_hid_device_service_server: sender_endpoint path is empty");
           return;
         }
@@ -349,7 +354,7 @@ private:
   // This method is executed in the dispatcher thread.
   void async_send_driver_loaded_result(std::shared_ptr<asio::local::datagram_protocol::endpoint> endpoint) {
     if (server_) {
-      if (!endpoint->path().empty()) {
+      if (pqrs::local_datagram::non_empty_filesystem_endpoint_path(*endpoint)) {
         bool driver_loaded = false;
         if (nop_io_service_client_) {
           driver_loaded = nop_io_service_client_->driver_loaded();
@@ -370,7 +375,7 @@ private:
   void async_send_driver_version_matched_result(pqrs::karabiner::driverkit::driver_version::value_t expected_driver_version,
                                                 std::shared_ptr<asio::local::datagram_protocol::endpoint> endpoint) {
     if (server_) {
-      if (!endpoint->path().empty()) {
+      if (pqrs::local_datagram::non_empty_filesystem_endpoint_path(*endpoint)) {
         bool driver_version_matched = false;
         if (nop_io_service_client_) {
           driver_version_matched = nop_io_service_client_->driver_version_matched(expected_driver_version);
@@ -392,7 +397,7 @@ private:
                                std::optional<bool> ready,
                                std::shared_ptr<asio::local::datagram_protocol::endpoint> endpoint) {
     if (server_) {
-      if (!endpoint->path().empty()) {
+      if (pqrs::local_datagram::non_empty_filesystem_endpoint_path(*endpoint)) {
         uint8_t buffer[] = {
             static_cast<std::underlying_type<decltype(response)>::type>(response),
             ready ? *ready : false,

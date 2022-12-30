@@ -48,6 +48,14 @@ public:
     c->set_server_check_interval(std::chrono::milliseconds(1000));
     c->set_next_heartbeat_deadline(std::chrono::milliseconds(3000));
 
+    c->warning_reported.connect([this, endpoint_filename](auto&& message) {
+      logger::get_logger()->warn(
+          "client: {0} {1} {2}",
+          name_,
+          endpoint_filename.c_str(),
+          message);
+    });
+
     c->connect_failed.connect([this, endpoint_path, endpoint_filename](auto&& error_code) {
       logger::get_logger()->info(
           "client connect_failed: {0} {1}",
