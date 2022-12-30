@@ -18,12 +18,9 @@ int main(void) {
   // Needed before using `pqrs::karabiner::driverkit::virtual_hid_device_service::client`.
   pqrs::dispatcher::extra::initialize_shared_dispatcher();
 
-  std::filesystem::path client_socket_file_path1("/tmp/karabiner_driverkit_virtual_hid_device_service_client1.sock");
-  std::filesystem::path client_socket_file_path2("/tmp/karabiner_driverkit_virtual_hid_device_service_client2.sock");
-
   std::mutex client_mutex;
-  auto client1 = std::make_unique<pqrs::karabiner::driverkit::virtual_hid_device_service::client>(client_socket_file_path1);
-  auto client2 = std::make_unique<pqrs::karabiner::driverkit::virtual_hid_device_service::client>(client_socket_file_path2);
+  auto client1 = std::make_unique<pqrs::karabiner::driverkit::virtual_hid_device_service::client>();
+  auto client2 = std::make_unique<pqrs::karabiner::driverkit::virtual_hid_device_service::client>();
 
   std::thread call_ready_thread([&client1, &client2, &client_mutex] {
     while (!exit_flag) {
