@@ -20,8 +20,7 @@ public:
 
     create_rootonly_directory();
 
-    virtual_hid_device_service_keyboard_clients_manager_ = std::make_unique<virtual_hid_device_service_clients_manager>("keyboard");
-    virtual_hid_device_service_pointing_clients_manager_ = std::make_unique<virtual_hid_device_service_clients_manager>("pointing");
+    virtual_hid_device_service_clients_manager_ = std::make_unique<virtual_hid_device_service_clients_manager>();
 
     //
     // Creation
@@ -32,8 +31,8 @@ public:
 
     ready_timer_.start(
         [this] {
-          virtual_hid_device_service_keyboard_clients_manager_->call_async_virtual_hid_keyboard_ready();
-          virtual_hid_device_service_pointing_clients_manager_->call_async_virtual_hid_pointing_ready();
+          virtual_hid_device_service_clients_manager_->call_async_virtual_hid_keyboard_ready();
+          virtual_hid_device_service_clients_manager_->call_async_virtual_hid_pointing_ready();
         },
         std::chrono::milliseconds(1000));
 
@@ -47,8 +46,7 @@ public:
       server_ = nullptr;
       nop_io_service_client_ = nullptr;
 
-      virtual_hid_device_service_keyboard_clients_manager_ = nullptr;
-      virtual_hid_device_service_pointing_clients_manager_ = nullptr;
+      virtual_hid_device_service_clients_manager_ = nullptr;
     });
 
     logger::get_logger()->info("virtual_hid_device_service_server is terminated");
@@ -202,12 +200,10 @@ private:
 
             auto country_code = *(reinterpret_cast<pqrs::hid::country_code::value_t*>(p));
 
-            auto io_service_client = create_virtual_hid_keyboard_io_service_client(expected_driver_version,
-                                                                                   country_code);
-
-            virtual_hid_device_service_keyboard_clients_manager_->insert_client(sender_endpoint->path(),
-                                                                                io_service_client,
-                                                                                expected_driver_version);
+            virtual_hid_device_service_clients_manager_->create_client(sender_endpoint->path(),
+                                                                       expected_driver_version);
+            virtual_hid_device_service_clients_manager_->initialize_keyboard(sender_endpoint->path(),
+                                                                             country_code);
             break;
           }
 
@@ -215,29 +211,27 @@ private:
             logger::get_logger()->info("received request::virtual_hid_keyboard_terminate: {0}",
                                        sender_endpoint_filename.c_str());
 
-            virtual_hid_device_service_keyboard_clients_manager_->erase_client(sender_endpoint->path());
+            virtual_hid_device_service_clients_manager_->terminate_keyboard(sender_endpoint->path());
             break;
 
           case pqrs::karabiner::driverkit::virtual_hid_device_service::request::virtual_hid_keyboard_ready:
             async_send_ready_result(
                 pqrs::karabiner::driverkit::virtual_hid_device_service::response::virtual_hid_keyboard_ready_result,
-                virtual_hid_device_service_keyboard_clients_manager_->virtual_hid_keyboard_ready(sender_endpoint->path()),
+                virtual_hid_device_service_clients_manager_->virtual_hid_keyboard_ready(sender_endpoint->path()),
                 sender_endpoint);
             break;
 
           case pqrs::karabiner::driverkit::virtual_hid_device_service::request::virtual_hid_keyboard_reset:
-            virtual_hid_device_service_keyboard_clients_manager_->virtual_hid_keyboard_reset(sender_endpoint->path());
+            virtual_hid_device_service_clients_manager_->virtual_hid_keyboard_reset(sender_endpoint->path());
             break;
 
           case pqrs::karabiner::driverkit::virtual_hid_device_service::request::virtual_hid_pointing_initialize: {
             logger::get_logger()->info("received request::virtual_hid_pointing_initialize: {0}",
                                        sender_endpoint_filename.c_str());
 
-            auto io_service_client = create_virtual_hid_pointing_io_service_client(expected_driver_version);
-
-            virtual_hid_device_service_pointing_clients_manager_->insert_client(sender_endpoint->path(),
-                                                                                io_service_client,
-                                                                                expected_driver_version);
+            virtual_hid_device_service_clients_manager_->create_client(sender_endpoint->path(),
+                                                                       expected_driver_version);
+            virtual_hid_device_service_clients_manager_->initialize_pointing(sender_endpoint->path());
             break;
           }
 
@@ -245,50 +239,50 @@ private:
             logger::get_logger()->info("received request::virtual_hid_pointing_terminate: {0}",
                                        sender_endpoint_filename.c_str());
 
-            virtual_hid_device_service_pointing_clients_manager_->erase_client(sender_endpoint->path());
+            virtual_hid_device_service_clients_manager_->terminate_pointing(sender_endpoint->path());
             break;
 
           case pqrs::karabiner::driverkit::virtual_hid_device_service::request::virtual_hid_pointing_ready:
             async_send_ready_result(
                 pqrs::karabiner::driverkit::virtual_hid_device_service::response::virtual_hid_pointing_ready_result,
-                virtual_hid_device_service_pointing_clients_manager_->virtual_hid_pointing_ready(sender_endpoint->path()),
+                virtual_hid_device_service_clients_manager_->virtual_hid_pointing_ready(sender_endpoint->path()),
                 sender_endpoint);
             break;
 
           case pqrs::karabiner::driverkit::virtual_hid_device_service::request::virtual_hid_pointing_reset:
-            virtual_hid_device_service_pointing_clients_manager_->virtual_hid_pointing_reset(sender_endpoint->path());
+            virtual_hid_device_service_clients_manager_->virtual_hid_pointing_reset(sender_endpoint->path());
             break;
 
           case pqrs::karabiner::driverkit::virtual_hid_device_service::request::post_keyboard_input_report:
-            virtual_hid_device_service_keyboard_clients_manager_->post_report<pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report::keyboard_input>(
+            virtual_hid_device_service_clients_manager_->post_keyboard_report<pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report::keyboard_input>(
                 sender_endpoint->path(),
                 p,
                 size);
             break;
 
           case pqrs::karabiner::driverkit::virtual_hid_device_service::request::post_consumer_input_report:
-            virtual_hid_device_service_keyboard_clients_manager_->post_report<pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report::consumer_input>(
+            virtual_hid_device_service_clients_manager_->post_keyboard_report<pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report::consumer_input>(
                 sender_endpoint->path(),
                 p,
                 size);
             break;
 
           case pqrs::karabiner::driverkit::virtual_hid_device_service::request::post_apple_vendor_keyboard_input_report:
-            virtual_hid_device_service_keyboard_clients_manager_->post_report<pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report::apple_vendor_keyboard_input>(
+            virtual_hid_device_service_clients_manager_->post_keyboard_report<pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report::apple_vendor_keyboard_input>(
                 sender_endpoint->path(),
                 p,
                 size);
             break;
 
           case pqrs::karabiner::driverkit::virtual_hid_device_service::request::post_apple_vendor_top_case_input_report:
-            virtual_hid_device_service_keyboard_clients_manager_->post_report<pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report::apple_vendor_top_case_input>(
+            virtual_hid_device_service_clients_manager_->post_keyboard_report<pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report::apple_vendor_top_case_input>(
                 sender_endpoint->path(),
                 p,
                 size);
             break;
 
           case pqrs::karabiner::driverkit::virtual_hid_device_service::request::post_pointing_input_report:
-            virtual_hid_device_service_pointing_clients_manager_->post_report<pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report::pointing_input>(
+            virtual_hid_device_service_clients_manager_->post_pointing_report<pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report::pointing_input>(
                 sender_endpoint->path(),
                 p,
                 size);
@@ -305,52 +299,6 @@ private:
     nop_io_service_client_ = std::make_unique<io_service_client>();
 
     nop_io_service_client_->async_start();
-  }
-
-  //
-  // virtual_hid_keyboard
-  //
-
-  // This method is executed in the dispatcher thread.
-  std::shared_ptr<io_service_client> create_virtual_hid_keyboard_io_service_client(pqrs::karabiner::driverkit::driver_version::value_t expected_driver_version,
-                                                                                   pqrs::hid::country_code::value_t country_code) {
-    logger::get_logger()->info("{0}", __func__);
-
-    auto c = std::make_shared<io_service_client>();
-    auto w = std::weak_ptr<io_service_client>(c);
-
-    c->opened.connect([w, expected_driver_version, country_code] {
-      if (auto c = w.lock()) {
-        c->async_virtual_hid_keyboard_initialize(expected_driver_version,
-                                                 country_code);
-      }
-    });
-
-    c->async_start();
-
-    return c;
-  }
-
-  //
-  // virtual_hid_pointing
-  //
-
-  // This method is executed in the dispatcher thread.
-  std::shared_ptr<io_service_client> create_virtual_hid_pointing_io_service_client(pqrs::karabiner::driverkit::driver_version::value_t expected_driver_version) {
-    logger::get_logger()->info("{0}", __func__);
-
-    auto c = std::make_shared<io_service_client>();
-    auto w = std::weak_ptr<io_service_client>(c);
-
-    c->opened.connect([w, expected_driver_version] {
-      if (auto c = w.lock()) {
-        c->async_virtual_hid_pointing_initialize(expected_driver_version);
-      }
-    });
-
-    c->async_start();
-
-    return c;
   }
 
   //
@@ -417,8 +365,7 @@ private:
   // `nop_io_service_client_` does not control virtual devices.
   // It is used for `driver_loaded` and `driver_version_matched`.
   std::unique_ptr<io_service_client> nop_io_service_client_;
-  std::unique_ptr<virtual_hid_device_service_clients_manager> virtual_hid_device_service_keyboard_clients_manager_;
-  std::unique_ptr<virtual_hid_device_service_clients_manager> virtual_hid_device_service_pointing_clients_manager_;
+  std::unique_ptr<virtual_hid_device_service_clients_manager> virtual_hid_device_service_clients_manager_;
   std::unique_ptr<pqrs::local_datagram::server> server_;
   pqrs::dispatcher::extra::timer ready_timer_;
 };
