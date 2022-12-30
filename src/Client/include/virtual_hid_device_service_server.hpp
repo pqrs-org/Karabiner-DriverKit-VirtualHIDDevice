@@ -103,6 +103,12 @@ private:
       std::filesystem::remove_all(directory_path, ec);
       std::filesystem::create_directory(directory_path, ec);
     }
+    {
+      auto directory_path = pqrs::karabiner::driverkit::virtual_hid_device_service::constants::get_server_response_socket_directory_path();
+      std::error_code ec;
+      std::filesystem::remove_all(directory_path, ec);
+      std::filesystem::create_directory(directory_path, ec);
+    }
 
     server_ = std::make_unique<pqrs::local_datagram::server>(
         weak_dispatcher_,

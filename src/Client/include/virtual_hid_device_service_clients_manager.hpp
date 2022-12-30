@@ -42,7 +42,7 @@ public:
     auto c = std::make_shared<pqrs::local_datagram::client>(
         weak_dispatcher_,
         endpoint_path,
-        std::nullopt,
+        server_response_socket_file_path(),
         pqrs::karabiner::driverkit::virtual_hid_device_service::constants::local_datagram_buffer_size);
 
     c->set_server_check_interval(std::chrono::milliseconds(1000));
@@ -240,6 +240,20 @@ private:
     std::shared_ptr<io_service_client> io_service_client_;
     pqrs::karabiner::driverkit::driver_version::value_t expected_driver_version_;
   };
+
+  std::filesystem::path server_response_socket_file_path(void) const {
+    auto now = std::chrono::system_clock::now();
+    auto duration = now.time_since_epoch();
+
+    std::stringstream ss;
+    ss << pqrs::karabiner::driverkit::virtual_hid_device_service::constants::get_server_response_socket_directory_path().string()
+       << "/"
+       << std::hex
+       << std::chrono::duration_cast<std::chrono::nanoseconds>(duration).count()
+       << ".sock";
+
+    return ss.str();
+  }
 
   std::string name_;
   std::unordered_map<std::string, std::unique_ptr<entry>> entries_;
