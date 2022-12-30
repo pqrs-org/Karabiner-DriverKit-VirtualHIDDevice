@@ -34,8 +34,12 @@ public:
 
   // Methods
 
-  client(const std::filesystem::path& client_socket_file_path) : dispatcher_client(),
-                                                                 client_socket_file_path_(client_socket_file_path) {
+  client(void)
+      : dispatcher_client() {
+  }
+
+  // For backward compatibility
+  client(const std::filesystem::path& client_socket_file_path) : client() {
   }
 
   virtual ~client(void) {
@@ -142,6 +146,26 @@ public:
   }
 
 private:
+  std::string client_socket_file_path(void) const {
+    while (true) {
+      auto now = std::chrono::system_clock::now();
+      auto duration = now.time_since_epoch();
+
+      std::stringstream ss;
+      ss << pqrs::karabiner::driverkit::virtual_hid_device_service::constants::get_client_socket_directory_path().string()
+         << "/"
+         << std::hex
+         << std::chrono::duration_cast<std::chrono::nanoseconds>(duration).count()
+         << ".sock";
+
+      auto path = ss.str();
+      std::error_code ec;
+      if (!std::filesystem::exists(path, ec)) {
+        return path;
+      }
+    }
+  }
+
   std::filesystem::path find_server_socket_file_path(void) const {
     auto pattern = (pqrs::karabiner::driverkit::virtual_hid_device_service::constants::get_server_socket_directory_path() / "*.sock").string();
     auto paths = glob::glob(pattern);
@@ -157,7 +181,7 @@ private:
   void create_client(void) {
     client_ = std::make_unique<local_datagram::client>(weak_dispatcher_,
                                                        find_server_socket_file_path(),
-                                                       client_socket_file_path_,
+                                                       client_socket_file_path(),
                                                        constants::local_datagram_buffer_size);
     client_->set_server_check_interval(std::chrono::milliseconds(3000));
     client_->set_reconnect_interval(std::chrono::milliseconds(1000));
@@ -288,7 +312,6 @@ private:
     *(reinterpret_cast<T*>(&(buffer[size]))) = data;
   }
 
-  std::filesystem::path client_socket_file_path_;
   std::unique_ptr<local_datagram::client> client_;
 
   std::optional<bool> last_virtual_hid_keyboard_ready_;
