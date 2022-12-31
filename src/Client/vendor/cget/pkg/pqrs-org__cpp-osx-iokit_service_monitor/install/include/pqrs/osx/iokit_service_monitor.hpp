@@ -1,6 +1,6 @@
 #pragma once
 
-// pqrs::osx::iokit_service_monitor v4.3
+// pqrs::osx::iokit_service_monitor v4.4
 
 // (C) Copyright Takayama Fumihiko 2018.
 // Distributed under the Boost Software License, Version 1.0.
@@ -164,9 +164,7 @@ private:
 
     if (notification_port_) {
       if (auto loop_source = IONotificationPortGetRunLoopSource(notification_port_)) {
-        CFRunLoopRemoveSource(cf_run_loop_thread_->get_run_loop(),
-                              loop_source,
-                              kCFRunLoopCommonModes);
+        cf_run_loop_thread_->remove_source(loop_source);
       }
 
       IONotificationPortDestroy(notification_port_);

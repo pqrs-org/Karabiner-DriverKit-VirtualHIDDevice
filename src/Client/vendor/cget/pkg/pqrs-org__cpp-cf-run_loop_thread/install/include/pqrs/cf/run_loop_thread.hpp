@@ -1,6 +1,6 @@
 #pragma once
 
-// pqrs::cf::run_loop_thread v2.1
+// pqrs::cf::run_loop_thread v2.2
 
 // (C) Copyright Takayama Fumihiko 2018.
 // Distributed under the Boost Software License, Version 1.0.
@@ -108,6 +108,21 @@ public:
     }
   }
 
+  void remove_source(CFRunLoopSourceRef _Nullable source,
+                     CFRunLoopMode _Nonnull mode = kCFRunLoopCommonModes) {
+    // Do not touch run_loop_ until `CFRunLoopRun` is called.
+    // A segmentation fault occurs if we touch `run_loop_` while `CFRunLoopRun' is processing.
+
+    wait_until_running();
+
+    if (source) {
+      CFRunLoopRemoveSource(*run_loop_,
+                            source,
+                            mode);
+
+      CFRunLoopWakeUp(*run_loop_);
+    }
+  }
   void enqueue(void (^_Nonnull block)(void)) const {
     // Do not call `CFRunLoopPerformBlock` until `CFRunLoopRun` is called.
     // A segmentation fault occurs if we call `CFRunLoopPerformBlock` while `CFRunLoopRun' is processing.
