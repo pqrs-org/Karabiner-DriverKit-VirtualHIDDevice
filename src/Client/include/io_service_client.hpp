@@ -112,6 +112,8 @@ public:
 
     enqueue_to_dispatcher([this] {
       if (auto matching_dictionary = IOServiceNameMatching("org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceRoot")) {
+        logger::get_logger()->info("create service_monitor_");
+
         service_monitor_ = std::make_unique<pqrs::osx::iokit_service_monitor>(weak_dispatcher_,
                                                                               matching_dictionary);
 
@@ -132,6 +134,12 @@ public:
           // Use the next service
           service_monitor_->async_invoke_service_matched();
         });
+
+        service_monitor_->error_occurred.connect([](auto&& message, auto&& kern_return) {
+          logger::get_logger()->error("iokit_service_monitor {0} {1}", message, kern_return);
+        });
+
+        logger::get_logger()->info("service_monitor_->async_start()");
 
         service_monitor_->async_start();
 
