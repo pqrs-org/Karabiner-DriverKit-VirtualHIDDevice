@@ -1,6 +1,6 @@
 #pragma once
 
-// pqrs::osx::iokit_service_monitor v4.2
+// pqrs::osx::iokit_service_monitor v4.3
 
 // (C) Copyright Takayama Fumihiko 2018.
 // Distributed under the Boost Software License, Version 1.0.
@@ -99,9 +99,7 @@ private:
       }
 
       if (auto loop_source = IONotificationPortGetRunLoopSource(notification_port_)) {
-        CFRunLoopAddSource(cf_run_loop_thread_->get_run_loop(),
-                           loop_source,
-                           kCFRunLoopCommonModes);
+        cf_run_loop_thread_->add_source(loop_source);
       } else {
         enqueue_to_dispatcher([this] {
           error_occurred("IONotificationPortGetRunLoopSource is failed.", kIOReturnError);
