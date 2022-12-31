@@ -65,6 +65,8 @@ public:
   void async_stop(void) {
     enqueue_to_dispatcher([this] {
       client_ = nullptr;
+
+      clear_state();
     });
   }
 
@@ -178,6 +180,16 @@ private:
     return pqrs::karabiner::driverkit::virtual_hid_device_service::constants::get_server_socket_directory_path() / "not_found.sock";
   }
 
+  void clear_state(void) {
+    last_virtual_hid_keyboard_ready_ = std::nullopt;
+    virtual_hid_keyboard_ready_response(false);
+
+    last_virtual_hid_pointing_ready_ = std::nullopt;
+    virtual_hid_pointing_ready_response(false);
+
+    last_virtual_hid_keyboard_initialize_country_code_ = std::nullopt;
+  }
+
   void create_client(void) {
     client_ = std::make_unique<local_datagram::client>(weak_dispatcher_,
                                                        find_server_socket_file_path(),
@@ -211,11 +223,7 @@ private:
       enqueue_to_dispatcher([this] {
         closed();
 
-        last_virtual_hid_keyboard_ready_ = false;
-        virtual_hid_keyboard_ready_response(false);
-
-        last_virtual_hid_pointing_ready_ = false;
-        virtual_hid_pointing_ready_response(false);
+        clear_state();
       });
     });
 
