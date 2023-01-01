@@ -11,8 +11,9 @@
 
 class virtual_hid_device_service_server final : public pqrs::dispatcher::extra::dispatcher_client {
 public:
-  virtual_hid_device_service_server(void)
+  virtual_hid_device_service_server(std::shared_ptr<pqrs::cf::run_loop_thread> run_loop_thread)
       : dispatcher_client(),
+        run_loop_thread_(run_loop_thread),
         ready_timer_(*this) {
     //
     // Preparation
@@ -20,7 +21,7 @@ public:
 
     create_rootonly_directory();
 
-    virtual_hid_device_service_clients_manager_ = std::make_unique<virtual_hid_device_service_clients_manager>();
+    virtual_hid_device_service_clients_manager_ = std::make_unique<virtual_hid_device_service_clients_manager>(run_loop_thread_);
 
     //
     // Creation
@@ -302,7 +303,7 @@ private:
 
   // This method is only called in the constructor.
   void create_nop_io_service_client(void) {
-    nop_io_service_client_ = std::make_unique<io_service_client>();
+    nop_io_service_client_ = std::make_unique<io_service_client>(run_loop_thread_);
 
     nop_io_service_client_->async_start();
   }
@@ -367,6 +368,8 @@ private:
       }
     }
   }
+
+  std::shared_ptr<pqrs::cf::run_loop_thread> run_loop_thread_;
 
   // `nop_io_service_client_` does not control virtual devices.
   // It is used for `driver_loaded` and `driver_version_matched`.

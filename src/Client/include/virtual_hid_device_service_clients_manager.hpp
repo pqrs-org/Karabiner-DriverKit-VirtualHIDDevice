@@ -10,8 +10,9 @@
 
 class virtual_hid_device_service_clients_manager final : public pqrs::dispatcher::extra::dispatcher_client {
 public:
-  virtual_hid_device_service_clients_manager(void)
-      : dispatcher_client() {
+  virtual_hid_device_service_clients_manager(std::shared_ptr<pqrs::cf::run_loop_thread> run_loop_thread)
+      : dispatcher_client(),
+        run_loop_thread_(run_loop_thread) {
   }
 
   virtual ~virtual_hid_device_service_clients_manager(void) {
@@ -82,6 +83,7 @@ public:
     c->async_start();
 
     entries_[endpoint_path] = std::make_unique<entry>(c,
+                                                      run_loop_thread_,
                                                       expected_driver_version);
 
     logger::get_logger()->info("virtual_hid_device_service_clients_manager ({0}) client is added (size: {1})",
@@ -287,8 +289,10 @@ private:
   class entry final {
   public:
     entry(std::shared_ptr<pqrs::local_datagram::client> local_datagram_client,
+          std::shared_ptr<pqrs::cf::run_loop_thread> run_loop_thread,
           pqrs::karabiner::driverkit::driver_version::value_t expected_driver_version)
         : local_datagram_client_(local_datagram_client),
+          run_loop_thread_(run_loop_thread),
           expected_driver_version_(expected_driver_version) {
     }
 
@@ -321,7 +325,7 @@ private:
     void initialize_keyboard(pqrs::hid::country_code::value_t country_code) {
       logger::get_logger()->warn("entry::{0}", __func__);
 
-      io_service_client_keyboard_ = std::make_shared<io_service_client>();
+      io_service_client_keyboard_ = std::make_shared<io_service_client>(run_loop_thread_);
 
       io_service_client_keyboard_->opened.connect([this, country_code] {
         io_service_client_keyboard_->async_virtual_hid_keyboard_initialize(expected_driver_version_,
@@ -344,7 +348,7 @@ private:
     void initialize_pointing(void) {
       logger::get_logger()->warn("entry::{0}", __func__);
 
-      io_service_client_pointing_ = std::make_shared<io_service_client>();
+      io_service_client_pointing_ = std::make_shared<io_service_client>(run_loop_thread_);
 
       io_service_client_pointing_->opened.connect([this] {
         io_service_client_pointing_->async_virtual_hid_pointing_initialize(expected_driver_version_);
@@ -361,6 +365,7 @@ private:
 
   private:
     std::shared_ptr<pqrs::local_datagram::client> local_datagram_client_;
+    std::shared_ptr<pqrs::cf::run_loop_thread> run_loop_thread_;
     pqrs::karabiner::driverkit::driver_version::value_t expected_driver_version_;
     std::shared_ptr<io_service_client> io_service_client_keyboard_;
     std::shared_ptr<io_service_client> io_service_client_pointing_;
@@ -380,5 +385,6 @@ private:
     return ss.str();
   }
 
+  std::shared_ptr<pqrs::cf::run_loop_thread> run_loop_thread_;
   std::unordered_map<std::string, std::unique_ptr<entry>> entries_;
 };

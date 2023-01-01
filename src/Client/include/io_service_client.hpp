@@ -23,7 +23,9 @@ public:
 
   // Methods
 
-  io_service_client(void) : dispatcher_client() {
+  io_service_client(std::shared_ptr<pqrs::cf::run_loop_thread> run_loop_thread)
+      : dispatcher_client(),
+        run_loop_thread_(run_loop_thread) {
     logger::get_logger()->info("io_service_client::{0}", __func__);
   }
 
@@ -115,6 +117,7 @@ public:
         logger::get_logger()->info("create service_monitor_");
 
         service_monitor_ = std::make_unique<pqrs::osx::iokit_service_monitor>(weak_dispatcher_,
+                                                                              run_loop_thread_,
                                                                               matching_dictionary);
 
         service_monitor_->service_matched.connect([this](auto&& registry_entry_id, auto&& service_ptr) {
@@ -517,6 +520,7 @@ private:
                                      0);
   }
 
+  std::shared_ptr<pqrs::cf::run_loop_thread> run_loop_thread_;
   std::unique_ptr<pqrs::osx::iokit_service_monitor> service_monitor_;
   pqrs::osx::iokit_object_ptr service_;
   pqrs::osx::iokit_object_ptr connection_;

@@ -33,14 +33,19 @@ int main(void) {
     logger::get_logger()->info("register Karabiner-DriverKit-VirtualHIDDeviceClient.app: {0}", status.to_string());
   }
 
-  auto server = std::make_unique<virtual_hid_device_service_server>();
+  auto run_loop_thread = std::make_shared<pqrs::cf::run_loop_thread>();
+  auto server = std::make_unique<virtual_hid_device_service_server>(run_loop_thread);
 
   //
   // Set signal handler
   //
 
-  auto termination_handler = [&server] {
+  auto termination_handler = [&run_loop_thread, &server] {
+    run_loop_thread->terminate();
+    run_loop_thread = nullptr;
+
     server = nullptr;
+
     pqrs::dispatcher::extra::terminate_shared_dispatcher();
     exit(0);
   };
