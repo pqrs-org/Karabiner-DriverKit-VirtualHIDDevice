@@ -55,7 +55,7 @@ public:
         pqrs::karabiner::driverkit::virtual_hid_device_service::constants::local_datagram_buffer_size);
 
     c->set_server_check_interval(std::chrono::milliseconds(1000));
-    c->set_next_heartbeat_deadline(std::chrono::milliseconds(3000));
+    c->set_next_heartbeat_deadline(std::chrono::milliseconds(5000));
 
     c->warning_reported.connect([endpoint_filename](auto&& message) {
       logger::get_logger()->warn(
