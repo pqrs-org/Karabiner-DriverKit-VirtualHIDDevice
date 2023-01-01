@@ -1,5 +1,14 @@
 # Changelog
 
+## Karabiner-DriverKit-VirtualHIDDevice 1.34.0
+
+-   📅 Release date
+    -   Jan 2, 2023
+-   ⚡️ Improvements
+    -   Improved error recovery by refreshing the client socket path for each connection.
+    -   The keyboard and pointing device now share the same socket for communication.
+    -   Update dependent vendor code.
+
 ## Karabiner-DriverKit-VirtualHIDDevice 1.33.0
 
 -   📅 Release date
