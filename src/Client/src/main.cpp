@@ -41,10 +41,10 @@ int main(void) {
   //
 
   auto termination_handler = [&run_loop_thread, &server] {
+    server = nullptr;
+
     run_loop_thread->terminate();
     run_loop_thread = nullptr;
-
-    server = nullptr;
 
     pqrs::dispatcher::extra::terminate_shared_dispatcher();
     exit(0);
