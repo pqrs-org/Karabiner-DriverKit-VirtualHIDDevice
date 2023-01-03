@@ -8,6 +8,10 @@ build:
 
 clean:
 	git clean -x -f -d *
+	$(MAKE) clean-launch-service-database
+
+clean-launch-service-database:
+	swift scripts/clean-launch-service-database.swift
 
 package: clean
 	bash make-package.sh
