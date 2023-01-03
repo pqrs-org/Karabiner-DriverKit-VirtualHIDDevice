@@ -323,7 +323,7 @@ private:
     //
 
     void initialize_keyboard(pqrs::hid::country_code::value_t country_code) {
-      logger::get_logger()->warn("entry::{0}", __func__);
+      logger::get_logger()->info("entry::{0}", __func__);
 
       io_service_client_keyboard_ = std::make_shared<io_service_client>(run_loop_thread_);
 
@@ -336,7 +336,7 @@ private:
     }
 
     void terminate_keyboard(void) {
-      logger::get_logger()->warn("entry::{0}", __func__);
+      logger::get_logger()->info("entry::{0}", __func__);
 
       io_service_client_keyboard_ = nullptr;
     }
@@ -346,7 +346,7 @@ private:
     //
 
     void initialize_pointing(void) {
-      logger::get_logger()->warn("entry::{0}", __func__);
+      logger::get_logger()->info("entry::{0}", __func__);
 
       io_service_client_pointing_ = std::make_shared<io_service_client>(run_loop_thread_);
 
@@ -358,7 +358,7 @@ private:
     }
 
     void terminate_pointing(void) {
-      logger::get_logger()->warn("entry::{0}", __func__);
+      logger::get_logger()->info("entry::{0}", __func__);
 
       io_service_client_pointing_ = nullptr;
     }
