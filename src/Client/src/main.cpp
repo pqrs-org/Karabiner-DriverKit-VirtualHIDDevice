@@ -20,6 +20,7 @@ int main(void) {
   pqrs::osx::process_info::enable_sudden_termination();
 
   pqrs::dispatcher::extra::initialize_shared_dispatcher();
+  pqrs::cf::run_loop_thread::extra::initialize_shared_run_loop_thread();
 
   logger::set_async_rotating_logger("virtual_hid_device_service",
                                     "/var/log/karabiner/virtual_hid_device_service.log",
@@ -34,18 +35,16 @@ int main(void) {
   }
 
   auto run_loop_thread = std::make_shared<pqrs::cf::run_loop_thread>();
-  auto server = std::make_unique<virtual_hid_device_service_server>(run_loop_thread);
+  auto server = std::make_unique<virtual_hid_device_service_server>(pqrs::cf::run_loop_thread::extra::get_shared_run_loop_thread());
 
   //
   // Set signal handler
   //
 
-  auto termination_handler = [&run_loop_thread, &server] {
+  auto termination_handler = [&server] {
     server = nullptr;
 
-    run_loop_thread->terminate();
-    run_loop_thread = nullptr;
-
+    pqrs::cf::run_loop_thread::extra::terminate_shared_run_loop_thread();
     pqrs::dispatcher::extra::terminate_shared_dispatcher();
     exit(0);
   };
