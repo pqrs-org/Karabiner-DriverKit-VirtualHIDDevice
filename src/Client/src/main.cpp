@@ -34,6 +34,25 @@ int main(void) {
     logger::get_logger()->info("register Karabiner-DriverKit-VirtualHIDDeviceClient.app: {0}", status.to_string());
   }
 
+  //
+  // Touch /Library/LaunchDaemons/*.plist to refresh the name in Login Items System Settings.
+  //
+  // Note:
+  // Login Items maybe refer the Launch Services database before the applications registration is completed.
+  // If the application registration of AssociatedBundleIdentifiers is not completed at the time,
+  // Login Items displays the developer name instead of the application name.
+  // And the result is cached, the developer name will be displayed permanently.
+  // (We have confirmed this behaivor on macOS 13.1)
+  //
+  // In order to refresh the cache, we update the modification time of *.plist.
+  //
+
+  system("/usr/bin/touch  /Library/LaunchDaemons/org.pqrs.Karabiner-DriverKit-VirtualHIDDeviceClient.plist");
+
+  //
+  // Create instances
+  //
+
   auto run_loop_thread = std::make_shared<pqrs::cf::run_loop_thread>();
   auto server = std::make_unique<virtual_hid_device_service_server>(pqrs::cf::run_loop_thread::extra::get_shared_run_loop_thread());
 
