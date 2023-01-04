@@ -9,9 +9,8 @@ build:
 clean:
 	git clean -x -f -d *
 
-clean-launch-service-database:
-	# Xcode 14+ only
-	swift scripts/clean-launch-service-database.swift
+clean-launch-services-database:
+	bash scripts/clean-launch-services-database.sh
 
 package: clean
 	bash make-package.sh
