@@ -13,8 +13,7 @@ class virtual_hid_device_service_server final : public pqrs::dispatcher::extra::
 public:
   virtual_hid_device_service_server(std::shared_ptr<pqrs::cf::run_loop_thread> run_loop_thread)
       : dispatcher_client(),
-        run_loop_thread_(run_loop_thread),
-        ready_timer_(*this) {
+        run_loop_thread_(run_loop_thread) {
     //
     // Preparation
     //
@@ -30,20 +29,11 @@ public:
     create_server();
     create_nop_io_service_client();
 
-    ready_timer_.start(
-        [this] {
-          virtual_hid_device_service_clients_manager_->call_async_virtual_hid_keyboard_ready();
-          virtual_hid_device_service_clients_manager_->call_async_virtual_hid_pointing_ready();
-        },
-        std::chrono::milliseconds(1000));
-
     logger::get_logger()->info("virtual_hid_device_service_server is initialized");
   }
 
   virtual ~virtual_hid_device_service_server(void) {
     detach_from_dispatcher([this] {
-      ready_timer_.stop();
-
       server_ = nullptr;
       nop_io_service_client_ = nullptr;
 
@@ -376,5 +366,4 @@ private:
   std::unique_ptr<io_service_client> nop_io_service_client_;
   std::unique_ptr<virtual_hid_device_service_clients_manager> virtual_hid_device_service_clients_manager_;
   std::unique_ptr<pqrs::local_datagram::server> server_;
-  pqrs::dispatcher::extra::timer ready_timer_;
 };

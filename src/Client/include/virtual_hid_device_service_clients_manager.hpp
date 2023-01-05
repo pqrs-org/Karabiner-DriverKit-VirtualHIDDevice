@@ -152,32 +152,6 @@ public:
   }
 
   // This method needs to be called in the dispatcher thread.
-  void call_async_virtual_hid_keyboard_ready(void) const {
-    if (!dispatcher_thread()) {
-      throw std::logic_error(fmt::format("{0} is called in wrong thread", __func__));
-    }
-
-    for (const auto& [k, v] : entries_) {
-      if (auto c = v->get_io_service_client_keyboard()) {
-        c->async_virtual_hid_keyboard_ready(v->get_expected_driver_version());
-      }
-    }
-  }
-
-  // This method needs to be called in the dispatcher thread.
-  void call_async_virtual_hid_pointing_ready(void) const {
-    if (!dispatcher_thread()) {
-      throw std::logic_error(fmt::format("{0} is called in wrong thread", __func__));
-    }
-
-    for (const auto& [k, v] : entries_) {
-      if (auto c = v->get_io_service_client_pointing()) {
-        c->async_virtual_hid_pointing_ready(v->get_expected_driver_version());
-      }
-    }
-  }
-
-  // This method needs to be called in the dispatcher thread.
   std::optional<bool> virtual_hid_keyboard_ready(const std::string& endpoint_path) const {
     if (!dispatcher_thread()) {
       throw std::logic_error(fmt::format("{0} is called in wrong thread", __func__));
@@ -286,20 +260,33 @@ public:
   }
 
 private:
-  class entry final {
+  class entry final : public pqrs::dispatcher::extra::dispatcher_client {
   public:
     entry(std::shared_ptr<pqrs::local_datagram::client> local_datagram_client,
           std::shared_ptr<pqrs::cf::run_loop_thread> run_loop_thread,
           pqrs::karabiner::driverkit::driver_version::value_t expected_driver_version)
         : local_datagram_client_(local_datagram_client),
           run_loop_thread_(run_loop_thread),
-          expected_driver_version_(expected_driver_version) {
+          expected_driver_version_(expected_driver_version),
+          timer_(*this) {
+      timer_.start(
+          [this] {
+            if (io_service_client_keyboard_) {
+              io_service_client_keyboard_->async_virtual_hid_keyboard_ready(expected_driver_version_);
+            }
+            if (io_service_client_pointing_) {
+              io_service_client_pointing_->async_virtual_hid_pointing_ready(expected_driver_version_);
+            }
+          },
+          std::chrono::milliseconds(1000));
     }
 
     ~entry(void) {
-      io_service_client_keyboard_ = nullptr;
-      io_service_client_pointing_ = nullptr;
-      local_datagram_client_ = nullptr;
+      detach_from_dispatcher([this] {
+        io_service_client_keyboard_ = nullptr;
+        io_service_client_pointing_ = nullptr;
+        local_datagram_client_ = nullptr;
+      });
     }
 
     std::shared_ptr<pqrs::local_datagram::client> get_local_datagram_client(void) const {
@@ -323,22 +310,26 @@ private:
     //
 
     void initialize_keyboard(pqrs::hid::country_code::value_t country_code) {
-      logger::get_logger()->info("entry::{0}", __func__);
+      enqueue_to_dispatcher([this, country_code] {
+        logger::get_logger()->info("entry::{0}", __func__);
 
-      io_service_client_keyboard_ = std::make_shared<io_service_client>(run_loop_thread_);
+        io_service_client_keyboard_ = std::make_shared<io_service_client>(run_loop_thread_);
 
-      io_service_client_keyboard_->opened.connect([this, country_code] {
-        io_service_client_keyboard_->async_virtual_hid_keyboard_initialize(expected_driver_version_,
-                                                                           country_code);
+        io_service_client_keyboard_->opened.connect([this, country_code] {
+          io_service_client_keyboard_->async_virtual_hid_keyboard_initialize(expected_driver_version_,
+                                                                             country_code);
+        });
+
+        io_service_client_keyboard_->async_start();
       });
-
-      io_service_client_keyboard_->async_start();
     }
 
     void terminate_keyboard(void) {
-      logger::get_logger()->info("entry::{0}", __func__);
+      enqueue_to_dispatcher([this] {
+        logger::get_logger()->info("entry::{0}", __func__);
 
-      io_service_client_keyboard_ = nullptr;
+        io_service_client_keyboard_ = nullptr;
+      });
     }
 
     //
@@ -346,29 +337,35 @@ private:
     //
 
     void initialize_pointing(void) {
-      logger::get_logger()->info("entry::{0}", __func__);
+      enqueue_to_dispatcher([this] {
+        logger::get_logger()->info("entry::{0}", __func__);
 
-      io_service_client_pointing_ = std::make_shared<io_service_client>(run_loop_thread_);
+        io_service_client_pointing_ = std::make_shared<io_service_client>(run_loop_thread_);
 
-      io_service_client_pointing_->opened.connect([this] {
-        io_service_client_pointing_->async_virtual_hid_pointing_initialize(expected_driver_version_);
+        io_service_client_pointing_->opened.connect([this] {
+          io_service_client_pointing_->async_virtual_hid_pointing_initialize(expected_driver_version_);
+        });
+
+        io_service_client_pointing_->async_start();
       });
-
-      io_service_client_pointing_->async_start();
     }
 
     void terminate_pointing(void) {
-      logger::get_logger()->info("entry::{0}", __func__);
+      enqueue_to_dispatcher([this] {
+        logger::get_logger()->info("entry::{0}", __func__);
 
-      io_service_client_pointing_ = nullptr;
+        io_service_client_pointing_ = nullptr;
+      });
     }
 
   private:
     std::shared_ptr<pqrs::local_datagram::client> local_datagram_client_;
     std::shared_ptr<pqrs::cf::run_loop_thread> run_loop_thread_;
     pqrs::karabiner::driverkit::driver_version::value_t expected_driver_version_;
+
     std::shared_ptr<io_service_client> io_service_client_keyboard_;
     std::shared_ptr<io_service_client> io_service_client_pointing_;
+    pqrs::dispatcher::extra::timer timer_;
   };
 
   std::filesystem::path server_response_socket_file_path(void) const {
