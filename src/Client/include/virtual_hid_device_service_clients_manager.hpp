@@ -152,38 +152,6 @@ public:
   }
 
   // This method needs to be called in the dispatcher thread.
-  std::optional<bool> virtual_hid_keyboard_ready(const std::string& endpoint_path) const {
-    if (!dispatcher_thread()) {
-      throw std::logic_error(fmt::format("{0} is called in wrong thread", __func__));
-    }
-
-    auto it = entries_.find(endpoint_path);
-    if (it != std::end(entries_)) {
-      if (auto c = it->second->get_io_service_client_keyboard()) {
-        return c->get_virtual_hid_keyboard_ready(it->second->get_expected_driver_version());
-      }
-    }
-
-    return std::nullopt;
-  }
-
-  // This method needs to be called in the dispatcher thread.
-  std::optional<bool> virtual_hid_pointing_ready(const std::string& endpoint_path) const {
-    if (!dispatcher_thread()) {
-      throw std::logic_error(fmt::format("{0} is called in wrong thread", __func__));
-    }
-
-    auto it = entries_.find(endpoint_path);
-    if (it != std::end(entries_)) {
-      if (auto c = it->second->get_io_service_client_pointing()) {
-        return c->get_virtual_hid_pointing_ready(it->second->get_expected_driver_version());
-      }
-    }
-
-    return std::nullopt;
-  }
-
-  // This method needs to be called in the dispatcher thread.
   void virtual_hid_keyboard_reset(const std::string& endpoint_path) const {
     if (!dispatcher_thread()) {
       throw std::logic_error(fmt::format("{0} is called in wrong thread", __func__));
@@ -271,12 +239,22 @@ private:
           timer_(*this) {
       timer_.start(
           [this] {
-            if (io_service_client_keyboard_) {
-              io_service_client_keyboard_->async_virtual_hid_keyboard_ready(expected_driver_version_);
+            std::optional<bool> keyboard_ready;
+            std::optional<bool> pointing_ready;
+
+            if (auto c = io_service_client_keyboard_) {
+              c->async_virtual_hid_keyboard_ready(expected_driver_version_);
+              keyboard_ready = c->get_virtual_hid_keyboard_ready(expected_driver_version_);
             }
-            if (io_service_client_pointing_) {
-              io_service_client_pointing_->async_virtual_hid_pointing_ready(expected_driver_version_);
+            if (auto c = io_service_client_pointing_) {
+              c->async_virtual_hid_pointing_ready(expected_driver_version_);
+              pointing_ready = c->get_virtual_hid_pointing_ready(expected_driver_version_);
             }
+
+            async_send_ready_result(pqrs::karabiner::driverkit::virtual_hid_device_service::response::virtual_hid_keyboard_ready_result,
+                                    keyboard_ready);
+            async_send_ready_result(pqrs::karabiner::driverkit::virtual_hid_device_service::response::virtual_hid_pointing_ready_result,
+                                    pointing_ready);
           },
           std::chrono::milliseconds(1000));
     }
@@ -359,6 +337,17 @@ private:
     }
 
   private:
+    // This method is executed in the dispatcher thread.
+    void async_send_ready_result(pqrs::karabiner::driverkit::virtual_hid_device_service::response response,
+                                 std::optional<bool> ready) {
+      uint8_t buffer[] = {
+          static_cast<std::underlying_type<decltype(response)>::type>(response),
+          ready ? *ready : false,
+      };
+
+      local_datagram_client_->async_send(buffer, sizeof(buffer));
+    }
+
     std::shared_ptr<pqrs::local_datagram::client> local_datagram_client_;
     std::shared_ptr<pqrs::cf::run_loop_thread> run_loop_thread_;
     pqrs::karabiner::driverkit::driver_version::value_t expected_driver_version_;

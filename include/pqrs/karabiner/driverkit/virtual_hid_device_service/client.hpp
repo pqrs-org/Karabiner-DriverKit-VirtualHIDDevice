@@ -97,8 +97,8 @@ public:
     async_send(request::virtual_hid_keyboard_terminate);
   }
 
+  // For backward compatibility
   void async_virtual_hid_keyboard_ready(void) {
-    async_send(request::virtual_hid_keyboard_ready);
   }
 
   void async_virtual_hid_keyboard_reset(void) {
@@ -119,8 +119,8 @@ public:
     async_send(request::virtual_hid_pointing_terminate);
   }
 
+  // For backward compatibility
   void async_virtual_hid_pointing_ready(void) {
-    async_send(request::virtual_hid_pointing_ready);
   }
 
   void async_virtual_hid_pointing_reset(void) {

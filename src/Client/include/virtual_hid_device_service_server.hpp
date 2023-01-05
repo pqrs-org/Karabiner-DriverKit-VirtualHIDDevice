@@ -175,6 +175,8 @@ private:
 
         switch (request) {
           case pqrs::karabiner::driverkit::virtual_hid_device_service::request::none:
+          case pqrs::karabiner::driverkit::virtual_hid_device_service::request::virtual_hid_keyboard_ready:
+          case pqrs::karabiner::driverkit::virtual_hid_device_service::request::virtual_hid_pointing_ready:
             break;
 
           case pqrs::karabiner::driverkit::virtual_hid_device_service::request::driver_loaded:
@@ -211,13 +213,6 @@ private:
             virtual_hid_device_service_clients_manager_->terminate_keyboard(sender_endpoint->path());
             break;
 
-          case pqrs::karabiner::driverkit::virtual_hid_device_service::request::virtual_hid_keyboard_ready:
-            async_send_ready_result(
-                pqrs::karabiner::driverkit::virtual_hid_device_service::response::virtual_hid_keyboard_ready_result,
-                virtual_hid_device_service_clients_manager_->virtual_hid_keyboard_ready(sender_endpoint->path()),
-                sender_endpoint);
-            break;
-
           case pqrs::karabiner::driverkit::virtual_hid_device_service::request::virtual_hid_keyboard_reset:
             virtual_hid_device_service_clients_manager_->virtual_hid_keyboard_reset(sender_endpoint->path());
             break;
@@ -237,13 +232,6 @@ private:
                                        sender_endpoint_filename.c_str());
 
             virtual_hid_device_service_clients_manager_->terminate_pointing(sender_endpoint->path());
-            break;
-
-          case pqrs::karabiner::driverkit::virtual_hid_device_service::request::virtual_hid_pointing_ready:
-            async_send_ready_result(
-                pqrs::karabiner::driverkit::virtual_hid_device_service::response::virtual_hid_pointing_ready_result,
-                virtual_hid_device_service_clients_manager_->virtual_hid_pointing_ready(sender_endpoint->path()),
-                sender_endpoint);
             break;
 
           case pqrs::karabiner::driverkit::virtual_hid_device_service::request::virtual_hid_pointing_reset:
@@ -336,22 +324,6 @@ private:
         uint8_t buffer[] = {
             static_cast<std::underlying_type<decltype(response)>::type>(response),
             driver_version_matched,
-        };
-
-        server_->async_send(buffer, sizeof(buffer), endpoint);
-      }
-    }
-  }
-
-  // This method is executed in the dispatcher thread.
-  void async_send_ready_result(pqrs::karabiner::driverkit::virtual_hid_device_service::response response,
-                               std::optional<bool> ready,
-                               std::shared_ptr<asio::local::datagram_protocol::endpoint> endpoint) {
-    if (server_) {
-      if (pqrs::local_datagram::non_empty_filesystem_endpoint_path(*endpoint)) {
-        uint8_t buffer[] = {
-            static_cast<std::underlying_type<decltype(response)>::type>(response),
-            ready ? *ready : false,
         };
 
         server_->async_send(buffer, sizeof(buffer), endpoint);

@@ -16,11 +16,11 @@ enum class request : uint8_t {
   driver_version_matched,
   virtual_hid_keyboard_initialize,
   virtual_hid_keyboard_terminate,
-  virtual_hid_keyboard_ready,
+  virtual_hid_keyboard_ready, // For backward compatibility
   virtual_hid_keyboard_reset,
   virtual_hid_pointing_initialize,
   virtual_hid_pointing_terminate,
-  virtual_hid_pointing_ready,
+  virtual_hid_pointing_ready, // For backward compatibility
   virtual_hid_pointing_reset,
   post_keyboard_input_report,
   post_consumer_input_report,
