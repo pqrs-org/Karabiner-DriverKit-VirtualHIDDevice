@@ -1,5 +1,18 @@
 # Changelog
 
+## Karabiner-DriverKit-VirtualHIDDevice 2.0.0
+
+-   📅 Release date
+    -   Jan 5, 2023
+-   💥 Breaking changes
+    -   The following callback in virtual_hid_device_service::client are now called periodically without a request.
+        -   driver_loaded_response
+        -   driver_version_matched_response
+        -   virtual_hid_keyboard_ready_response
+        -   virtual_hid_pointing_ready_response
+-   ⚡️ Improvements
+    -   The virtual device regeneration is no longer performed even when virtual_hid_keyboard_initialize or virtual_hid_pointing_initialize calls are repeated within a short period of time.
+
 ## Karabiner-DriverKit-VirtualHIDDevice 1.35.0
 
 -   📅 Release date
