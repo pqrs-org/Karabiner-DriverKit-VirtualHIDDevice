@@ -316,10 +316,6 @@ private:
       });
     }
 
-    std::shared_ptr<pqrs::local_datagram::client> get_local_datagram_client(void) const {
-      return local_datagram_client_;
-    }
-
     std::shared_ptr<io_service_client> get_io_service_client_keyboard(void) const {
       return io_service_client_keyboard_;
     }
@@ -338,8 +334,6 @@ private:
 
     void initialize_keyboard(pqrs::hid::country_code::value_t country_code) {
       enqueue_to_dispatcher([this, country_code] {
-        logger::get_logger()->info("entry::{0}", __func__);
-
         virtual_hid_keyboard_enabled_ = true;
         virtual_hid_keyboard_country_code_ = country_code;
       });
@@ -347,8 +341,6 @@ private:
 
     void terminate_keyboard(void) {
       enqueue_to_dispatcher([this] {
-        logger::get_logger()->info("entry::{0}", __func__);
-
         virtual_hid_keyboard_enabled_ = false;
       });
     }
@@ -359,16 +351,12 @@ private:
 
     void initialize_pointing(void) {
       enqueue_to_dispatcher([this] {
-        logger::get_logger()->info("entry::{0}", __func__);
-
         virtual_hid_pointing_enabled_ = true;
       });
     }
 
     void terminate_pointing(void) {
       enqueue_to_dispatcher([this] {
-        logger::get_logger()->info("entry::{0}", __func__);
-
         virtual_hid_pointing_enabled_ = false;
       });
     }
