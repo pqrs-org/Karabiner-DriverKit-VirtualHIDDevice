@@ -236,25 +236,74 @@ private:
         : local_datagram_client_(local_datagram_client),
           run_loop_thread_(run_loop_thread),
           expected_driver_version_(expected_driver_version),
-          timer_(*this) {
-      timer_.start(
+          initialize_timer_(*this),
+          ready_timer_(*this),
+          virtual_hid_keyboard_enabled_(false),
+          virtual_hid_keyboard_country_code_(pqrs::hid::country_code::not_supported),
+          virtual_hid_pointing_enabled_(false) {
+      initialize_timer_.start(
           [this] {
-            std::optional<bool> keyboard_ready;
-            std::optional<bool> pointing_ready;
+            //
+            // Setup virtual_hid_keyboard
+            //
+
+            if (virtual_hid_keyboard_enabled_) {
+              if (!virtual_hid_keyboard_ready()) {
+                io_service_client_keyboard_ = std::make_shared<io_service_client>(run_loop_thread_);
+
+                io_service_client_keyboard_->opened.connect([this] {
+                  io_service_client_keyboard_->async_virtual_hid_keyboard_initialize(expected_driver_version_,
+                                                                                     virtual_hid_keyboard_country_code_);
+                });
+
+                io_service_client_keyboard_->async_start();
+              }
+            } else {
+              io_service_client_keyboard_ = nullptr;
+            }
+
+            //
+            // Setup virtual_hid_pointing
+            //
+
+            if (virtual_hid_pointing_enabled_) {
+              if (!virtual_hid_pointing_ready()) {
+                io_service_client_pointing_ = std::make_shared<io_service_client>(run_loop_thread_);
+
+                io_service_client_pointing_->opened.connect([this] {
+                  io_service_client_pointing_->async_virtual_hid_pointing_initialize(expected_driver_version_);
+                });
+
+                io_service_client_pointing_->async_start();
+              }
+            } else {
+              io_service_client_pointing_ = nullptr;
+            }
+          },
+          // The call interval of `initialize_timer_` must be longer than that of `ready_timer_`.
+          std::chrono::milliseconds(5000));
+
+      ready_timer_.start(
+          [this] {
+            //
+            // Query `ready` state to driver
+            //
 
             if (auto c = io_service_client_keyboard_) {
               c->async_virtual_hid_keyboard_ready(expected_driver_version_);
-              keyboard_ready = c->get_virtual_hid_keyboard_ready(expected_driver_version_);
             }
             if (auto c = io_service_client_pointing_) {
               c->async_virtual_hid_pointing_ready(expected_driver_version_);
-              pointing_ready = c->get_virtual_hid_pointing_ready(expected_driver_version_);
             }
 
+            //
+            // Send `ready` state to client
+            //
+
             async_send_ready_result(pqrs::karabiner::driverkit::virtual_hid_device_service::response::virtual_hid_keyboard_ready_result,
-                                    keyboard_ready);
+                                    virtual_hid_keyboard_ready());
             async_send_ready_result(pqrs::karabiner::driverkit::virtual_hid_device_service::response::virtual_hid_pointing_ready_result,
-                                    pointing_ready);
+                                    virtual_hid_pointing_ready());
           },
           std::chrono::milliseconds(1000));
     }
@@ -291,14 +340,8 @@ private:
       enqueue_to_dispatcher([this, country_code] {
         logger::get_logger()->info("entry::{0}", __func__);
 
-        io_service_client_keyboard_ = std::make_shared<io_service_client>(run_loop_thread_);
-
-        io_service_client_keyboard_->opened.connect([this, country_code] {
-          io_service_client_keyboard_->async_virtual_hid_keyboard_initialize(expected_driver_version_,
-                                                                             country_code);
-        });
-
-        io_service_client_keyboard_->async_start();
+        virtual_hid_keyboard_enabled_ = true;
+        virtual_hid_keyboard_country_code_ = country_code;
       });
     }
 
@@ -306,7 +349,7 @@ private:
       enqueue_to_dispatcher([this] {
         logger::get_logger()->info("entry::{0}", __func__);
 
-        io_service_client_keyboard_ = nullptr;
+        virtual_hid_keyboard_enabled_ = false;
       });
     }
 
@@ -318,13 +361,7 @@ private:
       enqueue_to_dispatcher([this] {
         logger::get_logger()->info("entry::{0}", __func__);
 
-        io_service_client_pointing_ = std::make_shared<io_service_client>(run_loop_thread_);
-
-        io_service_client_pointing_->opened.connect([this] {
-          io_service_client_pointing_->async_virtual_hid_pointing_initialize(expected_driver_version_);
-        });
-
-        io_service_client_pointing_->async_start();
+        virtual_hid_pointing_enabled_ = true;
       });
     }
 
@@ -332,17 +369,37 @@ private:
       enqueue_to_dispatcher([this] {
         logger::get_logger()->info("entry::{0}", __func__);
 
-        io_service_client_pointing_ = nullptr;
+        virtual_hid_pointing_enabled_ = false;
       });
     }
 
   private:
+    bool virtual_hid_keyboard_ready(void) const {
+      std::optional<bool> ready;
+
+      if (io_service_client_keyboard_) {
+        ready = io_service_client_keyboard_->get_virtual_hid_keyboard_ready(expected_driver_version_);
+      }
+
+      return ready ? *ready : false;
+    }
+
+    bool virtual_hid_pointing_ready(void) const {
+      std::optional<bool> ready;
+
+      if (io_service_client_pointing_) {
+        ready = io_service_client_pointing_->get_virtual_hid_pointing_ready(expected_driver_version_);
+      }
+
+      return ready ? *ready : false;
+    }
+
     // This method is executed in the dispatcher thread.
     void async_send_ready_result(pqrs::karabiner::driverkit::virtual_hid_device_service::response response,
-                                 std::optional<bool> ready) {
+                                 bool ready) const {
       uint8_t buffer[] = {
           static_cast<std::underlying_type<decltype(response)>::type>(response),
-          ready ? *ready : false,
+          ready,
       };
 
       local_datagram_client_->async_send(buffer, sizeof(buffer));
@@ -354,7 +411,15 @@ private:
 
     std::shared_ptr<io_service_client> io_service_client_keyboard_;
     std::shared_ptr<io_service_client> io_service_client_pointing_;
-    pqrs::dispatcher::extra::timer timer_;
+    pqrs::dispatcher::extra::timer initialize_timer_;
+    pqrs::dispatcher::extra::timer ready_timer_;
+
+    // virtual_hid_keyboard
+    bool virtual_hid_keyboard_enabled_;
+    pqrs::hid::country_code::value_t virtual_hid_keyboard_country_code_;
+
+    // virtual_hid_pointing
+    bool virtual_hid_pointing_enabled_;
   };
 
   std::filesystem::path server_response_socket_file_path(void) const {
