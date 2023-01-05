@@ -30,15 +30,11 @@ int main(void) {
         if (client1) {
           client1->async_driver_loaded();
           client1->async_driver_version_matched();
-          client1->async_virtual_hid_keyboard_ready();
-          client1->async_virtual_hid_pointing_ready();
         }
 
         if (client2) {
           client2->async_driver_loaded();
           client2->async_driver_version_matched();
-          client2->async_virtual_hid_keyboard_ready();
-          client2->async_virtual_hid_pointing_ready();
         }
       }
 
