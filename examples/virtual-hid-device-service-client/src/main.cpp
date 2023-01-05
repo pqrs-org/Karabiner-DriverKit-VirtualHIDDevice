@@ -22,26 +22,6 @@ int main(void) {
   auto client1 = std::make_unique<pqrs::karabiner::driverkit::virtual_hid_device_service::client>();
   auto client2 = std::make_unique<pqrs::karabiner::driverkit::virtual_hid_device_service::client>();
 
-  std::thread call_ready_thread([&client1, &client2, &client_mutex] {
-    while (!exit_flag) {
-      {
-        std::lock_guard<std::mutex> lock(client_mutex);
-
-        if (client1) {
-          client1->async_driver_loaded();
-          client1->async_driver_version_matched();
-        }
-
-        if (client2) {
-          client2->async_driver_loaded();
-          client2->async_driver_version_matched();
-        }
-      }
-
-      std::this_thread::sleep_for(std::chrono::milliseconds(500));
-    }
-  });
-
   std::mutex keyboard_thread_mutex;
   std::unique_ptr<std::thread> keyboard_thread1;
   std::unique_ptr<std::thread> keyboard_thread2;
@@ -240,8 +220,6 @@ int main(void) {
       pointing_thread1->join();
     }
   }
-
-  call_ready_thread.join();
 
   // Needed after using `pqrs::karabiner::driverkit::virtual_hid_device_service::client`.
   pqrs::dispatcher::extra::terminate_shared_dispatcher();

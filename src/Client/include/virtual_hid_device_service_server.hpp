@@ -27,7 +27,6 @@ public:
     //
 
     create_server();
-    create_nop_io_service_client();
 
     logger::get_logger()->info("virtual_hid_device_service_server is initialized");
   }
@@ -35,7 +34,6 @@ public:
   virtual ~virtual_hid_device_service_server(void) {
     detach_from_dispatcher([this] {
       server_ = nullptr;
-      nop_io_service_client_ = nullptr;
 
       virtual_hid_device_service_clients_manager_ = nullptr;
     });
@@ -175,18 +173,11 @@ private:
 
         switch (request) {
           case pqrs::karabiner::driverkit::virtual_hid_device_service::request::none:
+          case pqrs::karabiner::driverkit::virtual_hid_device_service::request::driver_loaded:
+          case pqrs::karabiner::driverkit::virtual_hid_device_service::request::driver_version_matched:
           case pqrs::karabiner::driverkit::virtual_hid_device_service::request::virtual_hid_keyboard_ready:
           case pqrs::karabiner::driverkit::virtual_hid_device_service::request::virtual_hid_pointing_ready:
             break;
-
-          case pqrs::karabiner::driverkit::virtual_hid_device_service::request::driver_loaded:
-            async_send_driver_loaded_result(sender_endpoint);
-            break;
-
-          case pqrs::karabiner::driverkit::virtual_hid_device_service::request::driver_version_matched: {
-            async_send_driver_version_matched_result(expected_driver_version, sender_endpoint);
-            break;
-          }
 
           case pqrs::karabiner::driverkit::virtual_hid_device_service::request::virtual_hid_keyboard_initialize: {
             logger::get_logger()->info("received request::virtual_hid_keyboard_initialize: {0}",
@@ -279,63 +270,8 @@ private:
     server_->async_start();
   }
 
-  // This method is only called in the constructor.
-  void create_nop_io_service_client(void) {
-    nop_io_service_client_ = std::make_unique<io_service_client>(run_loop_thread_);
-
-    nop_io_service_client_->async_start();
-  }
-
-  //
-  // async_send to virtual_hid_device_service::client
-  //
-
-  // This method is executed in the dispatcher thread.
-  void async_send_driver_loaded_result(std::shared_ptr<asio::local::datagram_protocol::endpoint> endpoint) {
-    if (server_) {
-      if (pqrs::local_datagram::non_empty_filesystem_endpoint_path(*endpoint)) {
-        bool driver_loaded = false;
-        if (nop_io_service_client_) {
-          driver_loaded = nop_io_service_client_->driver_loaded();
-        }
-
-        auto response = pqrs::karabiner::driverkit::virtual_hid_device_service::response::driver_loaded_result;
-        uint8_t buffer[] = {
-            static_cast<std::underlying_type<decltype(response)>::type>(response),
-            driver_loaded,
-        };
-
-        server_->async_send(buffer, sizeof(buffer), endpoint);
-      }
-    }
-  }
-
-  // This method is executed in the dispatcher thread.
-  void async_send_driver_version_matched_result(pqrs::karabiner::driverkit::driver_version::value_t expected_driver_version,
-                                                std::shared_ptr<asio::local::datagram_protocol::endpoint> endpoint) {
-    if (server_) {
-      if (pqrs::local_datagram::non_empty_filesystem_endpoint_path(*endpoint)) {
-        bool driver_version_matched = false;
-        if (nop_io_service_client_) {
-          driver_version_matched = nop_io_service_client_->driver_version_matched(expected_driver_version);
-        }
-
-        auto response = pqrs::karabiner::driverkit::virtual_hid_device_service::response::driver_version_matched_result;
-        uint8_t buffer[] = {
-            static_cast<std::underlying_type<decltype(response)>::type>(response),
-            driver_version_matched,
-        };
-
-        server_->async_send(buffer, sizeof(buffer), endpoint);
-      }
-    }
-  }
-
   std::shared_ptr<pqrs::cf::run_loop_thread> run_loop_thread_;
 
-  // `nop_io_service_client_` does not control virtual devices.
-  // It is used for `driver_loaded` and `driver_version_matched`.
-  std::unique_ptr<io_service_client> nop_io_service_client_;
   std::unique_ptr<virtual_hid_device_service_clients_manager> virtual_hid_device_service_clients_manager_;
   std::unique_ptr<pqrs::local_datagram::server> server_;
 };

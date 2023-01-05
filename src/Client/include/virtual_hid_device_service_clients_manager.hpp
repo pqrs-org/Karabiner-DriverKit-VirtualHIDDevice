@@ -241,6 +241,9 @@ private:
           virtual_hid_keyboard_enabled_(false),
           virtual_hid_keyboard_country_code_(pqrs::hid::country_code::not_supported),
           virtual_hid_pointing_enabled_(false) {
+      io_service_client_nop_ = std::make_shared<io_service_client>(run_loop_thread_);
+      io_service_client_nop_->async_start();
+
       initialize_timer_.start(
           [this] {
             //
@@ -297,9 +300,11 @@ private:
             }
 
             //
-            // Send `ready` state to client
+            // Send state to client
             //
 
+            async_send_driver_loaded_result();
+            async_send_driver_version_matched_result();
             async_send_ready_result(pqrs::karabiner::driverkit::virtual_hid_device_service::response::virtual_hid_keyboard_ready_result,
                                     virtual_hid_keyboard_ready());
             async_send_ready_result(pqrs::karabiner::driverkit::virtual_hid_device_service::response::virtual_hid_pointing_ready_result,
@@ -310,9 +315,9 @@ private:
 
     ~entry(void) {
       detach_from_dispatcher([this] {
-        io_service_client_keyboard_ = nullptr;
         io_service_client_pointing_ = nullptr;
-        local_datagram_client_ = nullptr;
+        io_service_client_keyboard_ = nullptr;
+        io_service_client_nop_ = nullptr;
       });
     }
 
@@ -362,6 +367,7 @@ private:
     }
 
   private:
+    // This method is executed in the dispatcher thread.
     bool virtual_hid_keyboard_ready(void) const {
       std::optional<bool> ready;
 
@@ -372,6 +378,7 @@ private:
       return ready ? *ready : false;
     }
 
+    // This method is executed in the dispatcher thread.
     bool virtual_hid_pointing_ready(void) const {
       std::optional<bool> ready;
 
@@ -380,6 +387,30 @@ private:
       }
 
       return ready ? *ready : false;
+    }
+
+    // This method is executed in the dispatcher thread.
+    void async_send_driver_loaded_result(void) const {
+      bool driver_loaded = io_service_client_nop_->driver_loaded();
+      auto response = pqrs::karabiner::driverkit::virtual_hid_device_service::response::driver_loaded_result;
+      uint8_t buffer[] = {
+          static_cast<std::underlying_type<decltype(response)>::type>(response),
+          driver_loaded,
+      };
+
+      local_datagram_client_->async_send(buffer, sizeof(buffer));
+    }
+
+    // This method is executed in the dispatcher thread.
+    void async_send_driver_version_matched_result(void) const {
+      bool driver_version_matched = io_service_client_nop_->driver_version_matched(expected_driver_version_);
+      auto response = pqrs::karabiner::driverkit::virtual_hid_device_service::response::driver_version_matched_result;
+      uint8_t buffer[] = {
+          static_cast<std::underlying_type<decltype(response)>::type>(response),
+          driver_version_matched,
+      };
+
+      local_datagram_client_->async_send(buffer, sizeof(buffer));
     }
 
     // This method is executed in the dispatcher thread.
@@ -397,6 +428,7 @@ private:
     std::shared_ptr<pqrs::cf::run_loop_thread> run_loop_thread_;
     pqrs::karabiner::driverkit::driver_version::value_t expected_driver_version_;
 
+    std::shared_ptr<io_service_client> io_service_client_nop_;
     std::shared_ptr<io_service_client> io_service_client_keyboard_;
     std::shared_ptr<io_service_client> io_service_client_pointing_;
     pqrs::dispatcher::extra::timer initialize_timer_;

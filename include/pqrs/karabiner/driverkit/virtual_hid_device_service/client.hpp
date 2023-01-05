@@ -70,12 +70,12 @@ public:
     });
   }
 
+  // For backward compatibility
   void async_driver_loaded(void) {
-    async_send(request::driver_loaded);
   }
 
+  // For backward compatibility
   void async_driver_version_matched(void) {
-    async_send(request::driver_version_matched);
   }
 
   void async_virtual_hid_keyboard_initialize(hid::country_code::value_t country_code,
