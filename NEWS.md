@@ -1,5 +1,12 @@
 # Changelog
 
+## Karabiner-DriverKit-VirtualHIDDevice 2.1.0
+
+-   📅 Release date
+    -   Apr 15, 2023
+-   🐛 Bug Fixes
+    -   Fixed an issue that the virtual keyboard was not recreated with the new country code when the country code was changed after the virtual keyboard was initialized.
+
 ## Karabiner-DriverKit-VirtualHIDDevice 2.0.0
 
 -   📅 Release date
