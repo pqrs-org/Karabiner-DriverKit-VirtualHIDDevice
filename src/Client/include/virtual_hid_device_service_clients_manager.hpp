@@ -30,10 +30,6 @@ public:
 
     auto endpoint_filename = std::filesystem::path(endpoint_path).filename();
 
-    logger::get_logger()->info(
-        "create a client for virtual_hid_device_service::client: {0}",
-        endpoint_filename.c_str());
-
     {
       auto it = entries_.find(endpoint_path);
       if (it != std::end(entries_)) {
@@ -43,6 +39,10 @@ public:
         return;
       }
     }
+
+    logger::get_logger()->info(
+        "create a client for virtual_hid_device_service::client: {0}",
+        endpoint_filename.c_str());
 
     //
     // Create pqrs::local_datagram::client
@@ -339,6 +339,14 @@ private:
 
     void initialize_keyboard(pqrs::hid::country_code::value_t country_code) {
       enqueue_to_dispatcher([this, country_code] {
+        // Destroy io_service_client_keyboard_ if country_code is changed.
+        if (io_service_client_keyboard_ &&
+            virtual_hid_keyboard_country_code_ != country_code) {
+          logger::get_logger()->info("destroy io_service_client_keyboard_ due to  country_code changes");
+
+          io_service_client_keyboard_ = nullptr;
+        }
+
         virtual_hid_keyboard_enabled_ = true;
         virtual_hid_keyboard_country_code_ = country_code;
       });
