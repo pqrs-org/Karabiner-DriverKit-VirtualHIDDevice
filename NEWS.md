@@ -1,5 +1,14 @@
 # Changelog
 
+## Karabiner-DriverKit-VirtualHIDDevice 2.2.0
+
+-   📅 Release date
+    -   Jul 17, 2023
+-   ⚡️ Improvements
+    -   Updated dependent vendor code.
+        -   asio 1.28.0
+        -   spdlog 1.12.0
+
 ## Karabiner-DriverKit-VirtualHIDDevice 2.1.0
 
 -   📅 Release date
