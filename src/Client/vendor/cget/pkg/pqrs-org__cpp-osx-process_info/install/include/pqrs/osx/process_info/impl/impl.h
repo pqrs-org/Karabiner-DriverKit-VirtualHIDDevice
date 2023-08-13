@@ -10,7 +10,7 @@ extern "C" {
 
 // Do not use these functions directly.
 
-void pqrs_osx_process_info_create_globally_unique_string(char* buffer, size_t buffer_size);
+void pqrs_osx_process_info_create_globally_unique_string(char* buffer, int buffer_size);
 int pqrs_osx_process_info_process_identifier(void);
 
 void pqrs_osx_process_info_disable_sudden_termination(void);
