@@ -287,6 +287,21 @@ public:
   }
 
   void async_post_report(pqrs::karabiner::driverkit::driver_version::value_t expected_driver_version,
+                         const pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report::generic_desktop_input& report) const {
+    enqueue_to_dispatcher([this, expected_driver_version, report] {
+      auto r = post_report(
+          expected_driver_version,
+          pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_keyboard_post_report,
+          &report,
+          sizeof(report));
+
+      if (!r) {
+        logger::get_logger()->error("virtual_hid_keyboard_post_report(generic_desktop_input) error: {0}", r.to_string());
+      }
+    });
+  }
+
+  void async_post_report(pqrs::karabiner::driverkit::driver_version::value_t expected_driver_version,
                          const pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report::pointing_input& report) const {
     enqueue_to_dispatcher([this, expected_driver_version, report] {
       auto r = post_report(

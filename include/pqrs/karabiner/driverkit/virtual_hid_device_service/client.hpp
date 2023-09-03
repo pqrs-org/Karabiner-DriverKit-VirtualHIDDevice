@@ -143,6 +143,10 @@ public:
     async_send(request::post_apple_vendor_top_case_input_report, report);
   }
 
+  void async_post_report(const virtual_hid_device_driver::hid_report::generic_desktop_input& report) {
+    async_send(request::post_generic_desktop_input_report, report);
+  }
+
   void async_post_report(const virtual_hid_device_driver::hid_report::pointing_input& report) {
     async_send(request::post_pointing_input_report, report);
   }

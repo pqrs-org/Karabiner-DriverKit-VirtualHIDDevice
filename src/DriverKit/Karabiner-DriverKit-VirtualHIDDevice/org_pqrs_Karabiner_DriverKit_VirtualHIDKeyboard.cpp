@@ -116,6 +116,20 @@ const uint8_t reportDescriptor[] = {
     0x75, 0x06, //   Report Size............. (6)
     0x81, 0x01, //   Input...................(Constant)
     0xc0,       // End Collection
+
+    0x05, 0x01,       // Usage Page (Generic Desktop)
+    0x09, 0x06,       // Usage (Keyboard)
+    0xa1, 0x01,       // Collection (Application)
+    0x85, 0x07,       //   Report Id (7)
+    0x05, 0x01,       //   Usage Page (Generic Desktop)
+    0x95, 0x20,       //   Report Count............ (32)
+    0x75, 0x10,       //   Report Size............. (16)
+    0x15, 0x00,       //   Logical Minimum......... (0)
+    0x26, 0xff, 0x00, //   Logical Maximum......... (255)
+    0x19, 0x00,       //   Usage Minimum........... (0)
+    0x2a, 0xff, 0x00, //   Usage Maximum........... (255)
+    0x81, 0x00,       //   Input...................(Data, Array, Absolute)
+    0xc0,             // End Collection
 };
 } // namespace
 
@@ -338,6 +352,7 @@ kern_return_t IMPL(org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard, reset) {
   pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report::consumer_input consumer_input;
   pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report::apple_vendor_keyboard_input apple_vendor_keyboard_input;
   pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report::apple_vendor_top_case_input apple_vendor_top_case_input;
+  pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report::generic_desktop_input generic_desktop_input;
 
   struct input {
     const void* address;
@@ -347,6 +362,7 @@ kern_return_t IMPL(org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard, reset) {
       {&consumer_input, sizeof(consumer_input)},
       {&apple_vendor_keyboard_input, sizeof(apple_vendor_keyboard_input)},
       {&apple_vendor_top_case_input, sizeof(apple_vendor_top_case_input)},
+      {&generic_desktop_input, sizeof(generic_desktop_input)},
   };
 
   for (const auto& input : inputs) {
