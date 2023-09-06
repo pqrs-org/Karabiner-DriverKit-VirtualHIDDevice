@@ -1,5 +1,12 @@
 # Changelog
 
+## Karabiner-DriverKit-VirtualHIDDevice 2.4.0
+
+-   📅 Release date
+    -   Sep 6, 2023
+-   ✨ New Features
+    -   Generic desktop usage page (e.g., D-pad) has been supported.
+
 ## Karabiner-DriverKit-VirtualHIDDevice 2.3.0
 
 -   📅 Release date
