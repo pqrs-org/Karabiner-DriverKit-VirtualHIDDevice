@@ -99,6 +99,21 @@ int main(void) {
                 client1->async_post_report(report);
               }
 #endif
+
+              // key down (dpad down)
+              {
+                pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report::generic_desktop_input report;
+                report.keys.insert(type_safe::get(pqrs::hid::usage::generic_desktop::dpad_down));
+                client1->async_post_report(report);
+              }
+
+#if 0
+              // key up
+              {
+                pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report::generic_desktop_input report;
+                client1->async_post_report(report);
+              }
+#endif
             }
           }
         });
