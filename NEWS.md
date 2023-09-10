@@ -1,5 +1,12 @@
 # Changelog
 
+## Karabiner-DriverKit-VirtualHIDDevice 2.6.0
+
+-   📅 Release date
+    -   Sep 10, 2023
+    -   Updated dependent vendor code.
+        -   pqrs::osx::process_info v2.3
+
 ## Karabiner-DriverKit-VirtualHIDDevice 2.5.0
 
 -   📅 Release date
