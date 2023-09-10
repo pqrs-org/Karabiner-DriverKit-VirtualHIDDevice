@@ -11,21 +11,29 @@ struct ContentView: View {
       )
       .fixedSize()
 
-      Button(action: { DeviceManager.shared.setHIDValue(1) }) {
-        Text("Set HIDValue 1")
-      }
+      Button(
+        action: { DeviceManager.shared.setHIDValue(1) },
+        label: {
+          Text("Set HIDValue 1")
+        })
 
-      Button(action: { DeviceManager.shared.setHIDValue(0) }) {
-        Text("Set HIDValue 0")
-      }
+      Button(
+        action: { DeviceManager.shared.setHIDValue(0) },
+        label: {
+          Text("Set HIDValue 0")
+        })
 
-      Button(action: { DeviceManager.shared.setHIDValue(-1) }) {
-        Text("Set HIDValue -1")
-      }
+      Button(
+        action: { DeviceManager.shared.setHIDValue(-1) },
+        label: {
+          Text("Set HIDValue -1")
+        })
 
-      Button(action: { DeviceManager.shared.setInvalidHIDReport() }) {
-        Text("Set Invalid HIDReport -1")
-      }
+      Button(
+        action: { DeviceManager.shared.setInvalidHIDReport() },
+        label: {
+          Text("Set Invalid HIDReport -1")
+        })
     }.padding()
   }
 }

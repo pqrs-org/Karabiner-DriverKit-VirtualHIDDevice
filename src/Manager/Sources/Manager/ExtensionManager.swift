@@ -74,7 +74,6 @@ class ExtensionManager: NSObject, OSSystemExtensionRequestDelegate {
       print("request of \(request.identifier) is completed")
     case .willCompleteAfterReboot:
       print("request of \(request.identifier) requires reboot")
-      break
     @unknown default:
       break
     }
