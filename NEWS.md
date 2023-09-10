@@ -1,5 +1,12 @@
 # Changelog
 
+## Karabiner-DriverKit-VirtualHIDDevice 2.5.0
+
+-   📅 Release date
+    -   Sep 10, 2023
+-   ⚡️ Improvements
+    -   Fix swiftlint warnings.
+
 ## Karabiner-DriverKit-VirtualHIDDevice 2.4.0
 
 -   📅 Release date
