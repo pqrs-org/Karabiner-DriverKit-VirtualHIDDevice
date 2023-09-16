@@ -1,9 +1,15 @@
 # Changelog
 
+## Beta
+
+-   ⚡️ Improvements
+    -   In the `forceActivate` process, if the same version of the system extension that is being installed is already installed, the request will be explicitly skipped.
+
 ## Karabiner-DriverKit-VirtualHIDDevice 2.6.0
 
 -   📅 Release date
     -   Sep 10, 2023
+-   ⚡️ Improvements
     -   Updated dependent vendor code.
         -   pqrs::osx::process_info v2.3
 
