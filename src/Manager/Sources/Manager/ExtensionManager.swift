@@ -117,6 +117,11 @@ class ExtensionManager: NSObject, OSSystemExtensionRequestDelegate {
     let existingVersion = existing.bundleVersion
     let extVersion = ext.bundleVersion
 
+    if extVersion.compare(existingVersion, options: .numeric) == .orderedSame {
+      print("\(request.identifier) \(extVersion) is already installed")
+      return .cancel
+    }
+
     if forceReplace {
       print("\(request.identifier) will be force replaced to \(extVersion) forcely")
       return .replace
