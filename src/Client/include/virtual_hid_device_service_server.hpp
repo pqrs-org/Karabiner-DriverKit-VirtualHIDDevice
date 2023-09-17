@@ -143,20 +143,24 @@ private:
         //
         // Read common data
         //
-        // buffer[0]: expected_driver_version[0]
-        // buffer[1]: expected_driver_version[1]
-        // buffer[2]: expected_driver_version[2]
-        // buffer[3]: expected_driver_version[3]
+        // buffer[0]: 'c'
+        // buffer[1]: 'p'
+        // buffer[2]: expected_client_protocol_version[0]
+        // buffer[3]: expected_client_protocol_version[1]
         // buffer[4]: pqrs::karabiner::driverkit::virtual_hid_device_service::request
 
-        if (size < sizeof(pqrs::karabiner::driverkit::driver_version::value_t)) {
+        if (size-- == 0 || *p++ != 'c' ||
+            size-- == 0 || *p++ != 'p') {
+          logger::get_logger()->error("virtual_hid_device_service_server: unknown request");
+        }
+
+        if (size < sizeof(pqrs::karabiner::driverkit::client_protocol_version::value_t)) {
           logger::get_logger()->error("virtual_hid_device_service_server: payload is not enough");
           return;
         }
-
-        auto expected_driver_version = *(reinterpret_cast<pqrs::karabiner::driverkit::driver_version::value_t*>(p));
-        p += sizeof(pqrs::karabiner::driverkit::driver_version::value_t);
-        size -= sizeof(pqrs::karabiner::driverkit::driver_version::value_t);
+        auto expected_client_protocol_version = *(reinterpret_cast<pqrs::karabiner::driverkit::client_protocol_version::value_t*>(p));
+        p += sizeof(pqrs::karabiner::driverkit::client_protocol_version::value_t);
+        size -= sizeof(pqrs::karabiner::driverkit::client_protocol_version::value_t);
 
         if (size < sizeof(pqrs::karabiner::driverkit::virtual_hid_device_service::request)) {
           logger::get_logger()->error("virtual_hid_device_service_server: payload is not enough");
@@ -173,10 +177,6 @@ private:
 
         switch (request) {
           case pqrs::karabiner::driverkit::virtual_hid_device_service::request::none:
-          case pqrs::karabiner::driverkit::virtual_hid_device_service::request::driver_loaded:
-          case pqrs::karabiner::driverkit::virtual_hid_device_service::request::driver_version_matched:
-          case pqrs::karabiner::driverkit::virtual_hid_device_service::request::virtual_hid_keyboard_ready:
-          case pqrs::karabiner::driverkit::virtual_hid_device_service::request::virtual_hid_pointing_ready:
             break;
 
           case pqrs::karabiner::driverkit::virtual_hid_device_service::request::virtual_hid_keyboard_initialize: {
@@ -191,7 +191,7 @@ private:
             auto country_code = *(reinterpret_cast<pqrs::hid::country_code::value_t*>(p));
 
             virtual_hid_device_service_clients_manager_->create_client(sender_endpoint->path(),
-                                                                       expected_driver_version);
+                                                                       expected_client_protocol_version);
             virtual_hid_device_service_clients_manager_->initialize_keyboard(sender_endpoint->path(),
                                                                              country_code);
             break;
@@ -213,7 +213,7 @@ private:
                                        sender_endpoint_filename.c_str());
 
             virtual_hid_device_service_clients_manager_->create_client(sender_endpoint->path(),
-                                                                       expected_driver_version);
+                                                                       expected_client_protocol_version);
             virtual_hid_device_service_clients_manager_->initialize_pointing(sender_endpoint->path());
             break;
           }

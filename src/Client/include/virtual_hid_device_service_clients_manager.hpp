@@ -23,7 +23,7 @@ public:
 
   // This method needs to be called in the dispatcher thread.
   void create_client(const std::string& endpoint_path,
-                     pqrs::karabiner::driverkit::driver_version::value_t expected_driver_version) {
+                     pqrs::karabiner::driverkit::client_protocol_version::value_t expected_client_protocol_version) {
     if (!dispatcher_thread()) {
       throw std::logic_error(fmt::format("{0} is called in wrong thread", __func__));
     }
@@ -84,7 +84,7 @@ public:
 
     entries_[endpoint_path] = std::make_unique<entry>(c,
                                                       run_loop_thread_,
-                                                      expected_driver_version);
+                                                      expected_client_protocol_version);
 
     logger::get_logger()->info("virtual_hid_device_service_clients_manager ({0}) client is added (size: {1})",
                                endpoint_filename.c_str(),
@@ -160,7 +160,7 @@ public:
     auto it = entries_.find(endpoint_path);
     if (it != std::end(entries_)) {
       if (auto c = it->second->get_io_service_client_keyboard()) {
-        c->async_virtual_hid_keyboard_reset(it->second->get_expected_driver_version());
+        c->async_virtual_hid_keyboard_reset(it->second->get_expected_client_protocol_version());
       }
     }
   }
@@ -174,7 +174,7 @@ public:
     auto it = entries_.find(endpoint_path);
     if (it != std::end(entries_)) {
       if (auto c = it->second->get_io_service_client_pointing()) {
-        c->async_virtual_hid_pointing_reset(it->second->get_expected_driver_version());
+        c->async_virtual_hid_pointing_reset(it->second->get_expected_client_protocol_version());
       }
     }
   }
@@ -197,7 +197,7 @@ public:
     if (it != std::end(entries_)) {
       if (auto c = it->second->get_io_service_client_keyboard()) {
         c->async_post_report(
-            it->second->get_expected_driver_version(),
+            it->second->get_expected_client_protocol_version(),
             *(reinterpret_cast<const T*>(buffer)));
       }
     }
@@ -221,7 +221,7 @@ public:
     if (it != std::end(entries_)) {
       if (auto c = it->second->get_io_service_client_pointing()) {
         c->async_post_report(
-            it->second->get_expected_driver_version(),
+            it->second->get_expected_client_protocol_version(),
             *(reinterpret_cast<const T*>(buffer)));
       }
     }
@@ -232,10 +232,10 @@ private:
   public:
     entry(std::shared_ptr<pqrs::local_datagram::client> local_datagram_client,
           std::shared_ptr<pqrs::cf::run_loop_thread> run_loop_thread,
-          pqrs::karabiner::driverkit::driver_version::value_t expected_driver_version)
+          pqrs::karabiner::driverkit::client_protocol_version::value_t expected_client_protocol_version)
         : local_datagram_client_(local_datagram_client),
           run_loop_thread_(run_loop_thread),
-          expected_driver_version_(expected_driver_version),
+          expected_client_protocol_version_(expected_client_protocol_version),
           initialize_timer_(*this),
           ready_timer_(*this),
           virtual_hid_keyboard_enabled_(false),
@@ -255,7 +255,7 @@ private:
                 io_service_client_keyboard_ = std::make_shared<io_service_client>(run_loop_thread_);
 
                 io_service_client_keyboard_->opened.connect([this] {
-                  io_service_client_keyboard_->async_virtual_hid_keyboard_initialize(expected_driver_version_,
+                  io_service_client_keyboard_->async_virtual_hid_keyboard_initialize(expected_client_protocol_version_,
                                                                                      virtual_hid_keyboard_country_code_);
                 });
 
@@ -274,7 +274,7 @@ private:
                 io_service_client_pointing_ = std::make_shared<io_service_client>(run_loop_thread_);
 
                 io_service_client_pointing_->opened.connect([this] {
-                  io_service_client_pointing_->async_virtual_hid_pointing_initialize(expected_driver_version_);
+                  io_service_client_pointing_->async_virtual_hid_pointing_initialize(expected_client_protocol_version_);
                 });
 
                 io_service_client_pointing_->async_start();
@@ -293,10 +293,10 @@ private:
             //
 
             if (auto c = io_service_client_keyboard_) {
-              c->async_virtual_hid_keyboard_ready(expected_driver_version_);
+              c->async_virtual_hid_keyboard_ready(expected_client_protocol_version_);
             }
             if (auto c = io_service_client_pointing_) {
-              c->async_virtual_hid_pointing_ready(expected_driver_version_);
+              c->async_virtual_hid_pointing_ready(expected_client_protocol_version_);
             }
 
             //
@@ -304,7 +304,7 @@ private:
             //
 
             async_send_driver_loaded_result();
-            async_send_driver_version_matched_result();
+            async_send_driver_version_mismatched_result();
             async_send_ready_result(pqrs::karabiner::driverkit::virtual_hid_device_service::response::virtual_hid_keyboard_ready_result,
                                     virtual_hid_keyboard_ready());
             async_send_ready_result(pqrs::karabiner::driverkit::virtual_hid_device_service::response::virtual_hid_pointing_ready_result,
@@ -329,8 +329,8 @@ private:
       return io_service_client_pointing_;
     }
 
-    pqrs::karabiner::driverkit::driver_version::value_t get_expected_driver_version(void) const {
-      return expected_driver_version_;
+    pqrs::karabiner::driverkit::client_protocol_version::value_t get_expected_client_protocol_version(void) const {
+      return expected_client_protocol_version_;
     }
 
     //
@@ -380,7 +380,7 @@ private:
       std::optional<bool> ready;
 
       if (io_service_client_keyboard_) {
-        ready = io_service_client_keyboard_->get_virtual_hid_keyboard_ready(expected_driver_version_);
+        ready = io_service_client_keyboard_->get_virtual_hid_keyboard_ready(expected_client_protocol_version_);
       }
 
       return ready ? *ready : false;
@@ -391,7 +391,7 @@ private:
       std::optional<bool> ready;
 
       if (io_service_client_pointing_) {
-        ready = io_service_client_pointing_->get_virtual_hid_pointing_ready(expected_driver_version_);
+        ready = io_service_client_pointing_->get_virtual_hid_pointing_ready(expected_client_protocol_version_);
       }
 
       return ready ? *ready : false;
@@ -399,7 +399,7 @@ private:
 
     // This method is executed in the dispatcher thread.
     void async_send_driver_loaded_result(void) const {
-      bool driver_loaded = io_service_client_nop_->driver_loaded();
+      bool driver_loaded = io_service_client_nop_->driver_loaded(expected_client_protocol_version_);
       auto response = pqrs::karabiner::driverkit::virtual_hid_device_service::response::driver_loaded_result;
       uint8_t buffer[] = {
           static_cast<std::underlying_type<decltype(response)>::type>(response),
@@ -410,12 +410,12 @@ private:
     }
 
     // This method is executed in the dispatcher thread.
-    void async_send_driver_version_matched_result(void) const {
-      bool driver_version_matched = io_service_client_nop_->driver_version_matched(expected_driver_version_);
-      auto response = pqrs::karabiner::driverkit::virtual_hid_device_service::response::driver_version_matched_result;
+    void async_send_driver_version_mismatched_result(void) const {
+      bool driver_version_mismatched = io_service_client_nop_->driver_version_mismatched();
+      auto response = pqrs::karabiner::driverkit::virtual_hid_device_service::response::driver_version_mismatched_result;
       uint8_t buffer[] = {
           static_cast<std::underlying_type<decltype(response)>::type>(response),
-          driver_version_matched,
+          driver_version_mismatched,
       };
 
       local_datagram_client_->async_send(buffer, sizeof(buffer));
@@ -434,7 +434,7 @@ private:
 
     std::shared_ptr<pqrs::local_datagram::client> local_datagram_client_;
     std::shared_ptr<pqrs::cf::run_loop_thread> run_loop_thread_;
-    pqrs::karabiner::driverkit::driver_version::value_t expected_driver_version_;
+    pqrs::karabiner::driverkit::client_protocol_version::value_t expected_client_protocol_version_;
 
     std::shared_ptr<io_service_client> io_service_client_nop_;
     std::shared_ptr<io_service_client> io_service_client_keyboard_;

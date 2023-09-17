@@ -60,12 +60,12 @@ int main(void) {
       previous_value = driver_loaded;
     }
   });
-  client1->driver_version_matched_response.connect([](auto&& driver_version_matched) {
+  client1->driver_version_mismatched_response.connect([](auto&& driver_version_mismatched) {
     static std::optional<bool> previous_value;
 
-    if (previous_value != driver_version_matched) {
-      std::cout << "driver_version_matched " << driver_version_matched << std::endl;
-      previous_value = driver_version_matched;
+    if (previous_value != driver_version_mismatched) {
+      std::cout << "driver_version_mismatched " << driver_version_mismatched << std::endl;
+      previous_value = driver_version_mismatched;
     }
   });
   client1->virtual_hid_keyboard_ready_response.connect([&client1, &client_mutex, &keyboard_thread1, &keyboard_thread_mutex](auto&& ready) {
@@ -202,6 +202,7 @@ int main(void) {
   std::cout << std::endl;
 
   std::cout << "pqrs::karabiner::driverkit::driver_version::embedded_driver_version: " << pqrs::karabiner::driverkit::driver_version::embedded_driver_version << std::endl;
+  std::cout << "pqrs::karabiner::driverkit::client_protocol_version::embedded_client_protocol_version: " << pqrs::karabiner::driverkit::client_protocol_version::embedded_client_protocol_version << std::endl;
 
   while (!exit_flag) {
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
