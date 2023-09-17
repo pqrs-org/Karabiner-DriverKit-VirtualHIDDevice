@@ -3,6 +3,7 @@
 '''Replace @VERSION@'''
 
 import re
+import json
 from pathlib import Path
 from itertools import chain
 
@@ -12,16 +13,20 @@ top_directory = Path(__file__).resolve(True).parents[1]
 def update_version():
     '''Replace @VERSION@'''
 
-    with top_directory.joinpath('version').open(encoding='utf-8') as version_file, top_directory.joinpath('driver-version').open(encoding='utf-8') as driver_version_file:
-        version = version_file.readline().strip()
+    with top_directory.joinpath('version.json').open(encoding='utf-8') as version_file:
+        version = json.load(version_file)
         version_number = 0
-        for ver in version.split('.'):
+        for ver in version['package_version'].split('.'):
             version_number = version_number * 100 + int(ver)
 
-        driver_version = driver_version_file.readline().strip()
         driver_version_number = 0
-        for ver in driver_version.split('.'):
+        for ver in version['driver_version'].split('.'):
             driver_version_number = driver_version_number * 100 + int(ver)
+
+        client_protocol_version_number = 0
+        for ver in version['client_protocol_version'].split('.'):
+            client_protocol_version_number = client_protocol_version_number * \
+                100 + int(ver)
 
         for template_file_path in chain(top_directory.rglob('*.hpp.in'),
                                         top_directory.rglob('*.plist.in'),
@@ -44,12 +49,16 @@ def update_version():
 
                 for index, template_line in enumerate(template_lines):
                     line = template_line
-                    line = line.replace('@VERSION@', version)
+                    line = line.replace(
+                        '@VERSION@', version['package_version'])
                     line = line.replace('@VERSION_NUMBER@',
                                         str(version_number))
-                    line = line.replace('@DRIVER_VERSION@', driver_version)
+                    line = line.replace('@DRIVER_VERSION@',
+                                        version['driver_version'])
                     line = line.replace('@DRIVER_VERSION_NUMBER@',
                                         str(driver_version_number))
+                    line = line.replace('@CLIENT_PROTOCOL_VERSION_NUMBER@',
+                                        str(client_protocol_version_number))
 
                     if replaced_lines[index] != line:
                         needs_update = True

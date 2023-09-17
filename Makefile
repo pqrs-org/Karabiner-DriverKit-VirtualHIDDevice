@@ -1,4 +1,4 @@
-VERSION = `head -n 1 version`
+VERSION = `python3 scripts/get_version.py package_version`
 
 all:
 	@echo 'Type `make package`'

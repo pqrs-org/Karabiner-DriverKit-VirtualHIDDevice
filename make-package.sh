@@ -19,7 +19,7 @@ fi
 
 # Package build into a signed .dmg file
 
-version=$(cat version)
+version=$(python3 scripts/get_version.py package_version)
 
 make build
 
