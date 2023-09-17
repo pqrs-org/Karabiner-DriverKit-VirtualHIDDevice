@@ -1,7 +1,14 @@
 # Changelog
 
-## Beta
+## Karabiner-DriverKit-VirtualHIDDevice 3.0.0
 
+-   💥 Breaking changes
+    -   `driver_version_matched_response` is changed to `driver_version_mismatched`
+        -   Note that the true and false values are reversed
+    -   `*_response` is removed from the following signals:
+        -   `driver_loaded_response`
+        -   `virtual_hid_keyboard_ready_response`
+        -   `virtual_hid_pointing_ready_response`
 -   ⚡️ Improvements
     -   In the `forceActivate` process, if the same version of the system extension that is being installed is already installed, the request will be explicitly skipped.
 
