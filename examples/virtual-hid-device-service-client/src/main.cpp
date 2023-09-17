@@ -60,12 +60,12 @@ int main(void) {
       previous_value = driver_activated;
     }
   });
-  client1->driver_loaded.connect([](auto&& driver_loaded) {
+  client1->driver_connected.connect([](auto&& driver_connected) {
     static std::optional<bool> previous_value;
 
-    if (previous_value != driver_loaded) {
-      std::cout << "driver_loaded " << driver_loaded << std::endl;
-      previous_value = driver_loaded;
+    if (previous_value != driver_connected) {
+      std::cout << "driver_connected " << driver_connected << std::endl;
+      previous_value = driver_connected;
     }
   });
   client1->driver_version_mismatched.connect([](auto&& driver_version_mismatched) {

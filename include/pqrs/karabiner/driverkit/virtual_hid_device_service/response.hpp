@@ -13,7 +13,7 @@ namespace virtual_hid_device_service {
 enum class response : uint8_t {
   none,
   driver_activated,
-  driver_loaded,
+  driver_connected,
   driver_version_mismatched,
   virtual_hid_keyboard_ready,
   virtual_hid_pointing_ready,

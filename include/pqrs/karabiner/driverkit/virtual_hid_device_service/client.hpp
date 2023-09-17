@@ -27,7 +27,7 @@ public:
   nod::signal<void(void)> closed;
   nod::signal<void(const asio::error_code&)> error_occurred;
   nod::signal<void(bool)> driver_activated;
-  nod::signal<void(bool)> driver_loaded;
+  nod::signal<void(bool)> driver_connected;
   nod::signal<void(bool)> driver_version_mismatched;
   nod::signal<void(bool)> virtual_hid_keyboard_ready;
   nod::signal<void(bool)> virtual_hid_pointing_ready;
@@ -249,9 +249,9 @@ private:
             }
             break;
 
-          case response::driver_loaded:
+          case response::driver_connected:
             if (size == 1) {
-              driver_loaded(*p);
+              driver_connected(*p);
             }
             break;
 

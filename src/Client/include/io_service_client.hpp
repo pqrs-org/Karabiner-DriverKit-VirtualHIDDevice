@@ -52,7 +52,7 @@ public:
     return true;
   }
 
-  bool driver_loaded(void) const {
+  bool driver_connected(void) const {
     std::lock_guard<std::mutex> lock(driver_version_mutex_);
 
     return driver_version_ != std::nullopt;
@@ -82,7 +82,7 @@ public:
   }
 
   std::optional<bool> get_virtual_hid_keyboard_ready(void) const {
-    if (!driver_loaded() ||
+    if (!driver_connected() ||
         driver_version_mismatched()) {
       return std::nullopt;
     }
@@ -95,7 +95,7 @@ public:
   }
 
   std::optional<bool> get_virtual_hid_pointing_ready(void) const {
-    if (!driver_loaded() ||
+    if (!driver_connected() ||
         driver_version_mismatched()) {
       return std::nullopt;
     }
@@ -408,7 +408,7 @@ private:
       return std::nullopt;
     }
 
-    // Do not call `driver_loaded()` here.
+    // Do not call `driver_connected()` here.
     // Do not call `driver_version_mismatched()` here.
 
     uint64_t output[1] = {0};
@@ -433,7 +433,7 @@ private:
       return kIOReturnNotOpen;
     }
 
-    if (!driver_loaded() ||
+    if (!driver_connected() ||
         driver_version_mismatched()) {
       return kIOReturnError;
     }
@@ -454,7 +454,7 @@ private:
       return kIOReturnNotOpen;
     }
 
-    if (!driver_loaded() ||
+    if (!driver_connected() ||
         driver_version_mismatched()) {
       return kIOReturnError;
     }
@@ -473,7 +473,7 @@ private:
       return std::nullopt;
     }
 
-    if (!driver_loaded() ||
+    if (!driver_connected() ||
         driver_version_mismatched()) {
       return std::nullopt;
     }
@@ -502,7 +502,7 @@ private:
       return kIOReturnNotOpen;
     }
 
-    if (!driver_loaded() ||
+    if (!driver_connected() ||
         driver_version_mismatched()) {
       return kIOReturnError;
     }
