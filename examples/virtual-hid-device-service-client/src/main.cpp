@@ -52,6 +52,14 @@ int main(void) {
   client1->error_occurred.connect([](auto&& error_code) {
     std::cout << "error_occurred " << error_code << std::endl;
   });
+  client1->driver_activated.connect([](auto&& driver_activated) {
+    static std::optional<bool> previous_value;
+
+    if (previous_value != driver_activated) {
+      std::cout << "driver_activated " << driver_activated << std::endl;
+      previous_value = driver_activated;
+    }
+  });
   client1->driver_loaded.connect([](auto&& driver_loaded) {
     static std::optional<bool> previous_value;
 
