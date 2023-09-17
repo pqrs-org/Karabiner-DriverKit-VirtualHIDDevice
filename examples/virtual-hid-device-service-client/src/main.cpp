@@ -52,7 +52,7 @@ int main(void) {
   client1->error_occurred.connect([](auto&& error_code) {
     std::cout << "error_occurred " << error_code << std::endl;
   });
-  client1->driver_loaded_response.connect([](auto&& driver_loaded) {
+  client1->driver_loaded.connect([](auto&& driver_loaded) {
     static std::optional<bool> previous_value;
 
     if (previous_value != driver_loaded) {
@@ -60,7 +60,7 @@ int main(void) {
       previous_value = driver_loaded;
     }
   });
-  client1->driver_version_mismatched_response.connect([](auto&& driver_version_mismatched) {
+  client1->driver_version_mismatched.connect([](auto&& driver_version_mismatched) {
     static std::optional<bool> previous_value;
 
     if (previous_value != driver_version_mismatched) {
@@ -68,7 +68,7 @@ int main(void) {
       previous_value = driver_version_mismatched;
     }
   });
-  client1->virtual_hid_keyboard_ready_response.connect([&client1, &client_mutex, &keyboard_thread1, &keyboard_thread_mutex](auto&& ready) {
+  client1->virtual_hid_keyboard_ready.connect([&client1, &client_mutex, &keyboard_thread1, &keyboard_thread_mutex](auto&& ready) {
     if (!keyboard_thread1) {
       std::cout << "virtual_hid_keyboard_ready " << ready << std::endl;
     }
@@ -120,7 +120,7 @@ int main(void) {
       }
     }
   });
-  client1->virtual_hid_pointing_ready_response.connect([&client1, &client_mutex, &pointing_thread1, &pointing_thread_mutex](auto&& ready) {
+  client1->virtual_hid_pointing_ready.connect([&client1, &client_mutex, &pointing_thread1, &pointing_thread_mutex](auto&& ready) {
     if (!pointing_thread1) {
       std::cout << "virtual_hid_pointing_ready " << ready << std::endl;
     }
@@ -158,7 +158,7 @@ int main(void) {
   client2->connected.connect([&client2] {
     client2->async_virtual_hid_keyboard_initialize(pqrs::hid::country_code::us);
   });
-  client2->virtual_hid_keyboard_ready_response.connect([&client2, &client_mutex, &keyboard_thread2, &keyboard_thread_mutex](auto&& ready) {
+  client2->virtual_hid_keyboard_ready.connect([&client2, &client_mutex, &keyboard_thread2, &keyboard_thread_mutex](auto&& ready) {
     if (ready) {
       std::lock_guard<std::mutex> lock(keyboard_thread_mutex);
 
