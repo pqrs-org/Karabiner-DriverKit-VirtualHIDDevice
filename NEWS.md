@@ -2,6 +2,8 @@
 
 ## Karabiner-DriverKit-VirtualHIDDevice 3.0.0
 
+-   📅 Release date
+    -   Sep 17, 2023
 -   💥 Breaking changes
     -   `driver_version_matched_response` is changed to `driver_version_mismatched`
         -   Note that the true and false values are reversed
