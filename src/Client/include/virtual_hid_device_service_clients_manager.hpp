@@ -294,6 +294,7 @@ private:
             // Send state to client
             //
 
+            async_send_driver_activated();
             async_send_driver_loaded();
             async_send_driver_version_mismatched();
             async_send_ready(pqrs::karabiner::driverkit::virtual_hid_device_service::response::virtual_hid_keyboard_ready,
@@ -382,6 +383,18 @@ private:
       }
 
       return ready ? *ready : false;
+    }
+
+    // This method is executed in the dispatcher thread.
+    void async_send_driver_activated(void) const {
+      bool driver_activated = io_service_client_nop_->driver_activated();
+      auto response = pqrs::karabiner::driverkit::virtual_hid_device_service::response::driver_activated;
+      uint8_t buffer[] = {
+          static_cast<std::underlying_type<decltype(response)>::type>(response),
+          driver_activated,
+      };
+
+      local_datagram_client_->async_send(buffer, sizeof(buffer));
     }
 
     // This method is executed in the dispatcher thread.

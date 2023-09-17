@@ -26,7 +26,8 @@ public:
 
   io_service_client(std::shared_ptr<pqrs::cf::run_loop_thread> run_loop_thread)
       : dispatcher_client(),
-        run_loop_thread_(run_loop_thread) {
+        run_loop_thread_(run_loop_thread),
+        service_name_("org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceRoot") {
     logger::get_logger()->info("io_service_client::{0}", __func__);
   }
 
@@ -38,6 +39,17 @@ public:
 
       service_monitor_ = nullptr;
     });
+  }
+
+  bool driver_activated(void) const {
+    auto service = IOServiceGetMatchingService(type_safe::get(pqrs::osx::iokit_mach_port::null),
+                                               IOServiceNameMatching(service_name_.c_str()));
+    if (!service) {
+      return false;
+    }
+
+    IOObjectRelease(service);
+    return true;
   }
 
   bool driver_loaded(void) const {
@@ -99,7 +111,7 @@ public:
     logger::get_logger()->info("io_service_client::{0}", __func__);
 
     enqueue_to_dispatcher([this] {
-      if (auto matching_dictionary = IOServiceNameMatching("org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceRoot")) {
+      if (auto matching_dictionary = IOServiceNameMatching(service_name_.c_str())) {
         logger::get_logger()->info("create service_monitor_");
 
         service_monitor_ = std::make_unique<pqrs::osx::iokit_service_monitor>(weak_dispatcher_,
@@ -504,6 +516,7 @@ private:
   }
 
   std::shared_ptr<pqrs::cf::run_loop_thread> run_loop_thread_;
+  std::string service_name_;
   std::unique_ptr<pqrs::osx::iokit_service_monitor> service_monitor_;
   pqrs::osx::iokit_object_ptr service_;
   pqrs::osx::iokit_object_ptr connection_;
