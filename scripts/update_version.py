@@ -23,11 +23,6 @@ def update_version():
         for ver in version['driver_version'].split('.'):
             driver_version_number = driver_version_number * 100 + int(ver)
 
-        client_protocol_version_number = 0
-        for ver in version['client_protocol_version'].split('.'):
-            client_protocol_version_number = client_protocol_version_number * \
-                100 + int(ver)
-
         for template_file_path in chain(top_directory.rglob('*.hpp.in'),
                                         top_directory.rglob('*.plist.in'),
                                         top_directory.rglob('*.xml.in')):
@@ -57,8 +52,8 @@ def update_version():
                                         version['driver_version'])
                     line = line.replace('@DRIVER_VERSION_NUMBER@',
                                         str(driver_version_number))
-                    line = line.replace('@CLIENT_PROTOCOL_VERSION_NUMBER@',
-                                        str(client_protocol_version_number))
+                    line = line.replace('@CLIENT_PROTOCOL_VERSION@',
+                                        str(version['client_protocol_version']))
 
                     if replaced_lines[index] != line:
                         needs_update = True
