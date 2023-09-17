@@ -1,16 +1,24 @@
 # Changelog
 
-## Karabiner-DriverKit-VirtualHIDDevice 3.0.0
+## Karabiner-DriverKit-VirtualHIDDevice 3.1.0
 
 -   📅 Release date
     -   Sep 17, 2023
 -   💥 Breaking changes
-    -   `driver_version_matched_response` is changed to `driver_version_mismatched`
-        -   Note that the true and false values are reversed
-    -   `*_response` is removed from the following signals:
-        -   `driver_loaded_response`
-        -   `virtual_hid_keyboard_ready_response`
-        -   `virtual_hid_pointing_ready_response`
+    -   `virtual_hid_device_service::client` signals are updated:
+        -   `driver_loaded_response` is changed to `driver_connected`
+        -   `driver_version_matched_response` is changed to `driver_version_mismatched`
+            -   Note that the true and false values are reversed.
+        -   `*_response` is removed from the following signals:
+            -   `virtual_hid_keyboard_ready_response`
+            -   `virtual_hid_pointing_ready_response`
+    -   The following obsoleted methods of `virtual_hid_device_service::client` are removed:
+        -   `client(const std::filesystem::path& client_socket_file_path)`
+        -   `async_driver_loaded(void)`
+        -   `async_virtual_hid_keyboard_ready(void)`
+        -   `async_virtual_hid_pointing_ready(void)`
+-   ✨ New Features
+    -   `driver_activated` signal is added into `virtual_hid_device_service::client`.
 -   ⚡️ Improvements
     -   In the `forceActivate` process, if the same version of the system extension that is being installed is already installed, the request will be explicitly skipped.
 
