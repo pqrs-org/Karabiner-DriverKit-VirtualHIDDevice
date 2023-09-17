@@ -145,8 +145,8 @@ private:
         //
         // buffer[0]: 'c'
         // buffer[1]: 'p'
-        // buffer[2]: expected_client_protocol_version[0]
-        // buffer[3]: expected_client_protocol_version[1]
+        // buffer[2]: client_protocol_version[0]
+        // buffer[3]: client_protocol_version[1]
         // buffer[4]: pqrs::karabiner::driverkit::virtual_hid_device_service::request
 
         if (size-- == 0 || *p++ != 'c' ||
@@ -158,7 +158,7 @@ private:
           logger::get_logger()->error("virtual_hid_device_service_server: payload is not enough");
           return;
         }
-        auto expected_client_protocol_version = *(reinterpret_cast<pqrs::karabiner::driverkit::client_protocol_version::value_t*>(p));
+        auto received_client_protocol_version = *(reinterpret_cast<pqrs::karabiner::driverkit::client_protocol_version::value_t*>(p));
         p += sizeof(pqrs::karabiner::driverkit::client_protocol_version::value_t);
         size -= sizeof(pqrs::karabiner::driverkit::client_protocol_version::value_t);
 
@@ -170,6 +170,17 @@ private:
         auto request = *(reinterpret_cast<pqrs::karabiner::driverkit::virtual_hid_device_service::request*>(p));
         p += sizeof(pqrs::karabiner::driverkit::virtual_hid_device_service::request);
         size -= sizeof(pqrs::karabiner::driverkit::virtual_hid_device_service::request);
+
+        //
+        // Check client protocol version
+        //
+
+        if (received_client_protocol_version != pqrs::karabiner::driverkit::client_protocol_version::embedded_client_protocol_version) {
+          logger::get_logger()->warn("client protocol version is mismatched: expected: {0}, actual: {1}",
+                                     type_safe::get(pqrs::karabiner::driverkit::client_protocol_version::embedded_client_protocol_version),
+                                     type_safe::get(received_client_protocol_version));
+          return;
+        }
 
         //
         // Handle request
@@ -190,8 +201,7 @@ private:
 
             auto country_code = *(reinterpret_cast<pqrs::hid::country_code::value_t*>(p));
 
-            virtual_hid_device_service_clients_manager_->create_client(sender_endpoint->path(),
-                                                                       expected_client_protocol_version);
+            virtual_hid_device_service_clients_manager_->create_client(sender_endpoint->path());
             virtual_hid_device_service_clients_manager_->initialize_keyboard(sender_endpoint->path(),
                                                                              country_code);
             break;
@@ -212,8 +222,7 @@ private:
             logger::get_logger()->info("received request::virtual_hid_pointing_initialize: {0}",
                                        sender_endpoint_filename.c_str());
 
-            virtual_hid_device_service_clients_manager_->create_client(sender_endpoint->path(),
-                                                                       expected_client_protocol_version);
+            virtual_hid_device_service_clients_manager_->create_client(sender_endpoint->path());
             virtual_hid_device_service_clients_manager_->initialize_pointing(sender_endpoint->path());
             break;
           }
