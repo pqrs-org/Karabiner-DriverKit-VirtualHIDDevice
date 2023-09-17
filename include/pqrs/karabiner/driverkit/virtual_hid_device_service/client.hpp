@@ -242,26 +242,26 @@ private:
           case response::none:
             break;
 
-          case response::driver_loaded_result:
+          case response::driver_loaded:
             if (size == 1) {
               driver_loaded(*p);
             }
             break;
 
-          case response::driver_version_mismatched_result:
+          case response::driver_version_mismatched:
             if (size == 1) {
               driver_version_mismatched(*p);
             }
             break;
 
-          case response::virtual_hid_keyboard_ready_result:
+          case response::virtual_hid_keyboard_ready:
             if (size == 1) {
               last_virtual_hid_keyboard_ready_ = *p;
               virtual_hid_keyboard_ready(*p);
             }
             break;
 
-          case response::virtual_hid_pointing_ready_result:
+          case response::virtual_hid_pointing_ready:
             if (size == 1) {
               last_virtual_hid_pointing_ready_ = *p;
               virtual_hid_pointing_ready(*p);

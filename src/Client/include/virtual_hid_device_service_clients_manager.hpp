@@ -303,12 +303,12 @@ private:
             // Send state to client
             //
 
-            async_send_driver_loaded_result();
-            async_send_driver_version_mismatched_result();
-            async_send_ready_result(pqrs::karabiner::driverkit::virtual_hid_device_service::response::virtual_hid_keyboard_ready_result,
-                                    virtual_hid_keyboard_ready());
-            async_send_ready_result(pqrs::karabiner::driverkit::virtual_hid_device_service::response::virtual_hid_pointing_ready_result,
-                                    virtual_hid_pointing_ready());
+            async_send_driver_loaded();
+            async_send_driver_version_mismatched();
+            async_send_ready(pqrs::karabiner::driverkit::virtual_hid_device_service::response::virtual_hid_keyboard_ready,
+                             virtual_hid_keyboard_ready());
+            async_send_ready(pqrs::karabiner::driverkit::virtual_hid_device_service::response::virtual_hid_pointing_ready,
+                             virtual_hid_pointing_ready());
           },
           std::chrono::milliseconds(1000));
     }
@@ -398,9 +398,9 @@ private:
     }
 
     // This method is executed in the dispatcher thread.
-    void async_send_driver_loaded_result(void) const {
+    void async_send_driver_loaded(void) const {
       bool driver_loaded = io_service_client_nop_->driver_loaded(expected_client_protocol_version_);
-      auto response = pqrs::karabiner::driverkit::virtual_hid_device_service::response::driver_loaded_result;
+      auto response = pqrs::karabiner::driverkit::virtual_hid_device_service::response::driver_loaded;
       uint8_t buffer[] = {
           static_cast<std::underlying_type<decltype(response)>::type>(response),
           driver_loaded,
@@ -410,9 +410,9 @@ private:
     }
 
     // This method is executed in the dispatcher thread.
-    void async_send_driver_version_mismatched_result(void) const {
+    void async_send_driver_version_mismatched(void) const {
       bool driver_version_mismatched = io_service_client_nop_->driver_version_mismatched();
-      auto response = pqrs::karabiner::driverkit::virtual_hid_device_service::response::driver_version_mismatched_result;
+      auto response = pqrs::karabiner::driverkit::virtual_hid_device_service::response::driver_version_mismatched;
       uint8_t buffer[] = {
           static_cast<std::underlying_type<decltype(response)>::type>(response),
           driver_version_mismatched,
@@ -422,8 +422,8 @@ private:
     }
 
     // This method is executed in the dispatcher thread.
-    void async_send_ready_result(pqrs::karabiner::driverkit::virtual_hid_device_service::response response,
-                                 bool ready) const {
+    void async_send_ready(pqrs::karabiner::driverkit::virtual_hid_device_service::response response,
+                          bool ready) const {
       uint8_t buffer[] = {
           static_cast<std::underlying_type<decltype(response)>::type>(response),
           ready,
