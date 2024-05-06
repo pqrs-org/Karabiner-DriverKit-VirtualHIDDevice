@@ -5,7 +5,9 @@
     <key>Label</key>
     <string>org.pqrs.Karabiner-DriverKit-VirtualHIDDeviceClient</string>
     <key>AssociatedBundleIdentifiers</key>
-    <string>org.pqrs.Karabiner-DriverKit-VirtualHIDDeviceClient</string>
+    <array>
+      <string>org.pqrs.Karabiner-DriverKit-VirtualHIDDeviceClient</string>
+    </array>
     <key>Disabled</key>
     <false/>
     <key>KeepAlive</key>
