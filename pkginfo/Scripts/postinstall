@@ -3,8 +3,15 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin
 export PATH
 
-# ------------------------------------------------------------
+#
+# Register Karabiner-DriverKit-VirtualHIDDeviceClient.app in the Launch Services database.
+#
+
+'/Library/Application Support/org.pqrs/Karabiner-DriverKit-VirtualHIDDevice/bin/cli' --lsregister-karabiner-driverkit-virtualhiddeviceclient
+
+#
 # Relaunch karabiner processes
+#
 
 killall Karabiner-DriverKit-VirtualHIDDeviceClient
 

@@ -7,7 +7,6 @@
 #include <pqrs/hid.hpp>
 #include <pqrs/local_datagram.hpp>
 #include <pqrs/osx/iokit_return.hpp>
-#include <pqrs/osx/launch_services.hpp>
 #include <pqrs/osx/process_info.hpp>
 #include <thread>
 
@@ -27,12 +26,6 @@ int main(void) {
                                     pqrs::spdlog::filesystem::log_directory_perms_0755);
 
   logger::get_logger()->info("version {0}", VERSION);
-
-  // Update the application name in System Settings > Login Items.
-  {
-    auto status = pqrs::osx::launch_services::register_application("/Library/Application Support/org.pqrs/Karabiner-DriverKit-VirtualHIDDevice/Applications/Karabiner-DriverKit-VirtualHIDDeviceClient.app");
-    logger::get_logger()->info("register Karabiner-DriverKit-VirtualHIDDeviceClient.app: {0}", status.to_string());
-  }
 
   //
   // Create instances
