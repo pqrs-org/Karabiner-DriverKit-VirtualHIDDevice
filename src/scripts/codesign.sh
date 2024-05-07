@@ -44,6 +44,8 @@ codesign \
 #
 # Sign Karabiner-DriverKit-VirtualHIDDeviceClient
 #
+
+# Embed provisioning profile
 cp \
     Client/embedded.provisionprofile \
     Client/build/Release/Karabiner-DriverKit-VirtualHIDDeviceClient.app/Contents/embedded.provisionprofile
@@ -56,3 +58,14 @@ codesign \
     --verbose \
     --force \
     Client/build/Release/Karabiner-DriverKit-VirtualHIDDeviceClient.app
+
+#
+# Sign cli
+#
+
+codesign \
+    --sign $CODE_SIGN_IDENTITY \
+    --options runtime \
+    --verbose \
+    --force \
+    cli/build/Release/cli
