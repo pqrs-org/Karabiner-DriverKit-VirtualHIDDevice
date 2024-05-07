@@ -33,6 +33,10 @@ basedir="pkgroot/Library/Application Support/org.pqrs/Karabiner-DriverKit-Virtua
 mkdir -p "$basedir"
 cp -R files/scripts/uninstall "$basedir"
 
+basedir="pkgroot/Library/Application Support/org.pqrs/Karabiner-DriverKit-VirtualHIDDevice/bin"
+mkdir -p "$basedir"
+cp -R "src/cli/build/Release/cli" "$basedir"
+
 basedir="pkgroot/Library/Application Support/org.pqrs/Karabiner-DriverKit-VirtualHIDDevice/Applications"
 mkdir -p "$basedir"
 cp -R "src/Client/build/Release/Karabiner-DriverKit-VirtualHIDDeviceClient.app" "$basedir"
