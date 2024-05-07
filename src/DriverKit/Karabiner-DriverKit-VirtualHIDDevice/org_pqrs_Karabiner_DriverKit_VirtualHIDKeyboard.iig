@@ -23,7 +23,7 @@ public:
                                     IOHIDReportType reportType,
                                     IOOptionBits options,
                                     uint32_t completionTimeout,
-                                    OSAction* action);
+                                    OSAction* action) override;
 
     virtual kern_return_t postReport(IOMemoryDescriptor* report);
     virtual kern_return_t reset(void);
