@@ -186,6 +186,12 @@ System requirements to build Karabiner-Elements:
 
     `dist/Karabiner-DriverKit-VirtualHIDDevice-X.X.X.pkg` will be generated.
 
+8.  Notarize the pkg.
+
+    ```shell
+    make notarize
+    ```
+
 ### Components
 
 Karabiner-DriverKit-VirtualHIDDevice consists the following components.
