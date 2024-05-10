@@ -1,5 +1,16 @@
 # Changelog
 
+## Karabiner-DriverKit-VirtualHIDDevice 3.2.0
+
+-   📅 Release date
+    -   May 10, 2024
+-   ⚡️ Improvements
+    -   Changed the registration of the `Karabiner-DriverKit-VirtualHIDDeviceClient.app` in the Launch Services database to occur just once after the package is installed, instead of every time it is launched.
+    -   Stopped updating the modification time of `/Library/LaunchDaemons/org.pqrs.Karabiner-DriverKit-VirtualHIDDeviceClient.plist` each time `Karabiner-DriverKit-VirtualHIDDeviceClient.app` is launched.
+    -   Added `/Library/Application Support/org.pqrs/Karabiner-DriverKit-VirtualHIDDevice/bin/cli`.
+    -   Updated provisionprofile files.
+    -   Updated dependent vendor code.
+
 ## Karabiner-DriverKit-VirtualHIDDevice 3.1.0
 
 -   📅 Release date
