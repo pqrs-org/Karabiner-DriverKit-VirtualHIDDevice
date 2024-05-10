@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Replace with your identity
-readonly CODE_SIGN_IDENTITY=C6DD0BCD24C737EA0505F1EB26B8BBEEDEC12F1B
+readonly CODE_SIGN_IDENTITY=BD3B995B69EBA8FC153B167F063079D19CCC2834
 
 set -e # forbid command failure
 
@@ -11,7 +11,7 @@ set -e # forbid command failure
 
 # Embed provisioning profile
 cp \
-    DriverKit/embedded.provisionprofile \
+    DriverKit/Developer_ID_KarabinerDriverKitVirtualHIDDevice.provisionprofile \
     Manager/build/Release/Karabiner-VirtualHIDDevice-Manager.app/Contents/Library/SystemExtensions/org.pqrs.Karabiner-DriverKit-VirtualHIDDevice.dext/embedded.provisionprofile
 
 # Sign
@@ -29,7 +29,7 @@ codesign \
 
 # Embed provisioning profile
 cp \
-    Manager/embedded.provisionprofile \
+    Manager/Developer_ID_Karabiner_VirtualHIDDevice_Manager.provisionprofile \
     Manager/build/Release/Karabiner-VirtualHIDDevice-Manager.app/Contents/embedded.provisionprofile
 
 # Sign
@@ -47,7 +47,7 @@ codesign \
 
 # Embed provisioning profile
 cp \
-    Client/embedded.provisionprofile \
+    Client/Developer_ID_VirtualHIDDeviceClient.provisionprofile \
     Client/build/Release/Karabiner-DriverKit-VirtualHIDDeviceClient.app/Contents/embedded.provisionprofile
 
 # Sign
