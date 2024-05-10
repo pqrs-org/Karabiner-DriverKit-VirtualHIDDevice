@@ -178,19 +178,6 @@ System requirements to build Karabiner-Elements:
         git grep G43BCU2T37 src/
         ```
 
-    -   Search `org.pqrs` and `org_pqrs`, then replace them with your domain.
-
-        ```shell
-        git grep org.pqrs src/
-        git grep org_pqrs src/
-        ```
-
-    -   Replace `embedded.provisionprofile` file with yours.
-
-        ```shell
-        find * -name 'embedded.provisionprofile'
-        ```
-
 7.  Build by the following command in terminal.
 
     ```shell
