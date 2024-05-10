@@ -214,9 +214,14 @@ Karabiner-DriverKit-VirtualHIDDevice consists the following components.
 
 ### Version files
 
--   `version`:
+Version is defined in `version.json`.
+
+-   `package_version`:
     -   Karabiner-DriverKit-VirtualHIDDevice package version.
-    -   Increment when any components are updated.
--   `driver-version`:
+    -   Increment this when any components are updated.
+-   `driver_version`:
     -   DriverKit driver internal version.
-    -   Increment when the driver source code is updated.
+    -   Increment this when the driver source code is updated.
+-   `client_protocol_version`:
+    -   The version for communication between VirtualHIDDeviceClient and the DriverKit driver.
+    -   Increment this when the communication specifications are changed.
