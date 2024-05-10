@@ -28,7 +28,7 @@ int main(int argc, char** argv) {
       std::string key = "lsregister-karabiner-driverkit-virtualhiddeviceclient";
       if (parse_result.count(key)) {
         // Update the application name in System Settings > Login Items.
-        auto status = pqrs::osx::launch_services::register_application("/Library/Application Support/org.pqrs/Karabiner-DriverKit-VirtualHIDDevice/Applications/Karabiner-DriverKit-VirtualHIDDeviceClient.app");
+        auto status = pqrs::osx::launch_services::register_application("/Library/Application Support/org.pqrs/Karabiner-DriverKit-VirtualHIDDevice/Applications/Karabiner-DriverKit-VirtualHIDDeviceClient.app", false);
         std::cout << key << ": " << status.to_string() << std::endl;
 
         goto finish;
