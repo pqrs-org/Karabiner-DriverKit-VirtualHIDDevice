@@ -31,8 +31,8 @@ Virtual devices (keyboard and mouse) implementation for macOS using DriverKit.
 
 ## Screenshots
 
--   System Preferences (macOS detects the virtual keyboard)<br/><br />
-    <img src="docs/images/system-preferences@2x.png" width="668" alt="System Preferences" /><br /><br />
+-   macOS Settings (macOS detects the virtual keyboard)<br/><br />
+    <img src="docs/images/macos-settings@2x.png" width="668" alt="System Preferences" /><br /><br />
 
 ---
 
@@ -86,27 +86,65 @@ System requirements to build Karabiner-Elements:
 -   Command Line Tools for Xcode
 -   [XcodeGen](https://github.com/yonaskolb/XcodeGen)
 
-### Note
-
-A provisioning profile which supports `com.apple.developer.driverkit` is required to build a driver extension since Xcode 12.
-
-If you want to start without a valid provisioning profile, use Xcode 11 and
-[Karabiner-DriverKit-VirtualHIDDevice v0.11.0](https://github.com/pqrs-org/Karabiner-DriverKit-VirtualHIDDevice/releases/tag/v0.11.0).
-
 ### Steps
 
-1.  Gain the DriverKit entitlements to be able to create a provisioning profile which supports `com.apple.developer.driverkit`.
+1.  Obtain DriverKit entitlements to create a provisioning profile that supports `com.apple.developer.driverkit`.
     Specifically, follow the instructions on [Requesting Entitlements for DriverKit Development](https://developer.apple.com/documentation/driverkit/requesting_entitlements_for_driverkit_development)
 
-    Note: This process may take some time to complete on Apple's end.
+    Note: This process may take some time to be completed on Apple's side.
 
-    If you want to start without the request, use Xcode 11 and Karabiner-DriverKit-VirtualHIDDevice v0.11.0. (See above note)
+2.  Create App IDs on [the Apple Developer site](https://developer.apple.com/account/resources/identifiers/list).
 
-2.  Create a Developer ID distribution provisioning profile for `org.pqrs.Karabiner-DriverKit-VirtualHIDDevice` with `com.apple.developer.driverkit` entitlement.
+<table>
+    <thead>
+        <tr>
+            <th>Bundle ID</th>
+            <th>Capabilities</th>
+            <th>App Services</th>
+            <th>Additional Capabilities</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>org.pqrs.Karabiner-DriverKit-VirtualHIDDevice</td>
+            <td>---</td>
+            <td>---</td>
+            <td>
+                com.apple.developer.driverkit<br/>
+                com.apple.developer.driverkit.family.hid.device<br/>
+                com.apple.developer.driverkit.family.hid.eventservice<br/>
+                com.apple.developer.driverkit.transport.hid<br/>
+                com.apple.developer.hid.virtual.device<br/>
+            </td>
+        </tr>
+        <tr>
+            <td>org.pqrs.Karabiner-DriverKit-VirtualHIDDeviceClient</td>
+            <td>---</td>
+            <td>---</td>
+            <td>---</td>
+        </tr>
+        <tr>
+            <td>org.pqrs.Karabiner-VirtualHIDDevice-Manager</td>
+            <td>
+                System Extension<br/>
+            </td>
+            <td>---</td>
+            <td>---</td>
+        </tr>
+    </tbody>
+</table>
 
-    <img src="docs/images/generate-a-provisioning-profile@2x.png" width="921" alt="Generate a Provisioning Profile" />
+<img src="docs/images/additional-capabilities@2x.png" width="921" alt="Additional Capabilities" />
 
-3.  Replace `CODE_SIGN_IDENTITY` at `src/scripts/codesign.sh` with yours.
+3.  Create a profile corresponding to the App IDs on the Apple Developer site.
+
+4.  Replace the `*.provisionprofile` files in the repository with your own provision profile files.
+
+    -   src/Client/Developer_ID_VirtualHIDDeviceClient.provisionprofile
+    -   src/DriverKit/Developer_ID_KarabinerDriverKitVirtualHIDDevice.provisionprofile
+    -   src/Manager/Developer_ID_Karabiner_VirtualHIDDevice_Manager.provisionprofile
+
+5.  Replace `CODE_SIGN_IDENTITY` at `src/scripts/codesign.sh` with yours.
 
     Find your codesign identity by executing the following command in Terminal.
 
@@ -131,7 +169,7 @@ If you want to start without a valid provisioning profile, use Xcode 11 and
     readonly CODE_SIGN_IDENTITY=8D660191481C98F5C56630847A6C39D95C166F22
     ```
 
-4.  Replace team identifier, domain and embedded.provisionprofile.
+6.  Replace team identifier, domain and embedded.provisionprofile.
 
     -   Search `G43BCU2T37` and replace them with your team identifier.
 
@@ -152,7 +190,7 @@ If you want to start without a valid provisioning profile, use Xcode 11 and
         find * -name 'embedded.provisionprofile'
         ```
 
-5.  Build by the following command in terminal.
+7.  Build by the following command in terminal.
 
     ```shell
     make package
