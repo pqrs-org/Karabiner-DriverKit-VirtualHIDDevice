@@ -4,10 +4,10 @@ PATH=/bin:/sbin:/usr/bin:/usr/sbin
 export PATH
 
 #
-# Register Karabiner-DriverKit-VirtualHIDDeviceClient.app in the Launch Services database.
+# Register Karabiner-DriverKit-VirtualHIDDeviceClient.app as a LaunchDaemon
 #
 
-'/Library/Application Support/org.pqrs/Karabiner-DriverKit-VirtualHIDDevice/bin/cli' --lsregister-karabiner-driverkit-virtualhiddeviceclient
+'/Library/Application Support/org.pqrs/Karabiner-DriverKit-VirtualHIDDevice/Applications/Karabiner-DriverKit-VirtualHIDDeviceClient.app/Contents/MacOS/Karabiner-DriverKit-VirtualHIDDeviceClient' --service-management-register
 
 #
 # Relaunch karabiner processes

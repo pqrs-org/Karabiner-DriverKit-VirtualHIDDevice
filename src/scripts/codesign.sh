@@ -58,14 +58,3 @@ codesign \
     --verbose \
     --force \
     Client/build/Release/Karabiner-DriverKit-VirtualHIDDeviceClient.app
-
-#
-# Sign cli
-#
-
-codesign \
-    --sign $CODE_SIGN_IDENTITY \
-    --options runtime \
-    --verbose \
-    --force \
-    cli/build/Release/cli
