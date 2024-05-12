@@ -3,7 +3,7 @@
 <plist version="1.0">
   <dict>
     <key>Label</key>
-    <string>org.pqrs.Karabiner-DriverKit-VirtualHIDDeviceClient2</string>
+    <string>org.pqrs.Karabiner-DriverKit-VirtualHIDDeviceClient3</string>
     <key>Disabled</key>
     <false/>
     <key>KeepAlive</key>

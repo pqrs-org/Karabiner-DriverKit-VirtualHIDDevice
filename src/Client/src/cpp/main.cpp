@@ -2,6 +2,7 @@
 #include "version.hpp"
 #include "virtual_hid_device_service_server.hpp"
 #include <chrono>
+#include <cxxopts.hpp>
 #include <iostream>
 #include <memory>
 #include <pqrs/hid.hpp>
@@ -80,6 +81,68 @@ int daemon(void) {
 }
 } // namespace
 
-int main(void) {
-  return daemon();
+int main(int argc, char** argv) {
+  cxxopts::Options options("Karabiner-DriverKit-VirtualHIDDeviceClient");
+
+  options.add_options()("daemon",
+                        "Run as a daemon");
+
+  options.add_options()("service-management-register",
+                        "[Maintenance Command] Register services");
+
+  options.add_options()("service-management-unregister",
+                        "[Maintenance Command] Unregister services");
+
+  options.add_options()("version",
+                        "Displays version");
+
+  options.add_options()("help",
+                        "Print help");
+
+  try {
+    auto parse_result = options.parse(argc, argv);
+
+    {
+      std::string key = "daemon";
+      if (parse_result.count(key)) {
+        return daemon();
+      }
+    }
+
+    {
+      std::string key = "service-management-register";
+      if (parse_result.count(key)) {
+        service_manager_register();
+        return 0;
+      }
+    }
+
+    {
+      std::string key = "service-management-unregister";
+      if (parse_result.count(key)) {
+        service_manager_unregister();
+        return 0;
+      }
+    }
+
+    {
+      std::string key = "version";
+      if (parse_result.count(key)) {
+        std::cout << "version: " << VERSION << std::endl;
+        std::cout << "driver_version: " << DRIVER_VERSION << std::endl;
+        std::cout << "client_protocol_version: " << CLIENT_PROTOCOL_VERSION << std::endl;
+
+        return 0;
+      }
+    }
+
+  } catch (const cxxopts::exceptions::exception& e) {
+    std::cout << "error parsing options: " << e.what() << std::endl;
+    return 2;
+  }
+
+  options.show_positional_help();
+  std::cout << options.help() << std::endl;
+
+  return 0;
 }

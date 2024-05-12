@@ -1,5 +1,4 @@
 all:
-	$(MAKE) -C cli
 	$(MAKE) -C Client
 	$(MAKE) -C DriverKit
 	$(MAKE) -C Manager
@@ -10,7 +9,6 @@ all:
 	$(MAKE) codesign
 
 clean:
-	$(MAKE) -C cli clean
 	$(MAKE) -C Client clean
 	$(MAKE) -C DriverKit clean
 	$(MAKE) -C Manager clean

@@ -2,6 +2,9 @@ all:
 	/usr/bin/python3 ../../scripts/update_version.py
 	xcodegen generate
 	xcodebuild -configuration Release -alltargets SYMROOT="$(CURDIR)/build"
+# Copy LaunchDaemons
+	mkdir -p build/Release/Karabiner-DriverKit-VirtualHIDDeviceClient.app/Contents/Library
+	cp -r LaunchDaemons build/Release/Karabiner-DriverKit-VirtualHIDDeviceClient.app/Contents/Library
 
 clean:
 	rm -rf *.xcodeproj
