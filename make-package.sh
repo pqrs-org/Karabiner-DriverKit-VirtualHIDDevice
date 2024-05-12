@@ -23,10 +23,6 @@ basedir="pkgroot/Library/Application Support/org.pqrs/Karabiner-DriverKit-Virtua
 mkdir -p "$basedir"
 cp -R "src/Client/build/Release/Karabiner-DriverKit-VirtualHIDDeviceClient.app" "$basedir"
 
-basedir="pkgroot/Library"
-mkdir -p "$basedir"
-cp -R files/LaunchDaemons "pkgroot/Library"
-
 basedir="pkgroot/Applications"
 mkdir -p "$basedir"
 # Note: Rename app (add leading dot) in order to hide from Finder and Launchpad.
