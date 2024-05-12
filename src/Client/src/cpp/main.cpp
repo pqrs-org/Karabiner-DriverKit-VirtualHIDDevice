@@ -10,7 +10,14 @@
 #include <pqrs/osx/process_info.hpp>
 #include <thread>
 
-int main(void) {
+extern "C" {
+void service_manager_register();
+void service_manager_unregister();
+void service_manager_status();
+}
+
+namespace {
+int daemon(void) {
   std::signal(SIGINT, SIG_IGN);
   std::signal(SIGTERM, SIG_IGN);
   std::signal(SIGUSR1, SIG_IGN);
@@ -70,4 +77,9 @@ int main(void) {
   dispatch_main();
 
   return 0;
+}
+} // namespace
+
+int main(void) {
+  return daemon();
 }
