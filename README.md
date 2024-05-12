@@ -11,10 +11,6 @@ Virtual devices (keyboard and mouse) implementation for macOS using DriverKit.
     -   Both Intel-based Macs and Apple Silicon Macs
 -   macOS 13 Ventura
     -   Both Intel-based Macs and Apple Silicon Macs
--   macOS 12 Monterey
-    -   Both Intel-based Macs and Apple Silicon Macs
--   macOS 11 Big Sur
-    -   Both Intel-based Macs and Apple Silicon Macs
 
 ## Status
 
@@ -81,9 +77,8 @@ Virtual devices (keyboard and mouse) implementation for macOS using DriverKit.
 
 System requirements to build Karabiner-Elements:
 
--   macOS 11+
--   Xcode 13.0 (You need to hold Xcode version to 13.0 because Xcode 13.1 generate binary which does not work on macOS 11 Big Sur.)
-    -   Note: The recent macOS cannot open the Xcode 13.0 UI, but it can be operated from the command line. Since only command line operations are necessary for building, there is no problem.
+-   macOS 14+
+-   Xcode 15+
 -   Command Line Tools for Xcode
 -   [XcodeGen](https://github.com/yonaskolb/XcodeGen)
 
