@@ -12,8 +12,8 @@
 #include <thread>
 
 extern "C" {
-void service_manager_register();
-void service_manager_unregister();
+bool service_manager_register();
+bool service_manager_unregister();
 void service_manager_status();
 }
 
@@ -93,6 +93,9 @@ int main(int argc, char** argv) {
   options.add_options()("service-management-unregister",
                         "[Maintenance Command] Unregister services");
 
+  options.add_options()("service-management-status",
+                        "[Maintenance Command] Show services status");
+
   options.add_options()("version",
                         "Displays version");
 
@@ -112,15 +115,21 @@ int main(int argc, char** argv) {
     {
       std::string key = "service-management-register";
       if (parse_result.count(key)) {
-        service_manager_register();
-        return 0;
+        return service_manager_register() ? 0 : 1;
       }
     }
 
     {
       std::string key = "service-management-unregister";
       if (parse_result.count(key)) {
-        service_manager_unregister();
+        return service_manager_unregister() ? 0 : 1;
+      }
+    }
+
+    {
+      std::string key = "service-management-status";
+      if (parse_result.count(key)) {
+        service_manager_status();
         return 0;
       }
     }
