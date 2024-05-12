@@ -13,6 +13,6 @@ export PATH
 # Relaunch karabiner processes
 #
 
-killall Karabiner-DriverKit-VirtualHIDDeviceClient
+launchctl kickstart -k system/org.pqrs.Karabiner-DriverKit-VirtualHIDDeviceClient5
 
 exit 0
