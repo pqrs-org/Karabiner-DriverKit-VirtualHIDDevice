@@ -11,7 +11,7 @@ export PATH
 # Unload files which are installed in previous versions
 #
 
-if [ /Library/LaunchDaemons/org.pqrs.Karabiner-DriverKit-VirtualHIDDeviceClient.plist ]; then
+if [ -f /Library/LaunchDaemons/org.pqrs.Karabiner-DriverKit-VirtualHIDDeviceClient.plist ]; then
     launchctl bootout system /Library/LaunchDaemons/org.pqrs.Karabiner-DriverKit-VirtualHIDDeviceClient.plist
 fi
 
