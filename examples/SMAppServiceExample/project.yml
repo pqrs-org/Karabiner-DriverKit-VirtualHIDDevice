@@ -4,9 +4,6 @@ targets:
   Karabiner-DriverKit-SMAppServiceExample:
     settings:
       PRODUCT_BUNDLE_IDENTIFIER: org.pqrs.Karabiner-DriverKit-SMAppServiceExample
-      CODE_SIGN_ENTITLEMENTS: ''
-      CODE_SIGN_IDENTITY: '-'
-      CODE_SIGN_STYLE: Manual
       OTHER_SWIFT_FLAGS: '-warnings-as-errors'
     type: application
     platform: macOS

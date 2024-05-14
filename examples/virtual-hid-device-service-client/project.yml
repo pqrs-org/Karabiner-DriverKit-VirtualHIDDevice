@@ -4,9 +4,6 @@ targets:
   virtual-hid-device-service-client:
     settings:
       PRODUCT_BUNDLE_IDENTIFIER: org.pqrs.virtual-hid-device-service-client
-      CODE_SIGN_ENTITLEMENTS: ''
-      CODE_SIGN_IDENTITY: '-'
-      CODE_SIGN_STYLE: Manual
       OTHER_SWIFT_FLAGS: '-warnings-as-errors'
       SYSTEM_HEADER_SEARCH_PATHS:
         - vendor/include
