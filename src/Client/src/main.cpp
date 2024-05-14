@@ -9,13 +9,6 @@
 #include <pqrs/local_datagram.hpp>
 #include <pqrs/osx/iokit_return.hpp>
 #include <pqrs/osx/process_info.hpp>
-#include <thread>
-
-extern "C" {
-bool service_manager_register();
-bool service_manager_unregister();
-void service_manager_status();
-}
 
 namespace {
 int daemon(void) {
@@ -87,15 +80,6 @@ int main(int argc, char** argv) {
   options.add_options()("daemon",
                         "Run as a daemon");
 
-  options.add_options()("service-management-register",
-                        "[Maintenance Command] Register services");
-
-  options.add_options()("service-management-unregister",
-                        "[Maintenance Command] Unregister services");
-
-  options.add_options()("service-management-status",
-                        "[Maintenance Command] Show services status");
-
   options.add_options()("version",
                         "Displays version");
 
@@ -109,28 +93,6 @@ int main(int argc, char** argv) {
       std::string key = "daemon";
       if (parse_result.count(key)) {
         return daemon();
-      }
-    }
-
-    {
-      std::string key = "service-management-register";
-      if (parse_result.count(key)) {
-        return service_manager_register() ? 0 : 1;
-      }
-    }
-
-    {
-      std::string key = "service-management-unregister";
-      if (parse_result.count(key)) {
-        return service_manager_unregister() ? 0 : 1;
-      }
-    }
-
-    {
-      std::string key = "service-management-status";
-      if (parse_result.count(key)) {
-        service_manager_status();
-        return 0;
       }
     }
 
