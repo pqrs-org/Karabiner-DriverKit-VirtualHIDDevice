@@ -65,7 +65,6 @@ Virtual devices (keyboard and mouse) implementation for macOS using DriverKit.
 
 -   `/Applications/.Karabiner-VirtualHIDDevice-Manager.app`
 -   `/Library/Application Support/org.pqrs/Karabiner-DriverKit-VirtualHIDDevice`
--   `/Library/LaunchDaemons/org.pqrs.Karabiner-DriverKit-VirtualHIDDeviceClient.plist`
 -   `/Library/Application Support/org.pqrs/tmp`
 -   `/var/log/karabiner`
 
@@ -114,7 +113,7 @@ System requirements to build Karabiner-Elements:
             </td>
         </tr>
         <tr>
-            <td>org.pqrs.Karabiner-DriverKit-VirtualHIDDeviceClient</td>
+            <td>org.pqrs.Karabiner-DriverKit-Daemon</td>
             <td>---</td>
             <td>---</td>
             <td>---</td>
@@ -136,7 +135,7 @@ System requirements to build Karabiner-Elements:
 
 4.  Replace the `*.provisionprofile` files in the repository with your own provision profile files.
 
-    -   src/Client/Developer_ID_VirtualHIDDeviceClient.provisionprofile
+    -   src/Daemon/Developer_ID_KarabinerDriverKitDaemon.provisionprofile
     -   src/DriverKit/Developer_ID_KarabinerDriverKitVirtualHIDDevice.provisionprofile
     -   src/Manager/Developer_ID_Karabiner_VirtualHIDDevice_Manager.provisionprofile
 
@@ -194,15 +193,15 @@ Karabiner-DriverKit-VirtualHIDDevice consists the following components.
 -   Extension Manager (including DriverKit driver)
     -   `/Applications/.Karabiner-VirtualHIDDevice-Manager.app`
     -   It provides a command line interface to activate or deactivate DriverKit driver.
--   VirtualHIDDeviceClient
-    -   `/Library/Application Support/org.pqrs/Karabiner-DriverKit-VirtualHIDDevice/Applications/Karabiner-DriverKit-VirtualHIDDeviceClient.app`
+-   Karabiner-DriverKit-Daemon
+    -   `/Library/Application Support/org.pqrs/Karabiner-DriverKit-VirtualHIDDevice/Applications/Karabiner-DriverKit-Daemon.app`
     -   It mediates between the client app and the driver.
     -   It allows apps to communicate with the virtual device even if the app is not signed with pqrs.org's code signing identity.
         (The client app must be running with root privileges.)
 -   Client apps
     -   Client apps are not included in the distributed package.
     -   For example, you can build the client app from `examples/virtual-hid-device-service-client` in this repository.
-    -   Client apps can send input events by communicating with VirtualHIDDeviceClient via UNIX domain socket.
+    -   Client apps can send input events by communicating with Karabiner-DriverKit-Daemon via UNIX domain socket.
         (`/Library/Application Support/org.pqrs/tmp/rootonly/vhidd_server/*.sock`)
 
 ![components.svg](./docs/plantuml/output/components.svg)
@@ -218,5 +217,5 @@ Version is defined in `version.json`.
     -   DriverKit driver internal version.
     -   Increment this when the driver source code is updated.
 -   `client_protocol_version`:
-    -   The version for communication between VirtualHIDDeviceClient and the DriverKit driver.
+    -   The version for communication between Karabiner-DriverKit-Daemon and the DriverKit driver.
     -   Increment this when the communication specifications are changed.

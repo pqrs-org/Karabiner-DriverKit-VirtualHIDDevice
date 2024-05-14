@@ -13,7 +13,7 @@ import AppKit
 
 let bundleIdentifiers = [
   "org.pqrs.HIDManagerTool",
-  "org.pqrs.Karabiner-DriverKit-VirtualHIDDeviceClient",
+  "org.pqrs.Karabiner-DriverKit-Daemon",
   "org.pqrs.Karabiner-VirtualHIDDevice-Manager",
   "org.pqrs.virtual-hid-device-service-client",
 ]

@@ -19,4 +19,4 @@ update_vendor:
 	cget install -f cget-requirements.txt --prefix vendor
 
 run-client:
-	sudo ./build/Release/Karabiner-DriverKit-VirtualHIDDeviceClient.app/Contents/MacOS/Karabiner-DriverKit-VirtualHIDDeviceClient
+	sudo ./build/Release/Karabiner-DriverKit-Daemon.app/Contents/MacOS/Karabiner-DriverKit-Daemon

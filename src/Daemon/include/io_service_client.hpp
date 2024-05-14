@@ -69,7 +69,7 @@ public:
     if (driver_version_ == pqrs::karabiner::driverkit::driver_version::embedded_driver_version) {
       return false;
     } else {
-      auto message = fmt::format("driver_version_ is mismatched: Karabiner-DriverKit-VirtualHIDDeviceClient expected: {0}, actual dext: {1}",
+      auto message = fmt::format("driver_version_ is mismatched: Karabiner-DriverKit-Daemon expected: {0}, actual dext: {1}",
                                  type_safe::get(pqrs::karabiner::driverkit::driver_version::embedded_driver_version),
                                  type_safe::get(*driver_version_));
       if (driver_version_mismatched_log_message_ != message) {
