@@ -2,7 +2,6 @@
 #include "version.hpp"
 #include "virtual_hid_device_service_server.hpp"
 #include <chrono>
-#include <cxxopts.hpp>
 #include <iostream>
 #include <memory>
 #include <pqrs/hid.hpp>
@@ -10,8 +9,7 @@
 #include <pqrs/osx/iokit_return.hpp>
 #include <pqrs/osx/process_info.hpp>
 
-namespace {
-int daemon(void) {
+int main(void) {
   std::signal(SIGINT, SIG_IGN);
   std::signal(SIGTERM, SIG_IGN);
   std::signal(SIGUSR1, SIG_IGN);
@@ -27,6 +25,8 @@ int daemon(void) {
                                     pqrs::spdlog::filesystem::log_directory_perms_0755);
 
   logger::get_logger()->info("version {0}", VERSION);
+  logger::get_logger()->info("driver_version {0}", DRIVER_VERSION);
+  logger::get_logger()->info("client_protocol_version {0}", CLIENT_PROTOCOL_VERSION);
 
   //
   // Create instances
@@ -69,51 +69,6 @@ int daemon(void) {
   //
 
   dispatch_main();
-
-  return 0;
-}
-} // namespace
-
-int main(int argc, char** argv) {
-  cxxopts::Options options("Karabiner-DriverKit-VirtualHIDDeviceClient");
-
-  options.add_options()("daemon",
-                        "Run as a daemon");
-
-  options.add_options()("version",
-                        "Displays version");
-
-  options.add_options()("help",
-                        "Print help");
-
-  try {
-    auto parse_result = options.parse(argc, argv);
-
-    {
-      std::string key = "daemon";
-      if (parse_result.count(key)) {
-        return daemon();
-      }
-    }
-
-    {
-      std::string key = "version";
-      if (parse_result.count(key)) {
-        std::cout << "version: " << VERSION << std::endl;
-        std::cout << "driver_version: " << DRIVER_VERSION << std::endl;
-        std::cout << "client_protocol_version: " << CLIENT_PROTOCOL_VERSION << std::endl;
-
-        return 0;
-      }
-    }
-
-  } catch (const cxxopts::exceptions::exception& e) {
-    std::cout << "error parsing options: " << e.what() << std::endl;
-    return 2;
-  }
-
-  options.show_positional_help();
-  std::cout << options.help() << std::endl;
 
   return 0;
 }
