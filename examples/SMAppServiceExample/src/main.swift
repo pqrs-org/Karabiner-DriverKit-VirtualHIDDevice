@@ -2,7 +2,7 @@ import Foundation
 import ServiceManagement
 
 let daemonPlistNames = [
-  "org.pqrs.Karabiner-DriverKit-SMAppServiceExample.plist"
+  "org.pqrs.Karabiner-DriverKit-Daemon.plist"
 ]
 
 RunLoop.main.perform {
