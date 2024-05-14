@@ -1,7 +1,7 @@
 import Foundation
 import ServiceManagement
 
-let daemonPlistName = "org.pqrs.Karabiner-DriverKit-VirtualHIDDeviceClient7.plist"
+let daemonPlistName = "org.pqrs.Karabiner-DriverKit-SMAppServiceExample.plist"
 
 RunLoop.main.perform {
   for argument in CommandLine.arguments {
