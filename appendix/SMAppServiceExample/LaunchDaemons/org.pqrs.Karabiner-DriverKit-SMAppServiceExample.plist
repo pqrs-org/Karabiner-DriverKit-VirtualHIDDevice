@@ -12,7 +12,7 @@
     <string>Interactive</string>
     <key>ProgramArguments</key>
     <array>
-      <string>/Library/Application Support/org.pqrs/Karabiner-DriverKit-VirtualHIDDevice/Applications/Karabiner-DriverKit-VirtualHIDDeviceClient7.app/Contents/MacOS/Karabiner-DriverKit-VirtualHIDDeviceClient7</string>
+      <string>/Library/Application Support/org.pqrs/Karabiner-DriverKit-VirtualHIDDevice/Applications/Karabiner-DriverKit-VirtualHIDDeviceClient.app/Contents/MacOS/Karabiner-DriverKit-VirtualHIDDeviceClient</string>
       <string>--daemon</string>
     </array>
   </dict>

@@ -10,20 +10,22 @@ RunLoop.main.perform {
       do {
         try s.register()
         print("Successfully registered \(s)")
+        exit(0)
       } catch {
         print("Unable to register \(error)")
+        exit(1)
       }
-      return
 
     } else if argument == "unregister" {
       let s = SMAppService.daemon(plistName: daemonPlistName)
       do {
         try s.unregister()
         print("Successfully unregistered \(s)")
+        exit(0)
       } catch {
         print("Unable to unregister \(error)")
+        exit(1)
       }
-      return
 
     } else if argument == "status" {
       let s = SMAppService.daemon(plistName: daemonPlistName)
@@ -39,7 +41,8 @@ RunLoop.main.perform {
       @unknown default:
         print("unknown \(s.status)")
       }
-      return
+
+      exit(0)
     }
   }
 
@@ -47,3 +50,5 @@ RunLoop.main.perform {
   print("    SMAppServiceExample register|unregister|status")
   exit(0)
 }
+
+RunLoop.main.run()
