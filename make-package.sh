@@ -3,20 +3,6 @@
 set -u # forbid undefined variables
 set -e # forbid command failure
 
-# Check Xcode version
-
-xcodePath=$(xcode-select -p | sed 's|\.app/.*|.app|g')
-xcodeVersion=$(plutil -extract CFBundleShortVersionString raw "$xcodePath/Contents/version.plist")
-
-if [ "$xcodeVersion" != '13.0' ]; then
-    echo
-    echo 'ERROR:'
-    echo '  Xcode version is not 13.0.'
-    echo '  You have to use Xcode 13.0 to support macOS 11 Big Sur.'
-    echo
-    exit 1
-fi
-
 # Package build into a signed .dmg file
 
 version=$(python3 scripts/get_version.py package_version)
@@ -33,17 +19,9 @@ basedir="pkgroot/Library/Application Support/org.pqrs/Karabiner-DriverKit-Virtua
 mkdir -p "$basedir"
 cp -R files/scripts/uninstall "$basedir"
 
-basedir="pkgroot/Library/Application Support/org.pqrs/Karabiner-DriverKit-VirtualHIDDevice/bin"
-mkdir -p "$basedir"
-cp -R "src/cli/build/Release/cli" "$basedir"
-
 basedir="pkgroot/Library/Application Support/org.pqrs/Karabiner-DriverKit-VirtualHIDDevice/Applications"
 mkdir -p "$basedir"
-cp -R "src/Client/build/Release/Karabiner-DriverKit-VirtualHIDDeviceClient.app" "$basedir"
-
-basedir="pkgroot/Library"
-mkdir -p "$basedir"
-cp -R files/LaunchDaemons "pkgroot/Library"
+cp -R "src/Daemon/build/Release/Karabiner-VirtualHIDDevice-Daemon.app" "$basedir"
 
 basedir="pkgroot/Applications"
 mkdir -p "$basedir"

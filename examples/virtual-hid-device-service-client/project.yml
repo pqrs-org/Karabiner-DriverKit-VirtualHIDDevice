@@ -4,16 +4,13 @@ targets:
   virtual-hid-device-service-client:
     settings:
       PRODUCT_BUNDLE_IDENTIFIER: org.pqrs.virtual-hid-device-service-client
-      CODE_SIGN_ENTITLEMENTS: ''
-      CODE_SIGN_IDENTITY: '-'
-      CODE_SIGN_STYLE: Manual
       OTHER_SWIFT_FLAGS: '-warnings-as-errors'
       SYSTEM_HEADER_SEARCH_PATHS:
         - vendor/include
         - ../../include
     type: tool
     platform: macOS
-    deploymentTarget: 11.0
+    deploymentTarget: 13.0
     sources:
       - path: src
         compilerFlags:

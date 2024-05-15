@@ -8,10 +8,10 @@ PATH=/bin:/sbin:/usr/bin:/usr/sbin
 export PATH
 
 #
-# Unload before install
+# Unload files which are installed in previous versions
 #
 
-if [ /Library/LaunchDaemons/org.pqrs.Karabiner-DriverKit-VirtualHIDDeviceClient.plist ]; then
+if [ -f /Library/LaunchDaemons/org.pqrs.Karabiner-DriverKit-VirtualHIDDeviceClient.plist ]; then
     launchctl bootout system /Library/LaunchDaemons/org.pqrs.Karabiner-DriverKit-VirtualHIDDeviceClient.plist
 fi
 
@@ -19,13 +19,18 @@ fi
 # Kill processes
 #
 
+killall Karabiner-VirtualHIDDevice-Daemon
+
+#
+# Kill processes in previous versions
+#
+
 killall Karabiner-DriverKit-VirtualHIDDeviceClient
 
 #
-# Uninstall
+# Remove files
 #
 
-rm -f '/Library/LaunchDaemons/org.pqrs.Karabiner-DriverKit-VirtualHIDDeviceClient.plist'
 rm -rf '/Applications/.Karabiner-VirtualHIDDevice-Manager.app'
 rm -rf '/Library/Application Support/org.pqrs/Karabiner-DriverKit-VirtualHIDDevice'
 
@@ -34,5 +39,11 @@ rm -rf '/Library/Application Support/org.pqrs/tmp/rootonly/vhidd_server'
 rmdir '/Library/Application Support/org.pqrs/tmp/rootonly'
 rmdir '/Library/Application Support/org.pqrs/tmp'
 rmdir '/Library/Application Support/org.pqrs'
+
+#
+# Remove files which are installed in previous versions
+#
+
+rm -f '/Library/LaunchDaemons/org.pqrs.Karabiner-DriverKit-VirtualHIDDeviceClient.plist'
 
 exit 0

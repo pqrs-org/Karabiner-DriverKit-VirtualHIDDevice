@@ -1,0 +1,31 @@
+name: Karabiner-VirtualHIDDevice-Daemon
+
+targets:
+  Karabiner-VirtualHIDDevice-Daemon:
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: org.pqrs.Karabiner-VirtualHIDDevice-Daemon
+      CODE_SIGN_ENTITLEMENTS: ''
+      CODE_SIGN_IDENTITY: '-'
+      CODE_SIGN_STYLE: Manual
+      OTHER_SWIFT_FLAGS: '-warnings-as-errors'
+      SYSTEM_HEADER_SEARCH_PATHS:
+        - vendor/include
+        - ../../include
+      HEADER_SEARCH_PATHS:
+        - include
+    type: application
+    platform: macOS
+    deploymentTarget: 13.0
+    sources:
+      - path: src
+        compilerFlags:
+          - -Wall
+          - -Werror
+          - '-std=gnu++2a'
+      - path: vendor/src/pqrs/osx/process_info
+      - path: Resources
+        excludes:
+          - Info.plist.in
+    dependencies:
+      - sdk: CoreFoundation.framework
+      - sdk: IOKit.framework

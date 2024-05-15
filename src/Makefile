@@ -1,6 +1,5 @@
 all:
-	$(MAKE) -C cli
-	$(MAKE) -C Client
+	$(MAKE) -C Daemon
 	$(MAKE) -C DriverKit
 	$(MAKE) -C Manager
 	mkdir -p Manager/build/Release/Karabiner-VirtualHIDDevice-Manager.app/Contents/Library/SystemExtensions
@@ -10,8 +9,7 @@ all:
 	$(MAKE) codesign
 
 clean:
-	$(MAKE) -C cli clean
-	$(MAKE) -C Client clean
+	$(MAKE) -C Daemon clean
 	$(MAKE) -C DriverKit clean
 	$(MAKE) -C Manager clean
 

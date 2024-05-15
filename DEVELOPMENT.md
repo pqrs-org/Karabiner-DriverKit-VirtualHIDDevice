@@ -217,15 +217,3 @@ Implement the actual processing by the following steps.
     ```
 
     The `ExternalMethod` will be called.
-
-### Prepare provision profile
-
-You have to be granted the permission of `com.apple.developer.driverkit.userclient-access` from Apple.
-(e.g. `src/Client/entitlements.plist`)
-
-You have to add a description you want to use `userclient-access` at the DriverKit Entitlement request to Apple.
-<https://developer.apple.com/contact/request/system-extension/>
-
-You can confirm the entitlements on Apple developer portal after you gained the permission.
-
-<img src="docs/images/apple-developer-portal-profile@2x.png" width="900" alt="Apple developer portal" /><br /><br />
