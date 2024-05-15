@@ -7,7 +7,7 @@ package "DriverKit driver" {
   [VirtualHIDDeviceUserClient] --> [VirtualHIDPointing]
 }
 
-package "Karabiner-DriverKit-Daemon" {
+package "Karabiner-VirtualHIDDevice-Daemon" {
   () "UNIX domain socket" as serversock
   serversock -- [virtual_hid_device_service_server]
   [virtual_hid_device_service_server] --> [io_service_client]

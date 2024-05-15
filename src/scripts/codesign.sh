@@ -42,13 +42,13 @@ codesign \
     Manager/build/Release/Karabiner-VirtualHIDDevice-Manager.app
 
 #
-# Sign Karabiner-DriverKit-Daemon
+# Sign Karabiner-VirtualHIDDevice-Daemon
 #
 
 # Embed provisioning profile
 cp \
-    Daemon/Developer_ID_KarabinerDriverKitDaemon.provisionprofile \
-    Daemon/build/Release/Karabiner-DriverKit-Daemon.app/Contents/embedded.provisionprofile
+    Daemon/Developer_ID_KarabinerVirtualHIDDeviceDaemon.provisionprofile \
+    Daemon/build/Release/Karabiner-VirtualHIDDevice-Daemon.app/Contents/embedded.provisionprofile
 
 # Sign
 codesign \
@@ -57,4 +57,4 @@ codesign \
     --options runtime \
     --verbose \
     --force \
-    Daemon/build/Release/Karabiner-DriverKit-Daemon.app
+    Daemon/build/Release/Karabiner-VirtualHIDDevice-Daemon.app

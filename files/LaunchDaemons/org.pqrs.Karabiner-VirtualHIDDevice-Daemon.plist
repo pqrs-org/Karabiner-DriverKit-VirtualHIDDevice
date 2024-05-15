@@ -3,7 +3,7 @@
 <plist version="1.0">
   <dict>
     <key>Label</key>
-    <string>org.pqrs.Karabiner-DriverKit-Daemon</string>
+    <string>org.pqrs.Karabiner-VirtualHIDDevice-Daemon</string>
     <key>Disabled</key>
     <false/>
     <key>KeepAlive</key>
@@ -12,7 +12,7 @@
     <string>Interactive</string>
     <key>ProgramArguments</key>
     <array>
-      <string>/Library/Application Support/org.pqrs/Karabiner-DriverKit-VirtualHIDDevice/Applications/Karabiner-DriverKit-Daemon.app/Contents/MacOS/Karabiner-DriverKit-Daemon</string>
+      <string>/Library/Application Support/org.pqrs/Karabiner-DriverKit-VirtualHIDDevice/Applications/Karabiner-VirtualHIDDevice-Daemon.app/Contents/MacOS/Karabiner-VirtualHIDDevice-Daemon</string>
     </array>
   </dict>
 </plist>

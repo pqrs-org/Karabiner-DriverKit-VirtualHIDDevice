@@ -1,9 +1,9 @@
-name: Karabiner-DriverKit-Daemon
+name: Karabiner-VirtualHIDDevice-Daemon
 
 targets:
-  Karabiner-DriverKit-Daemon:
+  Karabiner-VirtualHIDDevice-Daemon:
     settings:
-      PRODUCT_BUNDLE_IDENTIFIER: org.pqrs.Karabiner-DriverKit-Daemon
+      PRODUCT_BUNDLE_IDENTIFIER: org.pqrs.Karabiner-VirtualHIDDevice-Daemon
       CODE_SIGN_ENTITLEMENTS: ''
       CODE_SIGN_IDENTITY: '-'
       CODE_SIGN_STYLE: Manual
