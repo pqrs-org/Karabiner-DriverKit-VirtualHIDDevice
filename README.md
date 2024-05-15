@@ -42,7 +42,13 @@ Virtual devices (keyboard and mouse) implementation for macOS using DriverKit.
     /Applications/.Karabiner-VirtualHIDDevice-Manager.app/Contents/MacOS/Karabiner-VirtualHIDDevice-Manager activate
     ```
 
-4.  Run a client program to test the driver extension.
+4.  Run Karabiner-VirtualHIDDevice-Daemon:
+
+    ```shell
+    sudo '/Library/Application Support/org.pqrs/Karabiner-DriverKit-VirtualHIDDevice/Applications/Karabiner-VirtualHIDDevice-Daemon.app/Contents/MacOS/Karabiner-VirtualHIDDevice-Daemon'
+    ```
+
+5.  Run a client program to test the driver extension.
 
     ```shell
     git clone --depth 1 https://github.com/pqrs-org/Karabiner-DriverKit-VirtualHIDDevice.git
@@ -241,7 +247,7 @@ Karabiner-DriverKit-VirtualHIDDevice consists the following components.
 
 ![components.svg](./docs/plantuml/output/components.svg)
 
-### Version files
+### Versions
 
 Version is defined in `version.json`.
 
@@ -254,3 +260,8 @@ Version is defined in `version.json`.
 -   `client_protocol_version`:
     -   The version for communication between Karabiner-VirtualHIDDevice-Daemon and the DriverKit driver.
     -   Increment this when the communication specifications are changed.
+
+### Run Karabiner-VirtualHIDDevice-Daemon via launchd
+
+Karabiner-VirtualHIDDevice-Daemon requires high responsiveness, so it is recommended to run it via launchd with the `ProcessType: Interactive` specified.
+There is an example application for registration with launchd in `examples/SMAppServiceExample`, which you can refer to for registering with launchd.
