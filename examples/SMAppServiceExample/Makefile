@@ -5,6 +5,8 @@ all:
 # Copy LaunchDaemons
 	mkdir -p build/Release/Karabiner-DriverKit-SMAppServiceExample.app/Contents/Library/LaunchDaemons
 	cp -r ../../files/LaunchDaemons/org.pqrs.Karabiner-DriverKit-Daemon.plist build/Release/Karabiner-DriverKit-SMAppServiceExample.app/Contents/Library/LaunchDaemons
+# SMAppService.register requires valid codesigning
+	$(MAKE) codesign
 
 clean:
 	rm -rf *.xcodeproj
@@ -12,3 +14,6 @@ clean:
 
 xcode:
 	open *.xcodeproj
+
+codesign:
+	bash scripts/codesign.sh
