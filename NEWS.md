@@ -1,5 +1,18 @@
 # Changelog
 
+## Karabiner-DriverKit-VirtualHIDDevice 4.0.0
+
+-   📅 Release date
+    -   May 15, 2024
+-   💥 Breaking changes
+    -   macOS 11 and macOS 12 are no longer supported.
+    -   The legacy `/Library/LaunchDaemons/org.pqrs.Karabiner-DriverKit-VirtualHIDDeviceClient.plist` is no longer included.
+        To automatically launch the service process, please register `Karabiner-VirtualHIDDevice-Daemon.app` with launchd from your application.
+        `examples/SMAppServiceExample` is an example application for performing the registration.
+    -   Removed `/Library/Application Support/org.pqrs/Karabiner-DriverKit-VirtualHIDDevice/bin/cli`.
+-   🔔 Compatibility
+    -   There is binary compatibility for client applications. This means that a client designed for version 3.x.x will also work with version 4.0.0 without needing to rebuild your application.
+
 ## Karabiner-DriverKit-VirtualHIDDevice 3.2.0
 
 -   📅 Release date
