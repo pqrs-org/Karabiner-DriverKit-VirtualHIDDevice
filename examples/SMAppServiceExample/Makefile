@@ -3,8 +3,8 @@ all:
 	xcodegen generate
 	xcodebuild -configuration Release -alltargets SYMROOT="$(CURDIR)/build"
 # Copy LaunchDaemons
-	mkdir -p build/Release/Karabiner-DriverKit-SMAppServiceExample.app/Contents/Library/LaunchDaemons
-	cp -r ../../files/LaunchDaemons/org.pqrs.Karabiner-VirtualHIDDevice-Daemon.plist build/Release/Karabiner-DriverKit-SMAppServiceExample.app/Contents/Library/LaunchDaemons
+	mkdir -p build/Release/Karabiner-VirtualHIDDevice-SMAppServiceExample.app/Contents/Library/LaunchDaemons
+	cp -r ../../files/LaunchDaemons/org.pqrs.Karabiner-VirtualHIDDevice-Daemon.plist build/Release/Karabiner-VirtualHIDDevice-SMAppServiceExample.app/Contents/Library/LaunchDaemons
 
 clean:
 	rm -rf *.xcodeproj

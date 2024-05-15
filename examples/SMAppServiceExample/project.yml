@@ -1,9 +1,9 @@
-name: Karabiner-DriverKit-SMAppServiceExample
+name: Karabiner-VirtualHIDDevice-SMAppServiceExample
 
 targets:
-  Karabiner-DriverKit-SMAppServiceExample:
+  Karabiner-VirtualHIDDevice-SMAppServiceExample:
     settings:
-      PRODUCT_BUNDLE_IDENTIFIER: org.pqrs.Karabiner-DriverKit-SMAppServiceExample
+      PRODUCT_BUNDLE_IDENTIFIER: org.pqrs.Karabiner-VirtualHIDDevice-SMAppServiceExample
       # SMAppService requires codesigning
       CODE_SIGN_ENTITLEMENTS: ''
       CODE_SIGN_IDENTITY: 'Apple Development'
