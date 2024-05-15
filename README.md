@@ -90,56 +90,91 @@ System requirements to build Karabiner-Elements:
 
 2.  Create App IDs on [the Apple Developer site](https://developer.apple.com/account/resources/identifiers/list).
 
-<table>
-    <thead>
-        <tr>
-            <th>Bundle ID</th>
-            <th>Capabilities</th>
-            <th>App Services</th>
-            <th>Additional Capabilities</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td>org.pqrs.Karabiner-DriverKit-VirtualHIDDevice</td>
-            <td>---</td>
-            <td>---</td>
-            <td>
-                com.apple.developer.driverkit<br/>
-                com.apple.developer.driverkit.family.hid.device<br/>
-                com.apple.developer.driverkit.family.hid.eventservice<br/>
-                com.apple.developer.driverkit.transport.hid<br/>
-                com.apple.developer.hid.virtual.device<br/>
-            </td>
-        </tr>
-        <tr>
-            <td>org.pqrs.Karabiner-DriverKit-Daemon</td>
-            <td>---</td>
-            <td>---</td>
-            <td>---</td>
-        </tr>
-        <tr>
-            <td>org.pqrs.Karabiner-VirtualHIDDevice-Manager</td>
-            <td>
-                System Extension<br/>
-            </td>
-            <td>---</td>
-            <td>---</td>
-        </tr>
-    </tbody>
-</table>
+    <table>
+        <thead>
+            <tr>
+                <th>Bundle ID</th>
+                <th>Capabilities</th>
+                <th>App Services</th>
+                <th>Additional Capabilities</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>org.pqrs.Karabiner-DriverKit-VirtualHIDDevice</td>
+                <td>---</td>
+                <td>---</td>
+                <td>
+                    com.apple.developer.driverkit<br/>
+                    com.apple.developer.driverkit.family.hid.device<br/>
+                    com.apple.developer.driverkit.family.hid.eventservice<br/>
+                    com.apple.developer.driverkit.transport.hid<br/>
+                    com.apple.developer.hid.virtual.device<br/>
+                </td>
+            </tr>
+            <tr>
+                <td>org.pqrs.Karabiner-DriverKit-Daemon</td>
+                <td>---</td>
+                <td>---</td>
+                <td>---</td>
+            </tr>
+            <tr>
+                <td>org.pqrs.Karabiner-VirtualHIDDevice-Manager</td>
+                <td>
+                    System Extension<br/>
+                </td>
+                <td>---</td>
+                <td>---</td>
+            </tr>
+        </tbody>
+    </table>
 
-<img src="docs/images/additional-capabilities@2x.png" width="921" alt="Additional Capabilities" />
+    <img src="docs/images/additional-capabilities@2x.png" width="921" alt="Additional Capabilities" />
 
-3.  Create a profile corresponding to the App IDs on the Apple Developer site.
+3.  Grant permission for com.apple.developer.driverkit.userclient-access from Apple
 
-4.  Replace the `*.provisionprofile` files in the repository with your own provision profile files.
+    The entitlement of `com.apple.developer.driverkit.userclient-access` must be applied for from Apple, and unless individually authorized, it cannot be granted to your application.
+    You can apply through the request form: <https://developer.apple.com/contact/request/system-extension/>
+
+4.  Create a profile corresponding to the App IDs on the Apple Developer site.
+
+    <table>
+        <thead>
+            <tr>
+                <th>Profile</th>
+                <th>App ID</th>
+                <th>Entitlements</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Developer ID</td>
+                <td>org.pqrs.Karabiner-DriverKit-VirtualHIDDevice</td>
+                <td>DriverKit and System Extension Template for XXXXXXXX (Developer ID)</td>
+            </tr>
+            <tr>
+                <td>Developer ID</td>
+                <td>org.pqrs.Karabiner-DriverKit-Daemon</td>
+                <td>DriverKit and System Extension Template for XXXXXXXX (Developer ID)</td>
+            </tr>
+            <tr>
+                <td>Developer ID</td>
+                <td>org.pqrs.Karabiner-VirtualHIDDevice-Manager</td>
+                <td>Default</td>
+            </tr>
+        </tbody>
+    </table>
+
+    Please ensure that `com.apple.developer.driverkit.userclient-access` appears under Extended Entitlements when you select `DriverKit and System Extension Template` in Entitlements.
+    <img src="docs/images/entitlements@2x.png" width="900" alt="entitlements" /><br /><br />
+
+5.  Replace the `*.provisionprofile` files in the repository with your own provision profile files.
 
     -   src/Daemon/Developer_ID_KarabinerDriverKitDaemon.provisionprofile
     -   src/DriverKit/Developer_ID_KarabinerDriverKitVirtualHIDDevice.provisionprofile
     -   src/Manager/Developer_ID_Karabiner_VirtualHIDDevice_Manager.provisionprofile
 
-5.  Replace `CODE_SIGN_IDENTITY` at `src/scripts/codesign.sh` with yours.
+6.  Replace `CODE_SIGN_IDENTITY` at `src/scripts/codesign.sh` with yours.
 
     Find your codesign identity by executing the following command in Terminal.
 
@@ -164,7 +199,7 @@ System requirements to build Karabiner-Elements:
     readonly CODE_SIGN_IDENTITY=8D660191481C98F5C56630847A6C39D95C166F22
     ```
 
-6.  Replace team identifier, domain and embedded.provisionprofile.
+7.  Replace team identifier, domain and embedded.provisionprofile.
 
     -   Search `G43BCU2T37` and replace them with your team identifier.
 
@@ -172,7 +207,7 @@ System requirements to build Karabiner-Elements:
         git grep G43BCU2T37 src/
         ```
 
-7.  Build by the following command in terminal.
+8.  Build by the following command in terminal.
 
     ```shell
     make package
@@ -180,7 +215,7 @@ System requirements to build Karabiner-Elements:
 
     `dist/Karabiner-DriverKit-VirtualHIDDevice-X.X.X.pkg` will be generated.
 
-8.  Notarize the pkg.
+9.  Notarize the pkg.
 
     ```shell
     make notarize
