@@ -4,10 +4,12 @@ targets:
   Karabiner-DriverKit-SMAppServiceExample:
     settings:
       PRODUCT_BUNDLE_IDENTIFIER: org.pqrs.Karabiner-DriverKit-SMAppServiceExample
-      # SMAppService.register requires valid codesigning
+      # SMAppService requires codesigning
       CODE_SIGN_ENTITLEMENTS: ''
-      CODE_SIGN_IDENTITY: '-'
-      CODE_SIGN_STYLE: Manual
+      CODE_SIGN_IDENTITY: 'Apple Development'
+      CODE_SIGN_STYLE: Automatic
+      # Sign to Run Locally
+      CODE_SIGN_IDENTITY[sdk=macosx*]: '-'
       OTHER_SWIFT_FLAGS: '-warnings-as-errors'
     type: application
     platform: macOS
