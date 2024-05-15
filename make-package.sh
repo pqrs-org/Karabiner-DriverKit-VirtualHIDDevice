@@ -21,7 +21,7 @@ cp -R files/scripts/uninstall "$basedir"
 
 basedir="pkgroot/Library/Application Support/org.pqrs/Karabiner-DriverKit-VirtualHIDDevice/Applications"
 mkdir -p "$basedir"
-cp -R "src/Daemon/build/Release/Karabiner-VirtualHIDDevice-Daemon.app.app" "$basedir"
+cp -R "src/Daemon/build/Release/Karabiner-VirtualHIDDevice-Daemon.app" "$basedir"
 
 basedir="pkgroot/Applications"
 mkdir -p "$basedir"
