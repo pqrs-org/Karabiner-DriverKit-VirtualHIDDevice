@@ -1,6 +1,7 @@
 #!/bin/bash
 
-set -e
+set -u # forbid undefined variables
+set -e # forbid command failure
 
 readonly PATH=/bin:/sbin:/usr/bin:/usr/sbin; export PATH
 
