@@ -178,7 +178,7 @@ System requirements to build Karabiner-Elements:
 
     -   src/Daemon/Developer_ID_KarabinerVirtualHIDDeviceDaemon.provisionprofile
     -   src/DriverKit/Developer_ID_KarabinerDriverKitVirtualHIDDevice.provisionprofile
-    -   src/Manager/Developer_ID_Karabiner_VirtualHIDDevice_Manager.provisionprofile
+    -   src/Manager/Developer_ID_KarabinerVirtualHIDDeviceManager.provisionprofile
 
 6.  Replace `CODE_SIGN_IDENTITY` at `src/scripts/codesign.sh` with yours.
 

@@ -29,7 +29,7 @@ codesign \
 
 # Embed provisioning profile
 cp \
-    Manager/Developer_ID_Karabiner_VirtualHIDDevice_Manager.provisionprofile \
+    Manager/Developer_ID_KarabinerVirtualHIDDeviceManager.provisionprofile \
     Manager/build/Release/Karabiner-VirtualHIDDevice-Manager.app/Contents/embedded.provisionprofile
 
 # Sign
