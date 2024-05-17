@@ -74,6 +74,12 @@ This means that the software incorporating the client library must be run with r
 
 ## How to build a package from source code
 
+To run DriverKit drivers, simply building from the code is not sufficient; proper signing is also necessary.
+In particular, a general developer account lacks the necessary permissions for DriverKit signing, so you need to apply to Apple for higher privileges.
+The primary focus of this document is on signing.
+
+### System requirements
+
 -   macOS 14+
 -   Xcode 15+
 -   Command Line Tools for Xcode
@@ -81,7 +87,7 @@ This means that the software incorporating the client library must be run with r
 
 ### Obtain DriverKit entitlements
 
-To create an App ID that supports the `com.apple.developer.driverkit` entitlement required for distributing DriverKit drivers, you need to apply to Apple with your Apple ID to obtain the necessary permissions.
+To create an App ID that supports the `com.apple.developer.driverkit` entitlement required for distributing DriverKit drivers, you need to apply to Apple with your developer account to obtain the necessary permissions.
 
 Specifically, follow the instructions on [Requesting Entitlements for DriverKit Development](https://developer.apple.com/documentation/driverkit/requesting_entitlements_for_driverkit_development)
 
