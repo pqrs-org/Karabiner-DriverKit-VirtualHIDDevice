@@ -128,7 +128,9 @@ Note: This process may take some time to be completed on Apple's side.
     </tbody>
 </table>
 
-<img src="docs/images/additional-capabilities@2x.png" width="921" alt="Additional Capabilities" />
+<table><tr><td><!-- border hack -->
+<img src="docs/images/additional-capabilities@2x.png" alt="Additional Capabilities" style="border: 1px solid gray" />
+</td></tr></table>
 
 ### Grant permission for com.apple.developer.driverkit.userclient-access from Apple
 
@@ -144,7 +146,10 @@ You can apply through the request form: <https://developer.apple.com/contact/req
 | Developer ID | org.pqrs.Karabiner-VirtualHIDDevice-Manager   | Default                                                             |
 
 Please ensure that `com.apple.developer.driverkit.userclient-access` appears under Extended Entitlements when you select `DriverKit and System Extension Template` in Entitlements.
-<img src="docs/images/entitlements@2x.png" width="900" alt="entitlements" /><br /><br />
+
+<table><tr><td><!-- border hack -->
+<img src="docs/images/entitlements@2x.png" alt="entitlements" /><br /><br />
+</td></tr></table>
 
 ### Replace the `*.provisionprofile` files in the repository with your own provision profile files
 
