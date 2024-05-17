@@ -1,5 +1,14 @@
 # Changelog
 
+## Karabiner-DriverKit-VirtualHIDDevice 4.1.0
+
+-   📅 Release date
+    -   May 16, 2024
+-   ⚡️ Improvements
+    -   The signing identity during the package build has been changed from hard-coded to using an environment variable.
+-   🍰 Minor Changes
+    -   The provisioning profile for signing the built binary has been updated.
+
 ## Karabiner-DriverKit-VirtualHIDDevice 4.0.0
 
 -   📅 Release date
