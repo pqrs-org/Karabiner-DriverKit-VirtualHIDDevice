@@ -79,7 +79,9 @@ This means that the software incorporating the client library must be run with r
 -   Command Line Tools for Xcode
 -   [XcodeGen](https://github.com/yonaskolb/XcodeGen)
 
-### Obtain DriverKit entitlements to create a provisioning profile that supports `com.apple.developer.driverkit`
+### Obtain DriverKit entitlements
+
+To create an App ID that supports the `com.apple.developer.driverkit` entitlement required for distributing DriverKit drivers, you need to apply to Apple with your Apple ID to obtain the necessary permissions.
 
 Specifically, follow the instructions on [Requesting Entitlements for DriverKit Development](https://developer.apple.com/documentation/driverkit/requesting_entitlements_for_driverkit_development)
 
