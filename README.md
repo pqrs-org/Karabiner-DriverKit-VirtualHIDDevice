@@ -87,7 +87,9 @@ Specifically, follow the instructions on [Requesting Entitlements for DriverKit 
 
 Note: This process may take some time to be completed on Apple's side.
 
-### Create App IDs on [the Apple Developer site](https://developer.apple.com/account/resources/identifiers/list)
+### Create App IDs
+
+Create the following App IDs on the [Apple Developer](https://developer.apple.com/account/resources/identifiers/list) site.
 
 <table>
     <thead>
