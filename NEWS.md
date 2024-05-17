@@ -12,6 +12,8 @@
     -   Removed `/Library/Application Support/org.pqrs/Karabiner-DriverKit-VirtualHIDDevice/bin/cli`.
 -   🔔 Compatibility
     -   There is binary compatibility for client applications. This means that a client designed for version 3.x.x will also work with version 4.0.0 without needing to rebuild your application.
+-   🍰 Minor Changes
+    -   The name of the daemon process has changed from `Karabiner-DriverKit-VirtualHIDDeviceClient.app` to `Karabiner-VirtualHIDDevice-Daemon.app`.
 
 ## Karabiner-DriverKit-VirtualHIDDevice 3.2.0
 
