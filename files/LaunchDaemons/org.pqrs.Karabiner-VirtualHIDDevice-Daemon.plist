@@ -4,8 +4,6 @@
   <dict>
     <key>Label</key>
     <string>org.pqrs.Karabiner-VirtualHIDDevice-Daemon</string>
-    <key>Disabled</key>
-    <false/>
     <key>KeepAlive</key>
     <true/>
     <key>ProcessType</key>
