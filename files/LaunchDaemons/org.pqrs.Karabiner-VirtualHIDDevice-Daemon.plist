@@ -3,7 +3,7 @@
 <plist version="1.0">
   <dict>
     <key>Label</key>
-    <string>org.pqrs.services.daemon.Karabiner-VirtualHIDDevice-Daemon</string>
+    <string>org.pqrs.service.daemon.Karabiner-VirtualHIDDevice-Daemon</string>
     <key>KeepAlive</key>
     <true/>
     <key>ProcessType</key>
