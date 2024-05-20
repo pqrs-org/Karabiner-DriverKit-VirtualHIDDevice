@@ -11,12 +11,34 @@ jobs:
     runs-on: macos-14
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+
       - name: brew install
         run: brew install xcodegen
-      - name: package
-        run: make package
+
+      # Regarding `make package`, the build fails because the Xcode environment on GitHub Actions is not set up for DriverKit builds.
+      # Specifically, the following error occurs. Therefore, `make package` is not executed in CI.
+
+      #
+      # Error when not using `-allowProvisioningUpdates`:
+      #
+      # error: No profiles for 'org.pqrs.Karabiner-DriverKit-VirtualHIDDevice' were found: Xcode couldn't find any DriverKit App Development provisioning profiles matching 'org.pqrs.Karabiner-DriverKit-VirtualHIDDevice'.
+      # Automatic signing is disabled and unable to generate a profile.
+      # To enable automatic signing, pass -allowProvisioningUpdates to xcodebuild. (in target 'Karabiner-DriverKit-VirtualHIDDevice' from project 'Karabiner-DriverKit-VirtualHIDDevice')
+      #
+
+      #
+      # Error when using `-allowProvisioningUpdates`:
+      #
+      # error: No Accounts: Add a new account in Accounts settings. (in target 'Karabiner-DriverKit-VirtualHIDDevice' from project 'Karabiner-DriverKit-VirtualHIDDevice')
+      # error: No profiles for 'org.pqrs.Karabiner-DriverKit-VirtualHIDDevice' were found: Xcode couldn't find any DriverKit App Development provisioning profiles matching 'org.pqrs.Karabiner-DriverKit-VirtualHIDDevice'.
+      # (in target 'Karabiner-DriverKit-VirtualHIDDevice' from project 'Karabiner-DriverKit-VirtualHIDDevice')
+
+      # - name: package
+      #   run: make package
+
       - name: examples
         run: make -C examples
+
       - name: tests
         run: make -C tests
