@@ -11,6 +11,11 @@ echo -ne '\033[33;40m'
 
 readonly CODE_SIGN_IDENTITY=$(bash $(dirname $0)/../../scripts/get-codesign-identity.sh)
 
+if [[ -z $CODE_SIGN_IDENTITY ]]; then
+    echo "Skip codesign"
+    exit 0
+fi
+
 #
 # Sign Karabiner-DriverKit-VirtualHIDDevice.dext
 #
