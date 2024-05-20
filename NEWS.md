@@ -1,5 +1,14 @@
 # Changelog
 
+## Karabiner-DriverKit-VirtualHIDDevice 4.2.0
+
+-   📅 Release date
+    -   May 20, 2024
+-   🍰 Minor Changes
+    -   Renamed LaunchDaemons plist name.
+        -   new: `LaunchDaemons/org.pqrs.service.daemon.Karabiner-VirtualHIDDevice-Daemon.plist`
+        -   old: `LaunchDaemons/org.pqrs.Karabiner-VirtualHIDDevice-Daemon.plist`
+
 ## Karabiner-DriverKit-VirtualHIDDevice 4.1.0
 
 -   📅 Release date
