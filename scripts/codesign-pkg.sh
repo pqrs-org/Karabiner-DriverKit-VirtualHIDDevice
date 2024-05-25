@@ -17,7 +17,7 @@ if [[ -z $CODE_SIGN_IDENTITY ]]; then
 fi
 
 if [ ! -e "$1" ]; then
-    err "Invalid argument: '$1'"
+    echo "Invalid argument: '$1'"
     exit 1
 fi
 
