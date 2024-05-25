@@ -3,6 +3,10 @@ VERSION = `python3 scripts/get_version.py package_version`
 all:
 	@echo 'Type `make package`'
 
+package: clean
+	bash make-package.sh
+	$(MAKE) clean-launch-services-database
+
 build:
 	$(MAKE) -C src
 
@@ -10,10 +14,7 @@ clean:
 	git clean -x -f -d *
 
 clean-launch-services-database:
-	bash scripts/clean-launch-services-database.sh
-
-package: clean
-	bash make-package.sh
+	$(MAKE) -C tools/clean-launch-services-database
 
 notarize:
 	xcrun notarytool \

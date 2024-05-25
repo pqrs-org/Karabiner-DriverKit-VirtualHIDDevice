@@ -11,22 +11,17 @@ import AppKit
 // This script removes such entries which includes /Build/ or /build/ in the file path.
 //
 
-let bundleIdentifiers = [
-  "org.pqrs.HIDManagerTool",
-  "org.pqrs.Karabiner-VirtualHIDDevice-Daemon",
-  "org.pqrs.Karabiner-VirtualHIDDevice-Manager",
-  "org.pqrs.Karabiner-VirtualHIDDevice-SMAppServiceExample",
-  "org.pqrs.virtual-hid-device-service-client",
-]
-
 let lsregisterCommandPath =
   "/System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/LaunchServices.framework/Versions/A/Support/lsregister"
 let deleteTargetPathRegex = #/
+  /pkgroot/ |
   /build/ |
   /Build/
 /#
 
 for bundleIdentifier in bundleIdentifiers {
+  print("clean-launch-services-database \(bundleIdentifier)...")
+
   let urls = NSWorkspace.shared.urlsForApplications(withBundleIdentifier: bundleIdentifier)
 
   for url in urls {
