@@ -2,9 +2,9 @@ import Foundation
 import ServiceManagement
 
 enum Subcommand: String {
-  case register = "register"
-  case unregister = "unregister"
-  case status = "status"
+  case register
+  case unregister
+  case status
 }
 
 func registerService(_ service: SMAppService) {
