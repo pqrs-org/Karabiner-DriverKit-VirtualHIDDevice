@@ -1,5 +1,13 @@
 # Changelog
 
+## Karabiner-DriverKit-VirtualHIDDevice 4.3.0
+
+-   📅 Release date
+    -   May 26, 2024
+-   🍰 Minor Changes
+    -   Fix minor script issues.
+    -   Improved `examples/SMAppServiceExample`.
+
 ## Karabiner-DriverKit-VirtualHIDDevice 4.2.0
 
 -   📅 Release date
