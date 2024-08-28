@@ -105,14 +105,14 @@ public:
   }
 
   void initialize_keyboard(const std::string& endpoint_path,
-                           pqrs::hid::country_code::value_t country_code) {
+                           const pqrs::karabiner::driverkit::virtual_hid_device_service::virtual_hid_keyboard_parameters& parameters) {
     if (!dispatcher_thread()) {
       throw std::logic_error(fmt::format("{0} is called in wrong thread", __func__));
     }
 
     auto it = entries_.find(endpoint_path);
     if (it != std::end(entries_)) {
-      it->second->initialize_keyboard(country_code);
+      it->second->initialize_keyboard(parameters);
     }
   }
 
@@ -231,7 +231,6 @@ private:
           initialize_timer_(*this),
           ready_timer_(*this),
           virtual_hid_keyboard_enabled_(false),
-          virtual_hid_keyboard_country_code_(pqrs::hid::country_code::not_supported),
           virtual_hid_pointing_enabled_(false) {
       io_service_client_nop_ = std::make_shared<io_service_client>(run_loop_thread_);
       io_service_client_nop_->async_start();
@@ -247,7 +246,7 @@ private:
                 io_service_client_keyboard_ = std::make_shared<io_service_client>(run_loop_thread_);
 
                 io_service_client_keyboard_->opened.connect([this] {
-                  io_service_client_keyboard_->async_virtual_hid_keyboard_initialize(virtual_hid_keyboard_country_code_);
+                  io_service_client_keyboard_->async_virtual_hid_keyboard_initialize(virtual_hid_keyboard_parameters_);
                 });
 
                 io_service_client_keyboard_->async_start();
@@ -325,18 +324,18 @@ private:
     // io_service_client_keyboard_
     //
 
-    void initialize_keyboard(pqrs::hid::country_code::value_t country_code) {
-      enqueue_to_dispatcher([this, country_code] {
-        // Destroy io_service_client_keyboard_ if country_code is changed.
+    void initialize_keyboard(const pqrs::karabiner::driverkit::virtual_hid_device_service::virtual_hid_keyboard_parameters& parameters) {
+      enqueue_to_dispatcher([this, parameters] {
+        // Destroy io_service_client_keyboard_ if parameters is changed.
         if (io_service_client_keyboard_ &&
-            virtual_hid_keyboard_country_code_ != country_code) {
-          logger::get_logger()->info("destroy io_service_client_keyboard_ due to  country_code changes");
+            virtual_hid_keyboard_parameters_ != parameters) {
+          logger::get_logger()->info("destroy io_service_client_keyboard_ due to parameter changes");
 
           io_service_client_keyboard_ = nullptr;
         }
 
         virtual_hid_keyboard_enabled_ = true;
-        virtual_hid_keyboard_country_code_ = country_code;
+        virtual_hid_keyboard_parameters_ = parameters;
       });
     }
 
@@ -443,7 +442,7 @@ private:
 
     // virtual_hid_keyboard
     bool virtual_hid_keyboard_enabled_;
-    pqrs::hid::country_code::value_t virtual_hid_keyboard_country_code_;
+    pqrs::karabiner::driverkit::virtual_hid_device_service::virtual_hid_keyboard_parameters virtual_hid_keyboard_parameters_;
 
     // virtual_hid_pointing
     bool virtual_hid_pointing_enabled_;

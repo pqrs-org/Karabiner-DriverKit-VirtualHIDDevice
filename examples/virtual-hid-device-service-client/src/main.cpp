@@ -40,7 +40,8 @@ int main(void) {
   client1->connected.connect([&client1] {
     std::cout << "connected" << std::endl;
 
-    client1->async_virtual_hid_keyboard_initialize(pqrs::hid::country_code::us);
+    pqrs::karabiner::driverkit::virtual_hid_device_service::virtual_hid_keyboard_parameters parameters;
+    client1->async_virtual_hid_keyboard_initialize(parameters);
     client1->async_virtual_hid_pointing_initialize();
   });
   client1->connect_failed.connect([](auto&& error_code) {
@@ -164,7 +165,8 @@ int main(void) {
   //
 
   client2->connected.connect([&client2] {
-    client2->async_virtual_hid_keyboard_initialize(pqrs::hid::country_code::us);
+    pqrs::karabiner::driverkit::virtual_hid_device_service::virtual_hid_keyboard_parameters parameters;
+    client2->async_virtual_hid_keyboard_initialize(parameters);
   });
   client2->virtual_hid_keyboard_ready.connect([&client2, &client_mutex, &keyboard_thread2, &keyboard_thread_mutex](auto&& ready) {
     if (ready) {

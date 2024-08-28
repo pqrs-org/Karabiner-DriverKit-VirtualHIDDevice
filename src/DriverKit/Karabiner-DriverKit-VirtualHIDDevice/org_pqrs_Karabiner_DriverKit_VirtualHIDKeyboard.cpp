@@ -218,12 +218,20 @@ OSDictionary* org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard::newDeviceDescript
     serialNumber->release();
   }
 
-  if (auto vendorId = OSNumber::withNumber(static_cast<uint32_t>(0x16c0), 32)) {
+  uint32_t keyboardVendorId = 0x16c0;
+  if (ivars->provider) {
+    keyboardVendorId = ivars->provider->getKeyboardVendorId();
+  }
+  if (auto vendorId = OSNumber::withNumber(keyboardVendorId, 32)) {
     OSDictionarySetValue(dictionary, kIOHIDVendorIDKey, vendorId);
     vendorId->release();
   }
 
-  if (auto productId = OSNumber::withNumber(static_cast<uint32_t>(0x27db), 32)) {
+  uint32_t keyboardProductId = 0x27db;
+  if (ivars->provider) {
+    keyboardProductId = ivars->provider->getKeyboardProductId();
+  }
+  if (auto productId = OSNumber::withNumber(keyboardProductId, 32)) {
     OSDictionarySetValue(dictionary, kIOHIDProductIDKey, productId);
     productId->release();
   }
