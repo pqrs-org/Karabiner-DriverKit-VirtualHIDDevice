@@ -194,16 +194,16 @@ private:
             logger::get_logger()->info("received request::virtual_hid_keyboard_initialize: {0}",
                                        sender_endpoint_filename.c_str());
 
-            if (sizeof(pqrs::hid::country_code::value_t) != size) {
+            if (sizeof(pqrs::karabiner::driverkit::virtual_hid_device_service::virtual_hid_keyboard_parameters) != size) {
               logger::get_logger()->warn("virtual_hid_device_service_server: received: virtual_hid_keyboard_initialize buffer size error");
               return;
             }
 
-            auto country_code = *(reinterpret_cast<pqrs::hid::country_code::value_t*>(p));
+            auto parameters = reinterpret_cast<pqrs::karabiner::driverkit::virtual_hid_device_service::virtual_hid_keyboard_parameters*>(p);
 
             virtual_hid_device_service_clients_manager_->create_client(sender_endpoint->path());
             virtual_hid_device_service_clients_manager_->initialize_keyboard(sender_endpoint->path(),
-                                                                             country_code);
+                                                                             *parameters);
             break;
           }
 

@@ -33,6 +33,8 @@ kern_return_t createIOMemoryDescriptor(IOUserClientMethodArguments* arguments, I
 } // namespace
 
 struct org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient_IVars {
+  uint32_t keyboardVendorId;
+  uint32_t keyboardProductId;
   uint32_t keyboardCountryCode;
   org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard* keyboard;
   org_pqrs_Karabiner_DriverKit_VirtualHIDPointing* pointing;
@@ -99,8 +101,10 @@ kern_return_t org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient::ExternalM
 
     case pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_keyboard_initialize:
       if (!ivars->keyboard) {
-        if (arguments->scalarInputCount > 0) {
-          ivars->keyboardCountryCode = static_cast<uint32_t>(arguments->scalarInput[0]);
+        if (arguments->scalarInputCount > 2) {
+          ivars->keyboardVendorId = static_cast<uint32_t>(arguments->scalarInput[0]);
+          ivars->keyboardProductId = static_cast<uint32_t>(arguments->scalarInput[1]);
+          ivars->keyboardCountryCode = static_cast<uint32_t>(arguments->scalarInput[2]);
         }
 
         IOService* client;
@@ -198,6 +202,14 @@ kern_return_t org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient::ExternalM
   }
 
   return kIOReturnBadArgument;
+}
+
+uint32_t IMPL(org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient, getKeyboardVendorId) {
+  return ivars->keyboardVendorId;
+}
+
+uint32_t IMPL(org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient, getKeyboardProductId) {
+  return ivars->keyboardProductId;
 }
 
 uint32_t IMPL(org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient, getKeyboardCountryCode) {

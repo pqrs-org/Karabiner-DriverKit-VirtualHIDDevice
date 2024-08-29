@@ -12,6 +12,7 @@
 #include <pqrs/karabiner/driverkit/client_protocol_version.hpp>
 #include <pqrs/karabiner/driverkit/driver_version.hpp>
 #include <pqrs/karabiner/driverkit/virtual_hid_device_driver.hpp>
+#include <pqrs/karabiner/driverkit/virtual_hid_device_service.hpp>
 #include <pqrs/osx/iokit_return.hpp>
 #include <pqrs/osx/iokit_service_monitor.hpp>
 
@@ -149,11 +150,15 @@ public:
     });
   }
 
-  void async_virtual_hid_keyboard_initialize(pqrs::hid::country_code::value_t country_code) const {
+  void async_virtual_hid_keyboard_initialize(const pqrs::karabiner::driverkit::virtual_hid_device_service::virtual_hid_keyboard_parameters& parameters) const {
     logger::get_logger()->info("io_service_client::{0}", __func__);
 
-    enqueue_to_dispatcher([this, country_code] {
-      std::array<uint64_t, 1> input = {type_safe::get(country_code)};
+    enqueue_to_dispatcher([this, parameters] {
+      std::array<uint64_t, 3> input = {
+          type_safe::get(parameters.get_vendor_id()),
+          type_safe::get(parameters.get_product_id()),
+          type_safe::get(parameters.get_country_code()),
+      };
 
       auto r = call_scalar_method(pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_keyboard_initialize,
                                   input.data(),
