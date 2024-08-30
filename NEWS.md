@@ -1,5 +1,21 @@
 # Changelog
 
+## Karabiner-DriverKit-VirtualHIDDevice 5.0.0
+
+-   📅 Release date
+    -   Aug 30, 2024
+-   💥 Breaking changes
+
+    -   Add `vendor_id` and `product_id` into the `virtual_hid_keyboard_initialize` parameters.
+        You need to modify the code as follows.
+
+        ```diff
+        - client->async_virtual_hid_keyboard_initialize(pqrs::hid::country_code::us);
+        + pqrs::karabiner::driverkit::virtual_hid_device_service::virtual_hid_keyboard_parameters parameters;
+        + parameters.set_country_code(pqrs::hid::country_code::us);
+        + client->async_virtual_hid_keyboard_initialize(parameters);
+        ```
+
 ## Karabiner-DriverKit-VirtualHIDDevice 4.3.0
 
 -   📅 Release date
