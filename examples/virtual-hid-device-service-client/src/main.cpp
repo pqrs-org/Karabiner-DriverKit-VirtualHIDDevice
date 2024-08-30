@@ -41,6 +41,8 @@ int main(void) {
     std::cout << "connected" << std::endl;
 
     pqrs::karabiner::driverkit::virtual_hid_device_service::virtual_hid_keyboard_parameters parameters;
+    parameters.set_country_code(pqrs::hid::country_code::us);
+
     client1->async_virtual_hid_keyboard_initialize(parameters);
     client1->async_virtual_hid_pointing_initialize();
   });
@@ -166,6 +168,8 @@ int main(void) {
 
   client2->connected.connect([&client2] {
     pqrs::karabiner::driverkit::virtual_hid_device_service::virtual_hid_keyboard_parameters parameters;
+    parameters.set_country_code(pqrs::hid::country_code::us);
+
     client2->async_virtual_hid_keyboard_initialize(parameters);
   });
   client2->virtual_hid_keyboard_ready.connect([&client2, &client_mutex, &keyboard_thread2, &keyboard_thread_mutex](auto&& ready) {
