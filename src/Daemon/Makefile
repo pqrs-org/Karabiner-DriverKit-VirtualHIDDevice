@@ -13,10 +13,5 @@ xcode:
 codesign:
 	$(MAKE) -C .. codesign
 
-update_vendor:
-	rm -rf vendor
-	cget install pqrs-org/cget-recipes --prefix vendor
-	cget install -f cget-requirements.txt --prefix vendor
-
 run-client:
 	sudo ./build/Release/Karabiner-VirtualHIDDevice-Daemon.app/Contents/MacOS/Karabiner-VirtualHIDDevice-Daemon

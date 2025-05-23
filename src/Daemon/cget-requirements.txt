@@ -1,7 +1,0 @@
-p-ranav/glob
-pqrs-org/cpp-hid
-pqrs-org/cpp-local_datagram
-pqrs-org/cpp-osx-iokit_return
-pqrs-org/cpp-osx-iokit_service_monitor
-pqrs-org/cpp-osx-process_info
-pqrs-org/cpp-spdlog

@@ -1,0 +1,3 @@
+[submodule "vendor/cpm-cmake-package-lock"]
+	path = vendor/cpm-cmake-package-lock
+	url = https://github.com/pqrs-org/cpm-cmake-package-lock.git
