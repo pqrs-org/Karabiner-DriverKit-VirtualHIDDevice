@@ -132,9 +132,6 @@ public:
           logger::get_logger()->info("iokit_service_monitor::service_terminated");
 
           close_connection();
-
-          // Use the next service
-          service_monitor_->async_invoke_service_matched();
         });
 
         service_monitor_->error_occurred.connect([](auto&& message, auto&& kern_return) {

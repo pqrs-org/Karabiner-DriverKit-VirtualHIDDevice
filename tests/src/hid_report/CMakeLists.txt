@@ -7,7 +7,7 @@ add_compile_options(-Werror)
 add_compile_options(-O2)
 
 include_directories(SYSTEM ${CMAKE_CURRENT_LIST_DIR}/../../../include)
-include_directories(SYSTEM ${CMAKE_CURRENT_LIST_DIR}/../../vendor/include)
+include_directories(SYSTEM ${CMAKE_CURRENT_LIST_DIR}/../../../vendor/vendor/include)
 
 project (test)
 
