@@ -12,6 +12,7 @@ include("${CMAKE_CURRENT_LIST_DIR}/cpm-cmake-package-lock/cmake/common.cmake")
 include("${CMAKE_CURRENT_LIST_DIR}/cpm-cmake-package-lock/cmake/dependency.cmake")
 
 copy_vendor_package(glob)
+copy_vendor_package(gsl)
 copy_vendor_package(pqrs_hid)
 copy_vendor_package(pqrs_local_datagram)
 copy_vendor_package(pqrs_osx_iokit_types)
