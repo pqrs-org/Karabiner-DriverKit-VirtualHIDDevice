@@ -191,7 +191,7 @@ private:
             break;
 
           case pqrs::karabiner::driverkit::virtual_hid_device_service::request::virtual_hid_keyboard_initialize: {
-            logger::get_logger()->info("received request::virtual_hid_keyboard_initialize: {0}",
+            logger::get_logger()->info("{0} received request::virtual_hid_keyboard_initialize",
                                        sender_endpoint_filename.c_str());
 
             if (sizeof(pqrs::karabiner::driverkit::virtual_hid_device_service::virtual_hid_keyboard_parameters) != size) {
@@ -208,7 +208,7 @@ private:
           }
 
           case pqrs::karabiner::driverkit::virtual_hid_device_service::request::virtual_hid_keyboard_terminate:
-            logger::get_logger()->info("received request::virtual_hid_keyboard_terminate: {0}",
+            logger::get_logger()->info("{0} received request::virtual_hid_keyboard_terminate",
                                        sender_endpoint_filename.c_str());
 
             virtual_hid_device_service_clients_manager_->terminate_keyboard(sender_endpoint->path());
@@ -219,7 +219,7 @@ private:
             break;
 
           case pqrs::karabiner::driverkit::virtual_hid_device_service::request::virtual_hid_pointing_initialize: {
-            logger::get_logger()->info("received request::virtual_hid_pointing_initialize: {0}",
+            logger::get_logger()->info("{0} received request::virtual_hid_pointing_initialize",
                                        sender_endpoint_filename.c_str());
 
             virtual_hid_device_service_clients_manager_->create_client(sender_endpoint->path());
@@ -228,7 +228,7 @@ private:
           }
 
           case pqrs::karabiner::driverkit::virtual_hid_device_service::request::virtual_hid_pointing_terminate:
-            logger::get_logger()->info("received request::virtual_hid_pointing_terminate: {0}",
+            logger::get_logger()->info("{0} received request::virtual_hid_pointing_terminate",
                                        sender_endpoint_filename.c_str());
 
             virtual_hid_device_service_clients_manager_->terminate_pointing(sender_endpoint->path());

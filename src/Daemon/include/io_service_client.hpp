@@ -25,15 +25,21 @@ public:
 
   // Methods
 
-  io_service_client(std::shared_ptr<pqrs::cf::run_loop_thread> run_loop_thread)
+  io_service_client(std::shared_ptr<pqrs::cf::run_loop_thread> run_loop_thread,
+                    const std::string& virtual_hid_device_service_client_endpoint_filename)
       : dispatcher_client(),
         run_loop_thread_(run_loop_thread),
+        virtual_hid_device_service_client_endpoint_filename_(virtual_hid_device_service_client_endpoint_filename),
         service_name_("org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceRoot") {
-    logger::get_logger()->info("io_service_client::{0}", __func__);
+    logger::get_logger()->info("{0} io_service_client::{1}",
+                               virtual_hid_device_service_client_endpoint_filename_,
+                               __func__);
   }
 
   ~io_service_client(void) {
-    logger::get_logger()->info("io_service_client::{0}", __func__);
+    logger::get_logger()->info("{0} io_service_client::{1}",
+                               virtual_hid_device_service_client_endpoint_filename_,
+                               __func__);
 
     detach_from_dispatcher([this] {
       close_connection();
@@ -70,7 +76,8 @@ public:
     if (driver_version_ == pqrs::karabiner::driverkit::driver_version::embedded_driver_version) {
       return false;
     } else {
-      auto message = fmt::format("driver_version_ is mismatched: Karabiner-VirtualHIDDevice-Daemon expected: {0}, actual dext: {1}",
+      auto message = fmt::format("{0} driver_version_ is mismatched: Karabiner-VirtualHIDDevice-Daemon expected: {1}, actual dext: {2}",
+                                 virtual_hid_device_service_client_endpoint_filename_,
                                  type_safe::get(pqrs::karabiner::driverkit::driver_version::embedded_driver_version),
                                  type_safe::get(*driver_version_));
       if (driver_version_mismatched_log_message_ != message) {
@@ -109,18 +116,22 @@ public:
   }
 
   void async_start(void) {
-    logger::get_logger()->info("io_service_client::{0}", __func__);
+    logger::get_logger()->info("{0} io_service_client::{1}",
+                               virtual_hid_device_service_client_endpoint_filename_,
+                               __func__);
 
     enqueue_to_dispatcher([this] {
       if (auto matching_dictionary = IOServiceNameMatching(service_name_.c_str())) {
-        logger::get_logger()->info("create service_monitor_");
+        logger::get_logger()->info("{0} create service_monitor_",
+                                   virtual_hid_device_service_client_endpoint_filename_);
 
         service_monitor_ = std::make_unique<pqrs::osx::iokit_service_monitor>(weak_dispatcher_,
                                                                               run_loop_thread_,
                                                                               matching_dictionary);
 
         service_monitor_->service_matched.connect([this](auto&& registry_entry_id, auto&& service_ptr) {
-          logger::get_logger()->info("iokit_service_monitor::service_matched");
+          logger::get_logger()->info("{0} iokit_service_monitor::service_matched",
+                                     virtual_hid_device_service_client_endpoint_filename_);
 
           close_connection();
 
@@ -129,16 +140,21 @@ public:
         });
 
         service_monitor_->service_terminated.connect([this](auto&& registry_entry_id) {
-          logger::get_logger()->info("iokit_service_monitor::service_terminated");
+          logger::get_logger()->info("{0} iokit_service_monitor::service_terminated",
+                                     virtual_hid_device_service_client_endpoint_filename_);
 
           close_connection();
         });
 
-        service_monitor_->error_occurred.connect([](auto&& message, auto&& kern_return) {
-          logger::get_logger()->error("iokit_service_monitor {0} {1}", message, kern_return);
+        service_monitor_->error_occurred.connect([this](auto&& message, auto&& kern_return) {
+          logger::get_logger()->error("{0} iokit_service_monitor {1} {2}",
+                                      virtual_hid_device_service_client_endpoint_filename_,
+                                      message,
+                                      kern_return);
         });
 
-        logger::get_logger()->info("service_monitor_->async_start()");
+        logger::get_logger()->info("{0} service_monitor_->async_start()",
+                                   virtual_hid_device_service_client_endpoint_filename_);
 
         service_monitor_->async_start();
 
@@ -148,7 +164,9 @@ public:
   }
 
   void async_virtual_hid_keyboard_initialize(const pqrs::karabiner::driverkit::virtual_hid_device_service::virtual_hid_keyboard_parameters& parameters) const {
-    logger::get_logger()->info("io_service_client::{0}", __func__);
+    logger::get_logger()->info("{0} io_service_client::{1}",
+                               virtual_hid_device_service_client_endpoint_filename_,
+                               __func__);
 
     enqueue_to_dispatcher([this, parameters] {
       std::array<uint64_t, 3> input = {
@@ -162,7 +180,9 @@ public:
                                   input.size());
 
       if (!r) {
-        logger::get_logger()->error("virtual_hid_keyboard_initialize error: {0}", r.to_string());
+        logger::get_logger()->error("{0} virtual_hid_keyboard_initialize error: {1}",
+                                    virtual_hid_device_service_client_endpoint_filename_,
+                                    r.to_string());
       }
     });
   }
@@ -182,19 +202,25 @@ public:
       auto r = call(pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_keyboard_reset);
 
       if (!r) {
-        logger::get_logger()->error("virtual_hid_keyboard_reset error: {0}", r.to_string());
+        logger::get_logger()->error("{0} virtual_hid_keyboard_reset error: {1}",
+                                    virtual_hid_device_service_client_endpoint_filename_,
+                                    r.to_string());
       }
     });
   }
 
   void async_virtual_hid_pointing_initialize(void) const {
-    logger::get_logger()->info("io_service_client::{0}", __func__);
+    logger::get_logger()->info("{0} io_service_client::{1}",
+                               virtual_hid_device_service_client_endpoint_filename_,
+                               __func__);
 
     enqueue_to_dispatcher([this] {
       auto r = call(pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_pointing_initialize);
 
       if (!r) {
-        logger::get_logger()->error("virtual_hid_pointing_initialize error: {0}", r.to_string());
+        logger::get_logger()->error("{0} virtual_hid_pointing_initialize error: {1}",
+                                    virtual_hid_device_service_client_endpoint_filename_,
+                                    r.to_string());
       }
     });
   }
@@ -214,7 +240,9 @@ public:
       auto r = call(pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_pointing_reset);
 
       if (!r) {
-        logger::get_logger()->error("virtual_hid_pointing_reset error: {0}", r.to_string());
+        logger::get_logger()->error("{0} virtual_hid_pointing_reset error: {1}",
+                                    virtual_hid_device_service_client_endpoint_filename_,
+                                    r.to_string());
       }
     });
   }
@@ -227,7 +255,9 @@ public:
           sizeof(report));
 
       if (!r) {
-        logger::get_logger()->error("virtual_hid_keyboard_post_report(keyboard_input) error: {0}", r.to_string());
+        logger::get_logger()->error("{0} virtual_hid_keyboard_post_report(keyboard_input) error: {1}",
+                                    virtual_hid_device_service_client_endpoint_filename_,
+                                    r.to_string());
       }
     });
   }
@@ -240,7 +270,9 @@ public:
           sizeof(report));
 
       if (!r) {
-        logger::get_logger()->error("virtual_hid_keyboard_post_report(consumer_input) error: {0}", r.to_string());
+        logger::get_logger()->error("{0} virtual_hid_keyboard_post_report(consumer_input) error: {1}",
+                                    virtual_hid_device_service_client_endpoint_filename_,
+                                    r.to_string());
       }
     });
   }
@@ -253,7 +285,9 @@ public:
           sizeof(report));
 
       if (!r) {
-        logger::get_logger()->error("virtual_hid_keyboard_post_report(apple_vendor_keyboard_input) error: {0}", r.to_string());
+        logger::get_logger()->error("{0} virtual_hid_keyboard_post_report(apple_vendor_keyboard_input) error: {1}",
+                                    virtual_hid_device_service_client_endpoint_filename_,
+                                    r.to_string());
       }
     });
   }
@@ -266,7 +300,9 @@ public:
           sizeof(report));
 
       if (!r) {
-        logger::get_logger()->error("virtual_hid_keyboard_post_report(apple_vendor_top_case_input) error: {0}", r.to_string());
+        logger::get_logger()->error("{0} virtual_hid_keyboard_post_report(apple_vendor_top_case_input) error: {1}",
+                                    virtual_hid_device_service_client_endpoint_filename_,
+                                    r.to_string());
       }
     });
   }
@@ -279,7 +315,9 @@ public:
           sizeof(report));
 
       if (!r) {
-        logger::get_logger()->error("virtual_hid_keyboard_post_report(generic_desktop_input) error: {0}", r.to_string());
+        logger::get_logger()->error("{0} virtual_hid_keyboard_post_report(generic_desktop_input) error: {1}",
+                                    virtual_hid_device_service_client_endpoint_filename_,
+                                    r.to_string());
       }
     });
   }
@@ -292,7 +330,9 @@ public:
           sizeof(report));
 
       if (!r) {
-        logger::get_logger()->error("virtual_hid_pointing_post_report(pointing_input) error: {0}", r.to_string());
+        logger::get_logger()->error("{0} virtual_hid_pointing_post_report(pointing_input) error: {1}",
+                                    virtual_hid_device_service_client_endpoint_filename_,
+                                    r.to_string());
       }
     });
   }
@@ -307,11 +347,13 @@ private:
 
       if (value) {
         logger::get_logger()->info(
-            "driver_version_ is changed: {0}",
+            "{0} driver_version_ is changed: {1}",
+            virtual_hid_device_service_client_endpoint_filename_,
             type_safe::get(*value));
       } else {
         logger::get_logger()->info(
-            "driver_version_ is changed: std::nullopt");
+            "{0} driver_version_ is changed: std::nullopt",
+            virtual_hid_device_service_client_endpoint_filename_);
       }
     }
   }
@@ -324,7 +366,8 @@ private:
       virtual_hid_keyboard_ready_ = value;
 
       logger::get_logger()->info(
-          "virtual_hid_keyboard_ready_ is changed: {0}",
+          "{0} virtual_hid_keyboard_ready_ is changed: {1}",
+          virtual_hid_device_service_client_endpoint_filename_,
           value ? (*value ? "true" : "false") : "std::nullopt");
     }
   }
@@ -337,7 +380,8 @@ private:
       virtual_hid_pointing_ready_ = value;
 
       logger::get_logger()->info(
-          "virtual_hid_pointing_ready_ is changed: {0}",
+          "{0} virtual_hid_pointing_ready_ is changed: {1}",
+          virtual_hid_device_service_client_endpoint_filename_,
           value ? (*value ? "true" : "false") : "std::nullopt");
     }
   }
@@ -358,7 +402,9 @@ private:
     pqrs::osx::iokit_return r = IOServiceOpen(*service_, mach_task_self(), 0, &c);
 
     if (!r) {
-      logger::get_logger()->error("io_service_client IOServiceOpen error: {0}", r.to_string());
+      logger::get_logger()->error("{0} io_service_client IOServiceOpen error: {1}",
+                                  virtual_hid_device_service_client_endpoint_filename_,
+                                  r.to_string());
       connection_.reset();
       return;
     }
@@ -372,13 +418,15 @@ private:
     auto driver_version = call_driver_version();
     set_driver_version(driver_version);
     if (!driver_version) {
-      logger::get_logger()->error("io_service_client failed to get driver_version");
+      logger::get_logger()->error("{0} io_service_client failed to get driver_version",
+                                  virtual_hid_device_service_client_endpoint_filename_);
       connection_.reset();
       return;
     }
 
     enqueue_to_dispatcher([this] {
-      logger::get_logger()->info("io_service_client::opened");
+      logger::get_logger()->info("{0} io_service_client::opened",
+                                 virtual_hid_device_service_client_endpoint_filename_);
 
       opened();
     });
@@ -391,7 +439,8 @@ private:
       connection_.reset();
 
       enqueue_to_dispatcher([this] {
-        logger::get_logger()->info("io_service_client::closed");
+        logger::get_logger()->info("{0} io_service_client::closed",
+                                   virtual_hid_device_service_client_endpoint_filename_);
 
         closed();
       });
@@ -518,6 +567,7 @@ private:
   }
 
   std::shared_ptr<pqrs::cf::run_loop_thread> run_loop_thread_;
+  std::string virtual_hid_device_service_client_endpoint_filename_;
   std::string service_name_;
   std::unique_ptr<pqrs::osx::iokit_service_monitor> service_monitor_;
   pqrs::osx::iokit_object_ptr service_;

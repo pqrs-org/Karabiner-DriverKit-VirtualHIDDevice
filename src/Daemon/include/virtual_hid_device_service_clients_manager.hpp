@@ -33,14 +33,14 @@ public:
       auto it = entries_.find(endpoint_path);
       if (it != std::end(entries_)) {
         logger::get_logger()->info(
-            "client already exists: {0}",
+            "{0} client already exists",
             endpoint_filename.c_str());
         return;
       }
     }
 
     logger::get_logger()->info(
-        "create a client for virtual_hid_device_service::client: {0}",
+        "{0} create a client for virtual_hid_device_service::client",
         endpoint_filename.c_str());
 
     //
@@ -58,14 +58,14 @@ public:
 
     c->warning_reported.connect([endpoint_filename](auto&& message) {
       logger::get_logger()->warn(
-          "client: {0} {1}",
+          "{0} client: {1}",
           endpoint_filename.c_str(),
           message);
     });
 
     c->connect_failed.connect([this, endpoint_path, endpoint_filename](auto&& error_code) {
       logger::get_logger()->info(
-          "client connect_failed: {0}",
+          "{0} client connect_failed",
           endpoint_filename.c_str());
 
       erase_client(endpoint_path);
@@ -73,7 +73,7 @@ public:
 
     c->closed.connect([this, endpoint_path, endpoint_filename] {
       logger::get_logger()->info(
-          "client closed: {0}",
+          "{0} client closed",
           endpoint_filename.c_str());
 
       erase_client(endpoint_path);
@@ -82,9 +82,10 @@ public:
     c->async_start();
 
     entries_[endpoint_path] = std::make_unique<entry>(c,
-                                                      run_loop_thread_);
+                                                      run_loop_thread_,
+                                                      endpoint_filename);
 
-    logger::get_logger()->info("virtual_hid_device_service_clients_manager ({0}) client is added (size: {1})",
+    logger::get_logger()->info("{0} virtual_hid_device_service_clients_manager client is added (size: {1})",
                                endpoint_filename.c_str(),
                                entries_.size());
   }
@@ -99,7 +100,7 @@ public:
 
     entries_.erase(endpoint_path);
 
-    logger::get_logger()->info("virtual_hid_device_service_clients_manager ({0}) client is removed (size: {1})",
+    logger::get_logger()->info("{0} virtual_hid_device_service_clients_manager client is removed (size: {1})",
                                endpoint_filename.c_str(),
                                entries_.size());
   }
@@ -225,25 +226,28 @@ private:
   class entry final : public pqrs::dispatcher::extra::dispatcher_client {
   public:
     entry(std::shared_ptr<pqrs::local_datagram::client> local_datagram_client,
-          std::shared_ptr<pqrs::cf::run_loop_thread> run_loop_thread)
+          std::shared_ptr<pqrs::cf::run_loop_thread> run_loop_thread,
+          const std::string& virtual_hid_device_service_client_endpoint_filename)
         : local_datagram_client_(local_datagram_client),
           run_loop_thread_(run_loop_thread),
           initialize_timer_(*this),
           ready_timer_(*this),
           virtual_hid_keyboard_enabled_(false),
           virtual_hid_pointing_enabled_(false) {
-      io_service_client_nop_ = std::make_shared<io_service_client>(run_loop_thread_);
+      io_service_client_nop_ = std::make_shared<io_service_client>(run_loop_thread_,
+                                                                   virtual_hid_device_service_client_endpoint_filename);
       io_service_client_nop_->async_start();
 
       initialize_timer_.start(
-          [this] {
+          [this, virtual_hid_device_service_client_endpoint_filename] {
             //
             // Setup virtual_hid_keyboard
             //
 
             if (virtual_hid_keyboard_enabled_) {
               if (!virtual_hid_keyboard_ready()) {
-                io_service_client_keyboard_ = std::make_shared<io_service_client>(run_loop_thread_);
+                io_service_client_keyboard_ = std::make_shared<io_service_client>(run_loop_thread_,
+                                                                                  virtual_hid_device_service_client_endpoint_filename);
 
                 io_service_client_keyboard_->opened.connect([this] {
                   io_service_client_keyboard_->async_virtual_hid_keyboard_initialize(virtual_hid_keyboard_parameters_);
@@ -261,7 +265,8 @@ private:
 
             if (virtual_hid_pointing_enabled_) {
               if (!virtual_hid_pointing_ready()) {
-                io_service_client_pointing_ = std::make_shared<io_service_client>(run_loop_thread_);
+                io_service_client_pointing_ = std::make_shared<io_service_client>(run_loop_thread_,
+                                                                                  virtual_hid_device_service_client_endpoint_filename);
 
                 io_service_client_pointing_->opened.connect([this] {
                   io_service_client_pointing_->async_virtual_hid_pointing_initialize();
