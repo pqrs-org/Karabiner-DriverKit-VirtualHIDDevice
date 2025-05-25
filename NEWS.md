@@ -1,7 +1,9 @@
 # Changelog
 
-## Beta
+## Karabiner-DriverKit-VirtualHIDDevice 6.0.0
 
+-   📅 Release date
+    -   May 25, 2025
 -   💥 Breaking changes
     -   Moved vendor directories as follows.
         If you're referencing the old paths, please update them to point to the new locations.
@@ -11,6 +13,7 @@
     -   Improved the handling of termination notifications in the client for VirtualHIDDeviceRoot.
     -   Improved to reuse the existing connection as much as possible,
         rather than refreshing it on every service matched notification in the client for VirtualHIDDeviceRoot.
+    -   Changed to execute `killall Karabiner-VirtualHIDDevice-Daemon` during the postinstall step.
 
 ## Karabiner-DriverKit-VirtualHIDDevice 5.0.0
 
