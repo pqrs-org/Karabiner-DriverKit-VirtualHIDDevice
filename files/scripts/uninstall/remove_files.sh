@@ -16,12 +16,6 @@ if [ -f /Library/LaunchDaemons/org.pqrs.Karabiner-DriverKit-VirtualHIDDeviceClie
 fi
 
 #
-# Kill processes
-#
-
-killall Karabiner-VirtualHIDDevice-Daemon
-
-#
 # Kill processes in previous versions
 #
 

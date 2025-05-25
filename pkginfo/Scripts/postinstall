@@ -3,4 +3,10 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin
 export PATH
 
+#
+# Restart the process in environments where the daemon is managed by launchd
+#
+
+killall Karabiner-VirtualHIDDevice-Daemon
+
 exit 0

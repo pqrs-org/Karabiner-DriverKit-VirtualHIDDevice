@@ -61,6 +61,7 @@ This means that the software incorporating the client library must be run with r
     ```shell
     bash '/Library/Application Support/org.pqrs/Karabiner-DriverKit-VirtualHIDDevice/scripts/uninstall/deactivate_driver.sh'
     sudo bash '/Library/Application Support/org.pqrs/Karabiner-DriverKit-VirtualHIDDevice/scripts/uninstall/remove_files.sh'
+    sudo killall Karabiner-VirtualHIDDevice-Daemon
     ```
 
 ### Installed files

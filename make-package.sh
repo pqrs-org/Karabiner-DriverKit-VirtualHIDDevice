@@ -32,7 +32,7 @@ bash "scripts/setpermissions.sh" pkginfo
 bash "scripts/setpermissions.sh" pkgroot
 
 chmod 755 pkginfo/Scripts/postinstall
-chmod 755 pkginfo/Scripts/preinstall
+install -m 755 files/scripts/uninstall/remove_files.sh pkginfo/Scripts/preinstall
 
 # --------------------------------------------------
 echo "Create pkg"
