@@ -1,5 +1,17 @@
 # Changelog
 
+## Beta
+
+-   💥 Breaking changes
+    -   Moved vendor directories as follows.
+        If you're referencing the old paths, please update them to point to the new locations.
+        -   old: `examples/virtual-hid-device-service-client/vendor/include`
+        -   new: `vendor/vendor/include`
+-   ⚡️ Improvements
+    -   Improved the handling of termination notifications in the client for VirtualHIDDeviceRoot.
+    -   Improved to reuse the existing connection as much as possible,
+        rather than refreshing it on every service matched notification in the client for VirtualHIDDeviceRoot.
+
 ## Karabiner-DriverKit-VirtualHIDDevice 5.0.0
 
 -   📅 Release date
