@@ -86,8 +86,8 @@ The primary focus of this document is on signing.
 
 ### System requirements
 
--   macOS 14+
--   Xcode 15+
+-   macOS 15+
+-   Xcode 16.3+
 -   Command Line Tools for Xcode
 -   [XcodeGen](https://github.com/yonaskolb/XcodeGen)
 
