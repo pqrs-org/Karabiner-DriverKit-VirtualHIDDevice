@@ -15,18 +15,6 @@ class ExtensionManager: NSObject, OSSystemExtensionRequestDelegate {
   var mode = Mode.none
 
   //
-  // macOS Catalina (10.15) does not support driver replacing.
-  //
-  // Replacing running driver on macOS Catalina, the new driver will not be loaded properly even if restarting macOS.
-  // If you replaced the running driver, you have to restart macOS, deactivate new driver, restart macOS, and then activate it again.
-  //
-  // It is more easier way to refuse replacing and force deactivating driver, restarting macOS, and activating new driver.
-  //
-
-  let replaceSupported = ProcessInfo().isOperatingSystemAtLeast(
-    OperatingSystemVersion(majorVersion: 11, minorVersion: 0, patchVersion: 0))
-
-  //
   // Actions
   //
 
@@ -128,11 +116,6 @@ class ExtensionManager: NSObject, OSSystemExtensionRequestDelegate {
     }
 
     if extVersion.compare(existingVersion, options: .numeric) == .orderedDescending {
-      if !replaceSupported {
-        print("request of \(request.identifier) is canceled because replacing is not support")
-        return .cancel
-      }
-
       print("\(request.identifier) will be replaced to \(extVersion) from \(existingVersion)")
       return .replace
     }
