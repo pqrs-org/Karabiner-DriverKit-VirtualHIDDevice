@@ -2,49 +2,53 @@ import Foundation
 import SystemExtensions
 
 class ExtensionManager: NSObject, OSSystemExtensionRequestDelegate {
-  enum Mode {
-    case none
-    case activation
-    case deactivation
+  enum Operation {
+    case activate
+    case forceActivate
+    case deactivate
   }
 
-  static let shared = ExtensionManager()
-
-  let bundleIdentifier = "org.pqrs.Karabiner-DriverKit-VirtualHIDDevice"
-  var forceReplace = false
-  var mode = Mode.none
+  private let bundleIdentifier = "org.pqrs.Karabiner-DriverKit-VirtualHIDDevice"
+  private let operation: Operation
+  private let oneShot = OneShotAnyError<OSSystemExtensionRequest.Result>()
 
   //
   // Actions
   //
 
-  func activate(forceReplace: Bool) {
-    mode = Mode.activation
-    self.forceReplace = forceReplace
-
-    let request = OSSystemExtensionRequest.activationRequest(
-      forExtensionWithIdentifier: bundleIdentifier,
-      queue: .main
-    )
-    request.delegate = self
-
-    OSSystemExtensionManager.shared.submitRequest(request)
-
-    print("activation of \(bundleIdentifier) is requested")
+  static func perform(_ operation: Operation) async throws -> OSSystemExtensionRequest.Result {
+    let manager = ExtensionManager(operation)
+    return try await manager.submitRequest()
   }
 
-  func deactivate() {
-    mode = Mode.deactivation
+  private init(_ operation: Operation) {
+    self.operation = operation
+  }
 
-    let request = OSSystemExtensionRequest.deactivationRequest(
-      forExtensionWithIdentifier: bundleIdentifier,
-      queue: .main
-    )
+  private func submitRequest() async throws -> OSSystemExtensionRequest.Result {
+    let request: OSSystemExtensionRequest
+
+    switch operation {
+    case .activate, .forceActivate:
+      request = OSSystemExtensionRequest.activationRequest(
+        forExtensionWithIdentifier: bundleIdentifier,
+        queue: .main
+      )
+      print("activation of \(bundleIdentifier) is requested")
+
+    case .deactivate:
+      request = OSSystemExtensionRequest.deactivationRequest(
+        forExtensionWithIdentifier: bundleIdentifier,
+        queue: .main
+      )
+      print("deactivation of \(bundleIdentifier) is requested")
+    }
+
     request.delegate = self
 
     OSSystemExtensionManager.shared.submitRequest(request)
 
-    print("deactivation of \(bundleIdentifier) is requested")
+    return try await oneShot.wait()
   }
 
   //
@@ -66,7 +70,8 @@ class ExtensionManager: NSObject, OSSystemExtensionRequestDelegate {
       break
     }
 
-    exit(0)
+    let shot = self.oneShot
+    Task { await shot.resume(.success(result)) }
   }
 
   func request(
@@ -75,22 +80,16 @@ class ExtensionManager: NSObject, OSSystemExtensionRequestDelegate {
   ) {
     print("request of \(request.identifier) is failed with error: \(error.localizedDescription)")
 
-    switch mode {
-    case .none:
-      exit(1)
-    case .activation:
-      exit(1)
-    case .deactivation:
-      switch error {
-      case OSSystemExtensionError.extensionNotFound:
+    let operation = self.operation
+    let shot = self.oneShot
+    Task {
+      if operation == .deactivate, (error as? OSSystemExtensionError)?.code == .extensionNotFound {
         // Ignorable errors
-        exit(0)
-      default:
-        exit(1)
+        await shot.resume(.success(.completed))
+      } else {
+        await shot.resume(.failure(OneShot.AnySendableError(error)))
       }
     }
-
-    exit(1)
   }
 
   func requestNeedsUserApproval(_ request: OSSystemExtensionRequest) {
@@ -110,7 +109,7 @@ class ExtensionManager: NSObject, OSSystemExtensionRequestDelegate {
       return .cancel
     }
 
-    if forceReplace {
+    if operation == .forceActivate {
       print("\(request.identifier) will be force replaced to \(extVersion) forcely")
       return .replace
     }
