@@ -11,6 +11,8 @@ targets:
       # Sign to Run Locally
       CODE_SIGN_IDENTITY[sdk=macosx*]: '-'
       OTHER_SWIFT_FLAGS: '-warnings-as-errors'
+      DEAD_CODE_STRIPPING: 'YES'
+      SWIFT_VERSION: '6.0'
     type: application
     platform: macOS
     deploymentTarget: 13.0

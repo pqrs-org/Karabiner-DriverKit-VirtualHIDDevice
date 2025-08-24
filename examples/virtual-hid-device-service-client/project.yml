@@ -5,6 +5,8 @@ targets:
     settings:
       PRODUCT_BUNDLE_IDENTIFIER: org.pqrs.virtual-hid-device-service-client
       OTHER_SWIFT_FLAGS: '-warnings-as-errors'
+      DEAD_CODE_STRIPPING: 'YES'
+      SWIFT_VERSION: '6.0'
       SYSTEM_HEADER_SEARCH_PATHS:
         - ../../vendor/vendor/include
         - ../../include
