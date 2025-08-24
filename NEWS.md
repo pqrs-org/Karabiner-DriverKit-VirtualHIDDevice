@@ -1,5 +1,12 @@
 # Changelog
 
+## Karabiner-DriverKit-VirtualHIDDevice 6.1.0
+
+-   📅 Release date
+    -   Aug 24, 2025
+-   ⚡️ Improvements
+    -   Migrated to Swift 6.
+
 ## Karabiner-DriverKit-VirtualHIDDevice 6.0.0
 
 -   📅 Release date
