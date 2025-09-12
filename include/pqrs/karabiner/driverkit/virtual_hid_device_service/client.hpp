@@ -192,7 +192,7 @@ private:
       });
     });
 
-    client_->connected.connect([this] {
+    client_->connected.connect([this](auto&& peer_pid) {
       enqueue_to_dispatcher([this] {
         connected();
       });
