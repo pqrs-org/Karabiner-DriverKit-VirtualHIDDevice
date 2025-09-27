@@ -26,7 +26,7 @@ public:
 
   // Methods
 
-  io_service_client(std::shared_ptr<pqrs::cf::run_loop_thread> run_loop_thread,
+  io_service_client(pqrs::not_null_shared_ptr_t<pqrs::cf::run_loop_thread> run_loop_thread,
                     const std::string& virtual_hid_device_service_client_endpoint_filename)
       : dispatcher_client(),
         run_loop_thread_(run_loop_thread),
@@ -418,7 +418,7 @@ private:
                     });
     }
 
-    const std::vector<gsl::not_null<std::shared_ptr<matched_service>>>& get_services(void) const {
+    const std::vector<pqrs::not_null_shared_ptr_t<matched_service>>& get_services(void) const {
       return services_;
     }
 
@@ -447,7 +447,7 @@ private:
     }
 
   private:
-    std::vector<gsl::not_null<std::shared_ptr<matched_service>>> services_;
+    std::vector<pqrs::not_null_shared_ptr_t<matched_service>> services_;
   };
 
   // This method is executed in the dispatcher thread.
@@ -696,7 +696,7 @@ private:
                                      0);
   }
 
-  std::shared_ptr<pqrs::cf::run_loop_thread> run_loop_thread_;
+  pqrs::not_null_shared_ptr_t<pqrs::cf::run_loop_thread> run_loop_thread_;
   std::string virtual_hid_device_service_client_endpoint_filename_;
   std::string service_name_;
   std::unique_ptr<pqrs::osx::iokit_service_monitor> service_monitor_;

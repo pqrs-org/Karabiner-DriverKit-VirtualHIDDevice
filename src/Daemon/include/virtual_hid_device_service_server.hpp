@@ -11,7 +11,7 @@
 
 class virtual_hid_device_service_server final : public pqrs::dispatcher::extra::dispatcher_client {
 public:
-  virtual_hid_device_service_server(std::shared_ptr<pqrs::cf::run_loop_thread> run_loop_thread)
+  virtual_hid_device_service_server(pqrs::not_null_shared_ptr_t<pqrs::cf::run_loop_thread> run_loop_thread)
       : dispatcher_client(),
         run_loop_thread_(run_loop_thread) {
     //
@@ -284,7 +284,7 @@ private:
     server_->async_start();
   }
 
-  std::shared_ptr<pqrs::cf::run_loop_thread> run_loop_thread_;
+  pqrs::not_null_shared_ptr_t<pqrs::cf::run_loop_thread> run_loop_thread_;
 
   std::unique_ptr<virtual_hid_device_service_clients_manager> virtual_hid_device_service_clients_manager_;
   std::unique_ptr<pqrs::local_datagram::server> server_;

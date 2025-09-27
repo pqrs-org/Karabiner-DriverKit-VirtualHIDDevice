@@ -10,7 +10,7 @@
 
 class virtual_hid_device_service_clients_manager final : public pqrs::dispatcher::extra::dispatcher_client {
 public:
-  virtual_hid_device_service_clients_manager(std::shared_ptr<pqrs::cf::run_loop_thread> run_loop_thread)
+  virtual_hid_device_service_clients_manager(pqrs::not_null_shared_ptr_t<pqrs::cf::run_loop_thread> run_loop_thread)
       : dispatcher_client(),
         run_loop_thread_(run_loop_thread) {
   }
@@ -225,8 +225,8 @@ public:
 private:
   class entry final : public pqrs::dispatcher::extra::dispatcher_client {
   public:
-    entry(std::shared_ptr<pqrs::local_datagram::client> local_datagram_client,
-          std::shared_ptr<pqrs::cf::run_loop_thread> run_loop_thread,
+    entry(pqrs::not_null_shared_ptr_t<pqrs::local_datagram::client> local_datagram_client,
+          pqrs::not_null_shared_ptr_t<pqrs::cf::run_loop_thread> run_loop_thread,
           const std::string& virtual_hid_device_service_client_endpoint_filename)
         : local_datagram_client_(local_datagram_client),
           run_loop_thread_(run_loop_thread),
@@ -436,8 +436,8 @@ private:
       local_datagram_client_->async_send(buffer, sizeof(buffer));
     }
 
-    std::shared_ptr<pqrs::local_datagram::client> local_datagram_client_;
-    std::shared_ptr<pqrs::cf::run_loop_thread> run_loop_thread_;
+    pqrs::not_null_shared_ptr_t<pqrs::local_datagram::client> local_datagram_client_;
+    pqrs::not_null_shared_ptr_t<pqrs::cf::run_loop_thread> run_loop_thread_;
 
     std::shared_ptr<io_service_client> io_service_client_nop_;
     std::shared_ptr<io_service_client> io_service_client_keyboard_;
@@ -467,6 +467,6 @@ private:
     return ss.str();
   }
 
-  std::shared_ptr<pqrs::cf::run_loop_thread> run_loop_thread_;
+  pqrs::not_null_shared_ptr_t<pqrs::cf::run_loop_thread> run_loop_thread_;
   std::unordered_map<std::string, std::unique_ptr<entry>> entries_;
 };

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <filesystem>
+#include <pqrs/gsl.hpp>
 #include <pqrs/spdlog.hpp>
 #include <spdlog/async.h>
 #include <spdlog/sinks/rotating_file_sink.h>
@@ -8,7 +9,7 @@
 
 class logger final {
 public:
-  static std::shared_ptr<spdlog::logger> get_logger(void) {
+  static pqrs::not_null_shared_ptr_t<spdlog::logger> get_logger(void) {
     std::lock_guard<std::mutex> guard(mutex_);
 
     if (logger_) {
