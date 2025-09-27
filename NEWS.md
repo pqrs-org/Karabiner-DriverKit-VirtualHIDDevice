@@ -1,5 +1,14 @@
 # Changelog
 
+## Karabiner-DriverKit-VirtualHIDDevice 6.3.0
+
+-   📅 Release date
+    -   Sep 27, 2025
+-   ⚡️ Improvements
+    -   Used `not_null_shared_ptr_t` in the codebase.
+    -   Updated dependent vendor code.
+        -   pqrs::local_datagram v8.0
+
 ## Karabiner-DriverKit-VirtualHIDDevice 6.2.0
 
 -   📅 Release date
