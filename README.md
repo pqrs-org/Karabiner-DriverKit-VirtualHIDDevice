@@ -17,8 +17,7 @@ This means that the software incorporating the client library must be run with r
 ## Supported systems
 
 -   macOS 26 Tahoe
-    -   Apple Silicon Macs
-    -   It will probably work on Intel Macs as well, but we haven't tested it.
+    -   Both Intel-based Macs and Apple Silicon Macs
 -   macOS 15 Sequoia
     -   Both Intel-based Macs and Apple Silicon Macs
 -   macOS 14 Sonoma
