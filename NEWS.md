@@ -1,5 +1,14 @@
 # Changelog
 
+## Karabiner-DriverKit-VirtualHIDDevice 6.4.0
+
+-   📅 Release date
+    -   Oct 11, 2025
+-   ⚡️ Improvements
+    -   Updated the icons for macOS 26 Tahoe.
+    -   When /Applications/.Karabiner-VirtualHIDDevice-Manager.app is launched directly,
+        it now opens the Karabiner-Elements settings if available.
+
 ## Karabiner-DriverKit-VirtualHIDDevice 6.3.0
 
 -   📅 Release date
