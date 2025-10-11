@@ -1,3 +1,4 @@
+import AppKit
 import Foundation
 
 @main
@@ -18,6 +19,33 @@ struct Manager {
       } else {
         print("Usage:")
         print("    Karabiner-VirtualHIDDevice-Manager activate|forceActivate|deactivate")
+        print("")
+
+        //
+        // Open Karabiner-Elements Settings
+        //
+
+        // If `/Applications/.Karabiner-VirtualHIDDevice-Manager.app` shows up in Spotlight's Applications list
+        // and gets run, doing nothing would confuse users, so open the Karabiner-Elements settings.
+
+        if args.isEmpty {
+          let url = URL(fileURLWithPath: "/Applications/Karabiner-Elements.app")
+          if FileManager.default.fileExists(atPath: url.path) {
+            print("Opening \(url)...")
+
+            let configuration = NSWorkspace.OpenConfiguration()
+            let _: NSRunningApplication? = try await withCheckedThrowingContinuation { continuation in
+              NSWorkspace.shared.openApplication(at: url, configuration: configuration) { runningApp, error in
+                if let error {
+                  continuation.resume(throwing: error)
+                } else {
+                  continuation.resume(returning: runningApp)
+                }
+              }
+            }
+          }
+        }
+
         exit(0)
       }
     } catch {
