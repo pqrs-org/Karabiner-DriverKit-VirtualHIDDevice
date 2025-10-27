@@ -1,5 +1,14 @@
 # Changelog
 
+## Karabiner-DriverKit-VirtualHIDDevice 6.5.0
+
+-   📅 Release date
+    -   Oct 28, 2025
+-   ⚡️ Improvements
+    -   Updated dependent vendor code.
+        -   pqrs::local_datagram v10.0
+        -   spdlog v1.16.0.
+
 ## Karabiner-DriverKit-VirtualHIDDevice 6.4.0
 
 -   📅 Release date
