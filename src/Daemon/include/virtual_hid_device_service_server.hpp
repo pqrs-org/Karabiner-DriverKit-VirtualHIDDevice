@@ -18,8 +18,6 @@ public:
     // Preparation
     //
 
-    create_rootonly_directory();
-
     virtual_hid_device_service_clients_manager_ = std::make_unique<virtual_hid_device_service_clients_manager>(run_loop_thread_);
 
     //
@@ -83,25 +81,8 @@ private:
   }
 
   void create_server(void) {
-    // Remove old socket files.
-    {
-      auto directory_path = pqrs::karabiner::driverkit::virtual_hid_device_service::constants::get_server_socket_directory_path();
-      std::error_code ec;
-      std::filesystem::remove_all(directory_path, ec);
-      std::filesystem::create_directory(directory_path, ec);
-    }
-    {
-      auto directory_path = pqrs::karabiner::driverkit::virtual_hid_device_service::constants::get_server_response_socket_directory_path();
-      std::error_code ec;
-      std::filesystem::remove_all(directory_path, ec);
-      std::filesystem::create_directory(directory_path, ec);
-    }
-    {
-      auto directory_path = pqrs::karabiner::driverkit::virtual_hid_device_service::constants::get_client_socket_directory_path();
-      std::error_code ec;
-      std::filesystem::remove_all(directory_path, ec);
-      std::filesystem::create_directory(directory_path, ec);
-    }
+    // Remove old files and prepare a socket directores.
+    prepare_socket_directories();
 
     server_ = std::make_unique<pqrs::local_datagram::server>(
         weak_dispatcher_,
@@ -119,9 +100,13 @@ private:
       logger::get_logger()->info("virtual_hid_device_service_server: bound");
     });
 
-    server_->bind_failed.connect([](auto&& error_code) {
+    server_->bind_failed.connect([this](auto&& error_code) {
       logger::get_logger()->error("virtual_hid_device_service_server: bind_failed: {0}",
                                   error_code.message());
+
+      // If the socket directory is deleted for any reason,
+      // bind_failed will be triggered, so recreate the directory each time.
+      prepare_socket_directories();
     });
 
     server_->closed.connect([] {
@@ -282,6 +267,30 @@ private:
     });
 
     server_->async_start();
+  }
+
+  void prepare_socket_directories(void) const {
+    create_rootonly_directory();
+
+    // Remove old socket files.
+    {
+      auto directory_path = pqrs::karabiner::driverkit::virtual_hid_device_service::constants::get_server_socket_directory_path();
+      std::error_code ec;
+      std::filesystem::remove_all(directory_path, ec);
+      std::filesystem::create_directory(directory_path, ec);
+    }
+    {
+      auto directory_path = pqrs::karabiner::driverkit::virtual_hid_device_service::constants::get_server_response_socket_directory_path();
+      std::error_code ec;
+      std::filesystem::remove_all(directory_path, ec);
+      std::filesystem::create_directory(directory_path, ec);
+    }
+    {
+      auto directory_path = pqrs::karabiner::driverkit::virtual_hid_device_service::constants::get_client_socket_directory_path();
+      std::error_code ec;
+      std::filesystem::remove_all(directory_path, ec);
+      std::filesystem::create_directory(directory_path, ec);
+    }
   }
 
   pqrs::not_null_shared_ptr_t<pqrs::cf::run_loop_thread> run_loop_thread_;
