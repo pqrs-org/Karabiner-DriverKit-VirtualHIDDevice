@@ -1,5 +1,12 @@
 # Changelog
 
+## Karabiner-DriverKit-VirtualHIDDevice 6.6.0
+
+-   📅 Release date
+    -   Nov 12, 2025
+-   ⚡️ Improvements
+    -   The socket directory used by virtual_hid_device_service will now be automatically recreated if it gets deleted for any reason.
+
 ## Karabiner-DriverKit-VirtualHIDDevice 6.5.0
 
 -   📅 Release date
