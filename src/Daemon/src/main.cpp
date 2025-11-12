@@ -15,6 +15,8 @@ int main(void) {
   std::signal(SIGUSR1, SIG_IGN);
   std::signal(SIGUSR2, SIG_IGN);
 
+  umask(0022);
+
   pqrs::osx::process_info::enable_sudden_termination();
 
   pqrs::dispatcher::extra::initialize_shared_dispatcher();
