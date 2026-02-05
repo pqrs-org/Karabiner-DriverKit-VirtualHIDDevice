@@ -1,5 +1,14 @@
 # Changelog
 
+## Karabiner-DriverKit-VirtualHIDDevice 6.9.0
+
+- 📅 Release date
+    - Feb 6, 2026
+- ⚡️ Improvements
+    - In Karabiner-VirtualHIDDevice-Daemon, if a fatal error prevents the CFRunLoop from starting, the process now exits with EXIT_FAILURE instead of aborting, to avoid generating a crash report.
+    - Updated dependent vendor code.
+        - pqrs::cf::run_loop_thread v2.8
+
 ## Karabiner-DriverKit-VirtualHIDDevice 6.8.0
 
 - 📅 Release date
