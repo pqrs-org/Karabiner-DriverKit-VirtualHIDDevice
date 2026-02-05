@@ -35,3 +35,5 @@ swift-format:
 
 swiftlint:
 	swiftlint
+
+notarized-dmg: package notarize
