@@ -20,7 +20,9 @@ int main(void) {
   pqrs::osx::process_info::enable_sudden_termination();
 
   pqrs::dispatcher::extra::initialize_shared_dispatcher();
-  pqrs::cf::run_loop_thread::extra::initialize_shared_run_loop_thread();
+
+  // If the CFRunLoop can no longer start properly, exit and let launchd restart it.
+  pqrs::cf::run_loop_thread::extra::initialize_shared_run_loop_thread(pqrs::cf::run_loop_thread::failure_policy::exit);
 
   logger::set_async_rotating_logger("virtual_hid_device_service",
                                     "/var/log/karabiner/virtual_hid_device_service.log",
@@ -34,7 +36,6 @@ int main(void) {
   // Create instances
   //
 
-  auto run_loop_thread = std::make_shared<pqrs::cf::run_loop_thread>();
   auto server = std::make_unique<virtual_hid_device_service_server>(pqrs::cf::run_loop_thread::extra::get_shared_run_loop_thread());
 
   //
