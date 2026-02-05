@@ -16,19 +16,19 @@ This means that the software incorporating the client library must be run with r
 
 ## Supported systems
 
--   macOS 26 Tahoe
-    -   Both Intel-based Macs and Apple Silicon Macs
--   macOS 15 Sequoia
-    -   Both Intel-based Macs and Apple Silicon Macs
--   macOS 14 Sonoma
-    -   Both Intel-based Macs and Apple Silicon Macs
--   macOS 13 Ventura
-    -   Both Intel-based Macs and Apple Silicon Macs
+- macOS 26 Tahoe
+    - Both Intel-based Macs and Apple Silicon Macs
+- macOS 15 Sequoia
+    - Both Intel-based Macs and Apple Silicon Macs
+- macOS 14 Sonoma
+    - Both Intel-based Macs and Apple Silicon Macs
+- macOS 13 Ventura
+    - Both Intel-based Macs and Apple Silicon Macs
 
 ## Screenshots
 
--   macOS Settings (macOS detects the virtual keyboard)<br/><br />
-    <img src="docs/images/macos-settings@2x.png" width="668" alt="System Preferences" /><br /><br />
+- macOS Settings (macOS detects the virtual keyboard)<br/><br />
+  <img src="docs/images/macos-settings@2x.png" width="668" alt="System Preferences" /><br /><br />
 
 ---
 
@@ -70,10 +70,10 @@ This means that the software incorporating the client library must be run with r
 
 ### Installed files
 
--   `/Applications/.Karabiner-VirtualHIDDevice-Manager.app`
--   `/Library/Application Support/org.pqrs/Karabiner-DriverKit-VirtualHIDDevice`
--   `/Library/Application Support/org.pqrs/tmp`
--   `/var/log/karabiner`
+- `/Applications/.Karabiner-VirtualHIDDevice-Manager.app`
+- `/Library/Application Support/org.pqrs/Karabiner-DriverKit-VirtualHIDDevice`
+- `/Library/Application Support/org.pqrs/tmp`
+- `/var/log/karabiner`
 
 ---
 
@@ -85,10 +85,10 @@ The primary focus of this document is on signing.
 
 ### System requirements
 
--   macOS 15+
--   Xcode 16.3+
--   Command Line Tools for Xcode
--   [XcodeGen](https://github.com/yonaskolb/XcodeGen)
+- macOS 15+
+- Xcode 16.3+
+- Command Line Tools for Xcode
+- [XcodeGen](https://github.com/yonaskolb/XcodeGen)
 
 ### Obtain DriverKit entitlements
 
@@ -166,9 +166,9 @@ Please ensure that `com.apple.developer.driverkit.userclient-access` appears und
 
 ### Replace the `*.provisionprofile` files in the repository with your own provision profile files
 
--   src/Daemon/Developer_ID_KarabinerVirtualHIDDeviceDaemon.provisionprofile
--   src/DriverKit/Developer_ID_KarabinerDriverKitVirtualHIDDevice.provisionprofile
--   src/Manager/Developer_ID_KarabinerVirtualHIDDeviceManager.provisionprofile
+- src/Daemon/Developer_ID_KarabinerVirtualHIDDeviceDaemon.provisionprofile
+- src/DriverKit/Developer_ID_KarabinerDriverKitVirtualHIDDevice.provisionprofile
+- src/Manager/Developer_ID_KarabinerVirtualHIDDeviceManager.provisionprofile
 
 ### Replace team identifier, domain and embedded.provisionprofile
 
@@ -186,8 +186,8 @@ The rest of the operations will be performed in the terminal.
 
 Set the following environment variables for application signing and package signing.​
 
--   `PQRS_ORG_CODE_SIGN_IDENTITY`
--   `PQRS_ORG_INSTALLER_CODE_SIGN_IDENTITY`
+- `PQRS_ORG_CODE_SIGN_IDENTITY`
+- `PQRS_ORG_INSTALLER_CODE_SIGN_IDENTITY`
 
 You can determine the values using the following methods:
 
@@ -235,7 +235,7 @@ make package
 
 Create App-Specific Passwords on <https://appleid.apple.com>.
 
--   name: `pqrs.org notarization`
+- name: `pqrs.org notarization`
 
 Execute `store-credentials`
 
@@ -263,19 +263,19 @@ make notarize
 
 Karabiner-DriverKit-VirtualHIDDevice consists the following components.
 
--   Extension Manager (including DriverKit driver)
-    -   `/Applications/.Karabiner-VirtualHIDDevice-Manager.app`
-    -   It provides a command line interface to activate or deactivate DriverKit driver.
--   Karabiner-VirtualHIDDevice-Daemon
-    -   `/Library/Application Support/org.pqrs/Karabiner-DriverKit-VirtualHIDDevice/Applications/Karabiner-VirtualHIDDevice-Daemon.app`
-    -   It mediates between the client app and the driver.
-    -   It allows apps to communicate with the virtual device even if the app is not signed with pqrs.org's code signing identity.
-        (The client app must be running with root privileges.)
--   Client apps
-    -   Client apps are not included in the distributed package.
-    -   For example, you can build the client app from `examples/virtual-hid-device-service-client` in this repository.
-    -   Client apps can send input events by communicating with Karabiner-VirtualHIDDevice-Daemon via UNIX domain socket.
-        (`/Library/Application Support/org.pqrs/tmp/rootonly/vhidd_server/*.sock`)
+- Extension Manager (including DriverKit driver)
+    - `/Applications/.Karabiner-VirtualHIDDevice-Manager.app`
+    - It provides a command line interface to activate or deactivate DriverKit driver.
+- Karabiner-VirtualHIDDevice-Daemon
+    - `/Library/Application Support/org.pqrs/Karabiner-DriverKit-VirtualHIDDevice/Applications/Karabiner-VirtualHIDDevice-Daemon.app`
+    - It mediates between the client app and the driver.
+    - It allows apps to communicate with the virtual device even if the app is not signed with pqrs.org's code signing identity.
+      (The client app must be running with root privileges.)
+- Client apps
+    - Client apps are not included in the distributed package.
+    - For example, you can build the client app from `examples/virtual-hid-device-service-client` in this repository.
+    - Client apps can send input events by communicating with Karabiner-VirtualHIDDevice-Daemon via UNIX domain socket.
+      (`/Library/Application Support/org.pqrs/tmp/rootonly/vhidd_server/*.sock`)
 
 ![components.svg](./docs/plantuml/output/components.svg)
 
@@ -283,15 +283,15 @@ Karabiner-DriverKit-VirtualHIDDevice consists the following components.
 
 Version is defined in `version.json`.
 
--   `package_version`:
-    -   Karabiner-DriverKit-VirtualHIDDevice package version.
-    -   Increment this when any components are updated.
--   `driver_version`:
-    -   DriverKit driver internal version.
-    -   Increment this when the driver source code is updated.
--   `client_protocol_version`:
-    -   The version for communication between Karabiner-VirtualHIDDevice-Daemon and the DriverKit driver.
-    -   Increment this when the communication specifications are changed.
+- `package_version`:
+    - Karabiner-DriverKit-VirtualHIDDevice package version.
+    - Increment this when any components are updated.
+- `driver_version`:
+    - DriverKit driver internal version.
+    - Increment this when the driver source code is updated.
+- `client_protocol_version`:
+    - The version for communication between Karabiner-VirtualHIDDevice-Daemon and the DriverKit driver.
+    - Increment this when the communication specifications are changed.
 
 ### Run Karabiner-VirtualHIDDevice-Daemon via launchd
 
@@ -300,5 +300,5 @@ There is an example application for registration with launchd in `examples/SMApp
 
 ### Extra documents
 
--   [How to be close to DriverKit](DEVELOPMENT.md)
--   [Extracts from xnu](XNU.md)
+- [How to be close to DriverKit](DEVELOPMENT.md)
+- [Extracts from xnu](XNU.md)

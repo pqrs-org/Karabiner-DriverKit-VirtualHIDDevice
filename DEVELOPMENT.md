@@ -2,11 +2,11 @@
 
 ## Execute `systemextensionsctl reset` and reboot macOS before you suspect a problem is caused by your code
 
--   Restart macOS before investigating your issue.
-    Replacing extension from `OSSystemExtensionManager.submit` does not restart your driverkit userspace process.
-    The most reliable way to restart your userspace process is reboot.
--   Execute `systemextensionsctl reset` before investigating your issue.
-    The reset command requires disabling SIP, however it solves various problems.
+- Restart macOS before investigating your issue.
+  Replacing extension from `OSSystemExtensionManager.submit` does not restart your driverkit userspace process.
+  The most reliable way to restart your userspace process is reboot.
+- Execute `systemextensionsctl reset` before investigating your issue.
+  The reset command requires disabling SIP, however it solves various problems.
 
 ## Most reliable way to upgrade your driver extension
 
@@ -48,32 +48,32 @@ plutil -convert xml1 -o - /Library/SystemExtensions/db.plist
 
 ## Errors
 
--   `EXC_CRASH (Code Signature Invalid)`
-    -   Reason:
-        -   There are extra entitlements which are not allowed for us:
-            -   `com.apple.developer.hid.virtual.device`
-            -   `com.apple.developer.system-extension.redistributable` (Bug?)
-        -   Your `dext` must be notarized if you enabled SIP even if the dext is built on the install target machine.
--   `sysextd` is crashed by `EXC_BAD_INSTRUCTION (SIGILL)`
-    -   Reason #1:
-        -   `sysextd` will be crashed if multiple versions of your driver extension are installed.
-        -   Workaround:
-            -   `systemextensionsctl reset`
-    -   Reason #2:
-        -   Your driver extension is crashed in `init()` or `Start()`.
-            Add log messages to investigate the problem.
--   `sysextd: (libswiftCore.dylib) Fatal error: Activate found 2 extensions in active state, ID: xxx`
-    -   Workaround:
-        -   Execute `systemextensionsctl reset`, then install your system extension again.
+- `EXC_CRASH (Code Signature Invalid)`
+    - Reason:
+        - There are extra entitlements which are not allowed for us:
+            - `com.apple.developer.hid.virtual.device`
+            - `com.apple.developer.system-extension.redistributable` (Bug?)
+        - Your `dext` must be notarized if you enabled SIP even if the dext is built on the install target machine.
+- `sysextd` is crashed by `EXC_BAD_INSTRUCTION (SIGILL)`
+    - Reason #1:
+        - `sysextd` will be crashed if multiple versions of your driver extension are installed.
+        - Workaround:
+            - `systemextensionsctl reset`
+    - Reason #2:
+        - Your driver extension is crashed in `init()` or `Start()`.
+          Add log messages to investigate the problem.
+- `sysextd: (libswiftCore.dylib) Fatal error: Activate found 2 extensions in active state, ID: xxx`
+    - Workaround:
+        - Execute `systemextensionsctl reset`, then install your system extension again.
 
 ## Build issues
 
--   Error: Xcode requires a provisioning profile which supports DriverKit
-    -   Reason:
-        -   The driverkit entitlements (e.g., `com.apple.developer.driverkit`) requires a proper provisioning profile which you cannot create it unless you gained DriverKit framework capability from Apple.
-    -   Workaround:
-        -   If you want to develop driver extension without the capability, build your code without entitlements and inject entitlements at codesigning stage.
-            See `src/scripts/codesign.sh` for details.
+- Error: Xcode requires a provisioning profile which supports DriverKit
+    - Reason:
+        - The driverkit entitlements (e.g., `com.apple.developer.driverkit`) requires a proper provisioning profile which you cannot create it unless you gained DriverKit framework capability from Apple.
+    - Workaround:
+        - If you want to develop driver extension without the capability, build your code without entitlements and inject entitlements at codesigning stage.
+          See `src/scripts/codesign.sh` for details.
 
 ## OSSystemExtensionError.Code
 
@@ -145,8 +145,7 @@ The `RegisterService` invokes `registerService()` at [IOHIDDevice::start](https:
 
 4.  Implement `org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceRoot::NewUserClient` method.
 5.  Implement `org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient::Start` and `Stop`.
-
-    -   You can save `provider` argument to ivars at `org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient::Start` if needed as follows.
+    - You can save `provider` argument to ivars at `org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient::Start` if needed as follows.
 
         ```cpp
         ivars->deviceRoot = OSDynamicCast(org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceRoot, provider);
