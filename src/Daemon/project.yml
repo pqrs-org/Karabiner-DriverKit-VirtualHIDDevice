@@ -15,6 +15,8 @@ targets:
         - ../../include
       HEADER_SEARCH_PATHS:
         - include
+      OTHER_LDFLAGS:
+        - ../../vendor/vendor/src/spdlog-build/build/Release/libspdlog.a
     type: application
     platform: macOS
     deploymentTarget: 13.0
@@ -23,6 +25,7 @@ targets:
         compilerFlags:
           - -Wall
           - -Werror
+          - -DSPDLOG_COMPILED_LIB
           - '-std=c++23'
       - path: ../../vendor/vendor/src/pqrs/osx/process_info
       - path: Resources

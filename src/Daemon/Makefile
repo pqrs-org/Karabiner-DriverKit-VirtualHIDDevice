@@ -1,4 +1,5 @@
 all:
+	$(MAKE) -C ../../vendor/vendor/src/spdlog-build
 	/usr/bin/python3 ../../scripts/update_version.py
 	xcodegen generate
 	xcodebuild -configuration Release -alltargets SYMROOT="$(CURDIR)/build"
