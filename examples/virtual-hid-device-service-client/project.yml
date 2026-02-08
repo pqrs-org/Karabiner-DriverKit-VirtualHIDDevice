@@ -18,4 +18,4 @@ targets:
         compilerFlags:
           - -Wall
           - -Werror
-          - '-std=gnu++2a'
+          - '-std=c++23'

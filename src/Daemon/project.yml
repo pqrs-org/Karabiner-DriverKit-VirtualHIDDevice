@@ -23,7 +23,7 @@ targets:
         compilerFlags:
           - -Wall
           - -Werror
-          - '-std=gnu++2a'
+          - '-std=c++23'
       - path: ../../vendor/vendor/src/pqrs/osx/process_info
       - path: Resources
         excludes:
