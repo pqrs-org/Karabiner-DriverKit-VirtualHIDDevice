@@ -1,5 +1,15 @@
 # Changelog
 
+## Karabiner-DriverKit-VirtualHIDDevice 6.10.0
+
+- 📅 Release date
+    - Feb 9, 2026
+- ⚡️ Improvements
+    - Built with C++23.
+    - Updated dependent vendor code.
+        - pqrs::dispatcher v2.14
+        - pqrs::spdlog v2.4
+
 ## Karabiner-DriverKit-VirtualHIDDevice 6.9.0
 
 - 📅 Release date
