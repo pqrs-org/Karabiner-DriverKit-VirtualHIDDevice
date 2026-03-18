@@ -1,5 +1,15 @@
 # Changelog
 
+## Karabiner-DriverKit-VirtualHIDDevice 6.11.0
+
+- 📅 Release date
+    - Mar 18, 2026
+- ⚡️ Improvements
+    - Updated dependent vendor code.
+        - asio 1.38.0
+        - pqrs::cf::run_loop_thread v2.9
+        - pqrs::osx::iokit_types v6.3
+
 ## Karabiner-DriverKit-VirtualHIDDevice 6.10.0
 
 - 📅 Release date
