@@ -1,5 +1,15 @@
 # Changelog
 
+## Karabiner-DriverKit-VirtualHIDDevice 6.12.0
+
+- 📅 Release date
+    - Mar 26, 2026
+- 🐛 Bug Fixes
+    - Fixed an issue introduced in v6.11.0 where Karabiner-VirtualHIDDevice-Daemon would crash on macOS 13 with a `Symbol not found: _quick_exit` error.
+- ⚡️ Improvements
+    - Updated dependent vendor code.
+        - pqrs::cf::run_loop_thread v2.10
+
 ## Karabiner-DriverKit-VirtualHIDDevice 6.11.0
 
 - 📅 Release date
