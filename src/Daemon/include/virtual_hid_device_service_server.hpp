@@ -2,12 +2,15 @@
 
 #include "logger.hpp"
 #include "virtual_hid_device_service_clients_manager.hpp"
+#include <cstring>
 #include <filesystem>
 #include <pqrs/dispatcher.hpp>
 #include <pqrs/karabiner/driverkit/virtual_hid_device_driver.hpp>
 #include <pqrs/karabiner/driverkit/virtual_hid_device_service.hpp>
 #include <pqrs/local_datagram.hpp>
 #include <sstream>
+#include <type_traits>
+#include <vector>
 
 class virtual_hid_device_service_server final : public pqrs::dispatcher::extra::dispatcher_client {
 public:
@@ -40,6 +43,24 @@ public:
   }
 
 private:
+  template <typename T>
+  static bool read_data(const std::vector<uint8_t>& buffer,
+                        size_t& offset,
+                        T& value) {
+    static_assert(std::is_trivially_copyable_v<T>);
+
+    if (offset > buffer.size() ||
+        buffer.size() - offset < sizeof(T)) {
+      return false;
+    }
+
+    std::memcpy(std::addressof(value),
+                buffer.data() + offset,
+                sizeof(T));
+    offset += sizeof(T);
+    return true;
+  }
+
   void create_rootonly_directory(void) const {
     std::error_code error_code;
     std::filesystem::create_directories(
@@ -119,10 +140,14 @@ private:
         return;
       }
 
+      if (buffer->empty()) {
+        logger::get_logger()->error("virtual_hid_device_service_server: payload is empty");
+        return;
+      }
+
       auto sender_endpoint_filename = std::filesystem::path(sender_endpoint->path()).filename();
 
-      auto p = &((*buffer)[0]);
-      auto size = buffer->size();
+      size_t offset = 0;
 
       //
       // Read common data
@@ -133,27 +158,25 @@ private:
       // buffer[3]: client_protocol_version[1]
       // buffer[4]: pqrs::karabiner::driverkit::virtual_hid_device_service::request
 
-      if (size-- == 0 || *p++ != 'c' ||
-          size-- == 0 || *p++ != 'p') {
+      if (buffer->size() < 2 ||
+          (*buffer)[0] != 'c' ||
+          (*buffer)[1] != 'p') {
         logger::get_logger()->error("virtual_hid_device_service_server: unknown request");
-      }
-
-      if (size < sizeof(pqrs::karabiner::driverkit::client_protocol_version::value_t)) {
-        logger::get_logger()->error("virtual_hid_device_service_server: payload is not enough");
         return;
       }
-      auto received_client_protocol_version = *(reinterpret_cast<pqrs::karabiner::driverkit::client_protocol_version::value_t*>(p));
-      p += sizeof(pqrs::karabiner::driverkit::client_protocol_version::value_t);
-      size -= sizeof(pqrs::karabiner::driverkit::client_protocol_version::value_t);
+      offset = 2;
 
-      if (size < sizeof(pqrs::karabiner::driverkit::virtual_hid_device_service::request)) {
+      pqrs::karabiner::driverkit::client_protocol_version::value_t received_client_protocol_version(0);
+      if (!read_data(*buffer, offset, received_client_protocol_version)) {
         logger::get_logger()->error("virtual_hid_device_service_server: payload is not enough");
         return;
       }
 
-      auto request = *(reinterpret_cast<pqrs::karabiner::driverkit::virtual_hid_device_service::request*>(p));
-      p += sizeof(pqrs::karabiner::driverkit::virtual_hid_device_service::request);
-      size -= sizeof(pqrs::karabiner::driverkit::virtual_hid_device_service::request);
+      pqrs::karabiner::driverkit::virtual_hid_device_service::request request{};
+      if (!read_data(*buffer, offset, request)) {
+        logger::get_logger()->error("virtual_hid_device_service_server: payload is not enough");
+        return;
+      }
 
       //
       // Check client protocol version
@@ -178,16 +201,20 @@ private:
           logger::get_logger()->info("{0} received request::virtual_hid_keyboard_initialize",
                                      sender_endpoint_filename.c_str());
 
-          if (sizeof(pqrs::karabiner::driverkit::virtual_hid_device_service::virtual_hid_keyboard_parameters) != size) {
+          auto payload_size = buffer->size() - offset;
+          if (sizeof(pqrs::karabiner::driverkit::virtual_hid_device_service::virtual_hid_keyboard_parameters) != payload_size) {
             logger::get_logger()->warn("virtual_hid_device_service_server: received: virtual_hid_keyboard_initialize buffer size error");
             return;
           }
 
-          auto parameters = reinterpret_cast<pqrs::karabiner::driverkit::virtual_hid_device_service::virtual_hid_keyboard_parameters*>(p);
+          pqrs::karabiner::driverkit::virtual_hid_device_service::virtual_hid_keyboard_parameters parameters;
+          std::memcpy(std::addressof(parameters),
+                      buffer->data() + offset,
+                      sizeof(parameters));
 
           virtual_hid_device_service_clients_manager_->create_client(sender_endpoint->path());
           virtual_hid_device_service_clients_manager_->initialize_keyboard(sender_endpoint->path(),
-                                                                           *parameters);
+                                                                           parameters);
           break;
         }
 
@@ -223,45 +250,63 @@ private:
           break;
 
         case pqrs::karabiner::driverkit::virtual_hid_device_service::request::post_keyboard_input_report:
-          virtual_hid_device_service_clients_manager_->post_keyboard_report<pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report::keyboard_input>(
+          virtual_hid_device_service_clients_manager_->post_keyboard_report(
               sender_endpoint->path(),
-              p,
-              size);
+              buffer,
+              offset,
+              pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_keyboard_post_report,
+              "virtual_hid_keyboard_post_report(keyboard_input)",
+              sizeof(pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report::keyboard_input));
           break;
 
         case pqrs::karabiner::driverkit::virtual_hid_device_service::request::post_consumer_input_report:
-          virtual_hid_device_service_clients_manager_->post_keyboard_report<pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report::consumer_input>(
+          virtual_hid_device_service_clients_manager_->post_keyboard_report(
               sender_endpoint->path(),
-              p,
-              size);
+              buffer,
+              offset,
+              pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_keyboard_post_report,
+              "virtual_hid_keyboard_post_report(consumer_input)",
+              sizeof(pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report::consumer_input));
           break;
 
         case pqrs::karabiner::driverkit::virtual_hid_device_service::request::post_apple_vendor_keyboard_input_report:
-          virtual_hid_device_service_clients_manager_->post_keyboard_report<pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report::apple_vendor_keyboard_input>(
+          virtual_hid_device_service_clients_manager_->post_keyboard_report(
               sender_endpoint->path(),
-              p,
-              size);
+              buffer,
+              offset,
+              pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_keyboard_post_report,
+              "virtual_hid_keyboard_post_report(apple_vendor_keyboard_input)",
+              sizeof(pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report::apple_vendor_keyboard_input));
           break;
 
         case pqrs::karabiner::driverkit::virtual_hid_device_service::request::post_apple_vendor_top_case_input_report:
-          virtual_hid_device_service_clients_manager_->post_keyboard_report<pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report::apple_vendor_top_case_input>(
+          virtual_hid_device_service_clients_manager_->post_keyboard_report(
               sender_endpoint->path(),
-              p,
-              size);
+              buffer,
+              offset,
+              pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_keyboard_post_report,
+              "virtual_hid_keyboard_post_report(apple_vendor_top_case_input)",
+              sizeof(pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report::apple_vendor_top_case_input));
           break;
 
         case pqrs::karabiner::driverkit::virtual_hid_device_service::request::post_generic_desktop_input_report:
-          virtual_hid_device_service_clients_manager_->post_keyboard_report<pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report::generic_desktop_input>(
+          virtual_hid_device_service_clients_manager_->post_keyboard_report(
               sender_endpoint->path(),
-              p,
-              size);
+              buffer,
+              offset,
+              pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_keyboard_post_report,
+              "virtual_hid_keyboard_post_report(generic_desktop_input)",
+              sizeof(pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report::generic_desktop_input));
           break;
 
         case pqrs::karabiner::driverkit::virtual_hid_device_service::request::post_pointing_input_report:
-          virtual_hid_device_service_clients_manager_->post_pointing_report<pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report::pointing_input>(
+          virtual_hid_device_service_clients_manager_->post_pointing_report(
               sender_endpoint->path(),
-              p,
-              size);
+              buffer,
+              offset,
+              pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_pointing_post_report,
+              "virtual_hid_pointing_post_report(pointing_input)",
+              sizeof(pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report::pointing_input));
           break;
       }
     });

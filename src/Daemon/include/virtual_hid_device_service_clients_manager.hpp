@@ -2,11 +2,13 @@
 
 #include "logger.hpp"
 #include <filesystem>
+#include <memory>
 #include <nod/nod.hpp>
 #include <pqrs/dispatcher.hpp>
 #include <pqrs/karabiner/driverkit/virtual_hid_device_service.hpp>
 #include <pqrs/local_datagram.hpp>
 #include <unordered_map>
+#include <vector>
 
 class virtual_hid_device_service_clients_manager final : public pqrs::dispatcher::extra::dispatcher_client {
 public:
@@ -179,47 +181,39 @@ public:
   }
 
   // This method needs to be called in the dispatcher thread.
-  template <typename T>
   void post_keyboard_report(const std::string& endpoint_path,
-                            const uint8_t* buffer,
-                            size_t buffer_size) const {
-    if (!dispatcher_thread()) {
-      throw std::logic_error(fmt::format("{0} is called in wrong thread", __func__));
-    }
-
-    if (sizeof(T) != buffer_size) {
-      logger::get_logger()->warn(fmt::format("{0}: buffer size error", __func__));
-      return;
-    }
-
-    auto it = entries_.find(endpoint_path);
-    if (it != std::end(entries_)) {
-      if (auto c = it->second->get_io_service_client_keyboard()) {
-        c->async_post_report(*(reinterpret_cast<const T*>(buffer)));
-      }
-    }
+                            std::shared_ptr<std::vector<uint8_t>> buffer,
+                            size_t report_offset,
+                            pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method user_client_method,
+                            const char* report_name,
+                            size_t expected_size) const {
+    post_report(endpoint_path,
+                std::move(buffer),
+                report_offset,
+                user_client_method,
+                report_name,
+                expected_size,
+                [](const entry& entry) {
+                  return entry.get_io_service_client_keyboard();
+                });
   }
 
   // This method needs to be called in the dispatcher thread.
-  template <typename T>
   void post_pointing_report(const std::string& endpoint_path,
-                            const uint8_t* buffer,
-                            size_t buffer_size) const {
-    if (!dispatcher_thread()) {
-      throw std::logic_error(fmt::format("{0} is called in wrong thread", __func__));
-    }
-
-    if (sizeof(T) != buffer_size) {
-      logger::get_logger()->warn(fmt::format("{0}: buffer size error", __func__));
-      return;
-    }
-
-    auto it = entries_.find(endpoint_path);
-    if (it != std::end(entries_)) {
-      if (auto c = it->second->get_io_service_client_pointing()) {
-        c->async_post_report(*(reinterpret_cast<const T*>(buffer)));
-      }
-    }
+                            std::shared_ptr<std::vector<uint8_t>> buffer,
+                            size_t report_offset,
+                            pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method user_client_method,
+                            const char* report_name,
+                            size_t expected_size) const {
+    post_report(endpoint_path,
+                std::move(buffer),
+                report_offset,
+                user_client_method,
+                report_name,
+                expected_size,
+                [](const entry& entry) {
+                  return entry.get_io_service_client_pointing();
+                });
   }
 
 private:
@@ -465,6 +459,41 @@ private:
        << ".sock";
 
     return ss.str();
+  }
+
+  template <typename GetIoServiceClient>
+  void post_report(const std::string& endpoint_path,
+                   std::shared_ptr<std::vector<uint8_t>> buffer,
+                   size_t report_offset,
+                   pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method user_client_method,
+                   const char* report_name,
+                   size_t expected_size,
+                   GetIoServiceClient get_io_service_client) const {
+    if (!dispatcher_thread()) {
+      throw std::logic_error(fmt::format("{0} is called in wrong thread", __func__));
+    }
+
+    if (!buffer ||
+        report_offset > buffer->size()) {
+      logger::get_logger()->warn(fmt::format("{0}: buffer range error", __func__));
+      return;
+    }
+
+    auto report_size = buffer->size() - report_offset;
+    if (expected_size != report_size) {
+      logger::get_logger()->warn(fmt::format("{0}: buffer size error", __func__));
+      return;
+    }
+
+    auto it = entries_.find(endpoint_path);
+    if (it != std::end(entries_)) {
+      if (auto c = get_io_service_client(*(it->second))) {
+        c->async_post_report(user_client_method,
+                             std::move(buffer),
+                             report_offset,
+                             report_name);
+      }
+    }
   }
 
   pqrs::not_null_shared_ptr_t<pqrs::cf::run_loop_thread> run_loop_thread_;
