@@ -9,10 +9,12 @@
 #include "request.hpp"
 #include "response.hpp"
 #include <glob/glob.hpp>
+#include <cstring>
 #include <pqrs/dispatcher.hpp>
 #include <pqrs/hid.hpp>
 #include <pqrs/local_datagram.hpp>
 #include <sstream>
+#include <type_traits>
 
 namespace pqrs {
 namespace karabiner {
@@ -308,9 +310,13 @@ private:
 
   template <typename T>
   void append_data(std::vector<uint8_t>& buffer, const T& data) const {
+    static_assert(std::is_trivially_copyable_v<T>);
+
     auto size = buffer.size();
     buffer.resize(size + sizeof(data));
-    *(reinterpret_cast<T*>(&(buffer[size]))) = data;
+    std::memcpy(buffer.data() + size,
+                std::addressof(data),
+                sizeof(data));
   }
 
   std::unique_ptr<local_datagram::client> client_;
