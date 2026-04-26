@@ -26,9 +26,9 @@ public:
   // Signals (invoked from the dispatcher thread)
 
   nod::signal<void(const std::string&)> warning_reported;
-  nod::signal<void(void)> connected;
+  nod::signal<void()> connected;
   nod::signal<void(const asio::error_code&)> connect_failed;
-  nod::signal<void(void)> closed;
+  nod::signal<void()> closed;
   nod::signal<void(const asio::error_code&)> error_occurred;
   nod::signal<void(bool)> driver_activated;
   nod::signal<void(bool)> driver_connected;
@@ -38,17 +38,17 @@ public:
 
   // Methods
 
-  client(void)
+  client()
       : dispatcher_client() {
   }
 
-  virtual ~client(void) {
+  virtual ~client() {
     detach_from_dispatcher([this] {
       client_ = nullptr;
     });
   }
 
-  void async_start(void) {
+  void async_start() {
     enqueue_to_dispatcher([this] {
       if (client_) {
         return;
@@ -62,7 +62,7 @@ public:
     });
   }
 
-  void async_stop(void) {
+  void async_stop() {
     enqueue_to_dispatcher([this] {
       client_ = nullptr;
 
@@ -85,11 +85,11 @@ public:
                parameters);
   }
 
-  void async_virtual_hid_keyboard_terminate(void) {
+  void async_virtual_hid_keyboard_terminate() {
     async_send(request::virtual_hid_keyboard_terminate);
   }
 
-  void async_virtual_hid_keyboard_reset(void) {
+  void async_virtual_hid_keyboard_reset() {
     async_send(request::virtual_hid_keyboard_reset);
   }
 
@@ -103,11 +103,11 @@ public:
     async_send(request::virtual_hid_pointing_initialize);
   }
 
-  void async_virtual_hid_pointing_terminate(void) {
+  void async_virtual_hid_pointing_terminate() {
     async_send(request::virtual_hid_pointing_terminate);
   }
 
-  void async_virtual_hid_pointing_reset(void) {
+  void async_virtual_hid_pointing_reset() {
     async_send(request::virtual_hid_pointing_reset);
   }
 
@@ -136,7 +136,7 @@ public:
   }
 
 private:
-  std::string client_socket_file_path(void) const {
+  std::string client_socket_file_path() const {
     while (true) {
       auto now = std::chrono::system_clock::now();
       auto duration = now.time_since_epoch();
@@ -156,7 +156,7 @@ private:
     }
   }
 
-  std::filesystem::path find_server_socket_file_path(void) const {
+  std::filesystem::path find_server_socket_file_path() const {
     auto pattern = (pqrs::karabiner::driverkit::virtual_hid_device_service::constants::get_server_socket_directory_path() / "*.sock").string();
     auto paths = glob::glob(pattern);
     std::ranges::sort(paths);
@@ -168,7 +168,7 @@ private:
     return pqrs::karabiner::driverkit::virtual_hid_device_service::constants::get_server_socket_directory_path() / "not_found.sock";
   }
 
-  void clear_state(void) {
+  void clear_state() {
     last_virtual_hid_keyboard_ready_ = std::nullopt;
     virtual_hid_keyboard_ready(false);
 
@@ -178,7 +178,7 @@ private:
     last_virtual_hid_keyboard_parameters_ = std::nullopt;
   }
 
-  void create_client(void) {
+  void create_client() {
     client_ = std::make_unique<local_datagram::client>(weak_dispatcher_,
                                                        find_server_socket_file_path(),
                                                        client_socket_file_path(),

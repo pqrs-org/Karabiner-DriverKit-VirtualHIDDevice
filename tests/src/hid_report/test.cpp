@@ -3,7 +3,7 @@
 #include "modifiers_test.hpp"
 #include "sizeof_test.hpp"
 
-int main(void) {
+int main() {
   run_buttons_test();
   run_keys_test();
   run_modifiers_test();

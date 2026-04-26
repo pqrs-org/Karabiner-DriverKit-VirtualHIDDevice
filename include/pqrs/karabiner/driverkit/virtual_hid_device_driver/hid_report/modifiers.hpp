@@ -15,17 +15,17 @@ namespace hid_report {
 
 class __attribute__((packed)) modifiers final {
 public:
-  modifiers(void) : modifiers_(0) {}
+  modifiers() : modifiers_(0) {}
 
-  uint8_t get_raw_value(void) const {
+  uint8_t get_raw_value() const {
     return modifiers_;
   }
 
-  bool empty(void) const {
+  bool empty() const {
     return modifiers_ == 0;
   }
 
-  void clear(void) {
+  void clear() {
     modifiers_ = 0;
   }
 

@@ -107,7 +107,7 @@ And if you call `RegisterService` at the end of `handleStart`, your own device w
 Thus, the correct way to register `IOUserHIDDevice` is that we implement `newDeviceDescription` and return `"RegisterService"`.
 
 ```cpp
-OSDictionary* org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard::newDeviceDescription(void) {
+OSDictionary* org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard::newDeviceDescription() {
   auto dictionary = OSDictionary::withCapacity(12);
 
   ...

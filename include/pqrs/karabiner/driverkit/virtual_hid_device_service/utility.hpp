@@ -12,7 +12,7 @@ namespace karabiner {
 namespace driverkit {
 namespace virtual_hid_device_service {
 namespace utility {
-inline bool driver_running(void) {
+inline bool driver_running() {
   auto service = IOServiceGetMatchingService(type_safe::get(pqrs::osx::iokit_mach_port::null),
                                              IOServiceNameMatching("org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceRoot"));
   if (!service) {
@@ -23,7 +23,7 @@ inline bool driver_running(void) {
   return true;
 }
 
-inline bool virtual_hid_keyboard_exists(void) {
+inline bool virtual_hid_keyboard_exists() {
   auto service = IOServiceGetMatchingService(type_safe::get(pqrs::osx::iokit_mach_port::null),
                                              IOServiceNameMatching("org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard"));
   if (!service) {
@@ -34,7 +34,7 @@ inline bool virtual_hid_keyboard_exists(void) {
   return true;
 }
 
-inline bool virtual_hid_pointing_exists(void) {
+inline bool virtual_hid_pointing_exists() {
   auto service = IOServiceGetMatchingService(type_safe::get(pqrs::osx::iokit_mach_port::null),
                                              IOServiceNameMatching("org_pqrs_Karabiner_DriverKit_VirtualHIDPointing"));
   if (!service) {

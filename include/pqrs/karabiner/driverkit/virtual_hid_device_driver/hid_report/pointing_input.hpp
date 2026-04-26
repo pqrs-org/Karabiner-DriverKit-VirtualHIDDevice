@@ -15,7 +15,7 @@ namespace hid_report {
 
 class __attribute__((packed)) pointing_input final {
 public:
-  pointing_input(void) : buttons{}, x(0), y(0), vertical_wheel(0), horizontal_wheel(0) {}
+  pointing_input() : buttons{}, x(0), y(0), vertical_wheel(0), horizontal_wheel(0) {}
   bool operator==(const pointing_input& other) const { return (memcmp(this, &other, sizeof(*this)) == 0); }
   bool operator!=(const pointing_input& other) const { return !(*this == other); }
 

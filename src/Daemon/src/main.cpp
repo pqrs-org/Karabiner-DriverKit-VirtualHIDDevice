@@ -9,7 +9,7 @@
 #include <pqrs/osx/iokit_return.hpp>
 #include <pqrs/osx/process_info.hpp>
 
-int main(void) {
+int main() {
   std::signal(SIGINT, SIG_IGN);
   std::signal(SIGTERM, SIG_IGN);
   std::signal(SIGUSR1, SIG_IGN);

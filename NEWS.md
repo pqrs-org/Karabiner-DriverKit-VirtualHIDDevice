@@ -211,9 +211,9 @@
             - `virtual_hid_pointing_ready_response`
     - The following obsoleted methods of `virtual_hid_device_service::client` are removed:
         - `client(const std::filesystem::path& client_socket_file_path)`
-        - `async_driver_loaded(void)`
-        - `async_virtual_hid_keyboard_ready(void)`
-        - `async_virtual_hid_pointing_ready(void)`
+        - `async_driver_loaded()`
+        - `async_virtual_hid_keyboard_ready()`
+        - `async_virtual_hid_pointing_ready()`
 - ✨ New Features
     - `driver_activated` signal is added into `virtual_hid_device_service::client`.
 - ⚡️ Improvements

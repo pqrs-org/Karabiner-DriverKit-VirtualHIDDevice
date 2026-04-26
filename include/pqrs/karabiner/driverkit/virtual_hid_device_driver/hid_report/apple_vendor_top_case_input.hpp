@@ -15,7 +15,7 @@ namespace hid_report {
 
 class __attribute__((packed)) apple_vendor_top_case_input final {
 public:
-  apple_vendor_top_case_input(void) : report_id_(3) {}
+  apple_vendor_top_case_input() : report_id_(3) {}
   bool operator==(const apple_vendor_top_case_input& other) const { return (memcmp(this, &other, sizeof(*this)) == 0); }
   bool operator!=(const apple_vendor_top_case_input& other) const { return !(*this == other); }
 

@@ -19,9 +19,9 @@ public:
                                          OSObject* target,
                                          void* reference) override;
 
-    virtual uint32_t getKeyboardVendorId(void);
-    virtual uint32_t getKeyboardProductId(void);
-    virtual uint32_t getKeyboardCountryCode(void);
+    virtual uint32_t getKeyboardVendorId();
+    virtual uint32_t getKeyboardProductId();
+    virtual uint32_t getKeyboardCountryCode();
 };
 
 #endif

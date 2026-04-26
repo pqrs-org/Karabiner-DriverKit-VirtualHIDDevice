@@ -1,7 +1,7 @@
 #include <boost/ut.hpp>
 #include <pqrs/karabiner/driverkit/virtual_hid_device_driver.hpp>
 
-void run_keys_test(void) {
+void run_keys_test() {
   using namespace boost::ut;
   using namespace boost::ut::literals;
 

@@ -10,7 +10,7 @@ namespace {
 std::atomic<bool> exit_flag(false);
 }
 
-int main(void) {
+int main() {
   std::signal(SIGINT, [](int) {
     exit_flag = true;
   });

@@ -14,13 +14,13 @@ namespace hid_report {
 
 class __attribute__((packed)) keys final {
 public:
-  keys(void) : keys_{} {}
+  keys() : keys_{} {}
 
-  const uint16_t (&get_raw_value(void) const)[32] {
+  const uint16_t (&get_raw_value() const)[32] {
     return keys_;
   }
 
-  bool empty(void) const {
+  bool empty() const {
     for (const auto& k : keys_) {
       if (k != 0) {
         return false;
@@ -29,7 +29,7 @@ public:
     return true;
   }
 
-  void clear(void) {
+  void clear() {
     memset(keys_, 0, sizeof(keys_));
   }
 
@@ -62,7 +62,7 @@ public:
     return false;
   }
 
-  size_t count(void) const {
+  size_t count() const {
     size_t result = 0;
     for (const auto& k : keys_) {
       if (k) {

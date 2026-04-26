@@ -23,8 +23,8 @@ class io_service_client final : public pqrs::dispatcher::extra::dispatcher_clien
 public:
   // Signals (invoked from the dispatcher thread)
 
-  nod::signal<void(void)> opened;
-  nod::signal<void(void)> closed;
+  nod::signal<void()> opened;
+  nod::signal<void()> closed;
 
   // Methods
 
@@ -39,7 +39,7 @@ public:
                                __func__);
   }
 
-  ~io_service_client(void) {
+  ~io_service_client() {
     logger::get_logger()->info("{0} io_service_client::{1}",
                                virtual_hid_device_service_client_endpoint_filename_,
                                __func__);
@@ -53,7 +53,7 @@ public:
     });
   }
 
-  bool driver_activated(void) const {
+  bool driver_activated() const {
     auto service = IOServiceGetMatchingService(type_safe::get(pqrs::osx::iokit_mach_port::null),
                                                IOServiceNameMatching(service_name_.c_str()));
     if (!service) {
@@ -64,13 +64,13 @@ public:
     return true;
   }
 
-  bool driver_connected(void) const {
+  bool driver_connected() const {
     std::lock_guard<std::mutex> lock(driver_version_mutex_);
 
     return driver_version_ != std::nullopt;
   }
 
-  bool driver_version_mismatched(void) const {
+  bool driver_version_mismatched() const {
     std::lock_guard<std::mutex> lock(driver_version_mutex_);
 
     // Return false until driver is loaded to avoid treating it as unmatched at startup.
@@ -94,7 +94,7 @@ public:
     return true;
   }
 
-  std::optional<bool> get_virtual_hid_keyboard_ready(void) const {
+  std::optional<bool> get_virtual_hid_keyboard_ready() const {
     if (!driver_connected() ||
         driver_version_mismatched()) {
       return std::nullopt;
@@ -107,7 +107,7 @@ public:
     }
   }
 
-  std::optional<bool> get_virtual_hid_pointing_ready(void) const {
+  std::optional<bool> get_virtual_hid_pointing_ready() const {
     if (!driver_connected() ||
         driver_version_mismatched()) {
       return std::nullopt;
@@ -120,7 +120,7 @@ public:
     }
   }
 
-  void async_start(void) {
+  void async_start() {
     logger::get_logger()->info("{0} io_service_client::{1}",
                                virtual_hid_device_service_client_endpoint_filename_,
                                __func__);
@@ -206,7 +206,7 @@ public:
     });
   }
 
-  void async_virtual_hid_keyboard_ready(void) {
+  void async_virtual_hid_keyboard_ready() {
     enqueue_to_dispatcher([this] {
       auto ready = call_ready(pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_keyboard_ready);
 
@@ -216,7 +216,7 @@ public:
     });
   }
 
-  void async_virtual_hid_keyboard_reset(void) const {
+  void async_virtual_hid_keyboard_reset() const {
     enqueue_to_dispatcher([this] {
       auto r = call(pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_keyboard_reset);
 
@@ -228,7 +228,7 @@ public:
     });
   }
 
-  void async_virtual_hid_pointing_initialize(void) const {
+  void async_virtual_hid_pointing_initialize() const {
     logger::get_logger()->info("{0} io_service_client::{1}",
                                virtual_hid_device_service_client_endpoint_filename_,
                                __func__);
@@ -244,7 +244,7 @@ public:
     });
   }
 
-  void async_virtual_hid_pointing_ready(void) {
+  void async_virtual_hid_pointing_ready() {
     enqueue_to_dispatcher([this] {
       auto ready = call_ready(pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_pointing_ready);
 
@@ -254,7 +254,7 @@ public:
     });
   }
 
-  void async_virtual_hid_pointing_reset(void) const {
+  void async_virtual_hid_pointing_reset() const {
     enqueue_to_dispatcher([this] {
       auto r = call(pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_pointing_reset);
 
@@ -304,15 +304,15 @@ private:
           invalidated_(false) {
     }
 
-    pqrs::osx::iokit_registry_entry_id::value_t get_registry_entry_id(void) const {
+    pqrs::osx::iokit_registry_entry_id::value_t get_registry_entry_id() const {
       return registry_entry_id_;
     }
 
-    pqrs::osx::iokit_object_ptr get_service(void) const {
+    pqrs::osx::iokit_object_ptr get_service() const {
       return service_;
     }
 
-    bool get_opened(void) const {
+    bool get_opened() const {
       return opened_;
     }
 
@@ -320,7 +320,7 @@ private:
       opened_ = value;
     }
 
-    bool get_invalidated(void) const {
+    bool get_invalidated() const {
       return invalidated_;
     }
 
@@ -357,7 +357,7 @@ private:
                     });
     }
 
-    const std::vector<pqrs::not_null_shared_ptr_t<matched_service>>& get_services(void) const {
+    const std::vector<pqrs::not_null_shared_ptr_t<matched_service>>& get_services() const {
       return services_;
     }
 
@@ -373,7 +373,7 @@ private:
       return nullptr;
     }
 
-    std::shared_ptr<matched_service> find_opened(void) const {
+    std::shared_ptr<matched_service> find_opened() const {
       if (auto it = std::ranges::find_if(services_,
                                          [](const auto& s) {
                                            return s->get_opened();
@@ -438,7 +438,7 @@ private:
   }
 
   // This method is executed in the dispatcher thread.
-  void open_connection(void) {
+  void open_connection() {
     if (connection_) {
       return;
     }

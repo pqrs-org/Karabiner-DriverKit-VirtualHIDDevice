@@ -14,17 +14,17 @@ namespace hid_report {
 
 class __attribute__((packed)) buttons final {
 public:
-  buttons(void) : buttons_(0) {}
+  buttons() : buttons_(0) {}
 
-  uint32_t get_raw_value(void) const {
+  uint32_t get_raw_value() const {
     return buttons_;
   }
 
-  bool empty(void) const {
+  bool empty() const {
     return buttons_ == 0;
   }
 
-  void clear(void) {
+  void clear() {
     buttons_ = 0;
   }
 

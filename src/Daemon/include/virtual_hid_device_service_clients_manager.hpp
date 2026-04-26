@@ -17,7 +17,7 @@ public:
         run_loop_thread_(run_loop_thread) {
   }
 
-  virtual ~virtual_hid_device_service_clients_manager(void) {
+  virtual ~virtual_hid_device_service_clients_manager() {
     detach_from_dispatcher([this] {
       entries_.clear();
     });
@@ -301,7 +301,7 @@ private:
           std::chrono::milliseconds(1000));
     }
 
-    ~entry(void) {
+    ~entry() {
       detach_from_dispatcher([this] {
         io_service_client_pointing_ = nullptr;
         io_service_client_keyboard_ = nullptr;
@@ -309,11 +309,11 @@ private:
       });
     }
 
-    std::shared_ptr<io_service_client> get_io_service_client_keyboard(void) const {
+    std::shared_ptr<io_service_client> get_io_service_client_keyboard() const {
       return io_service_client_keyboard_;
     }
 
-    std::shared_ptr<io_service_client> get_io_service_client_pointing(void) const {
+    std::shared_ptr<io_service_client> get_io_service_client_pointing() const {
       return io_service_client_pointing_;
     }
 
@@ -336,7 +336,7 @@ private:
       });
     }
 
-    void terminate_keyboard(void) {
+    void terminate_keyboard() {
       enqueue_to_dispatcher([this] {
         virtual_hid_keyboard_enabled_ = false;
       });
@@ -346,13 +346,13 @@ private:
     // io_service_client_pointing_
     //
 
-    void initialize_pointing(void) {
+    void initialize_pointing() {
       enqueue_to_dispatcher([this] {
         virtual_hid_pointing_enabled_ = true;
       });
     }
 
-    void terminate_pointing(void) {
+    void terminate_pointing() {
       enqueue_to_dispatcher([this] {
         virtual_hid_pointing_enabled_ = false;
       });
@@ -360,7 +360,7 @@ private:
 
   private:
     // This method is executed in the dispatcher thread.
-    bool virtual_hid_keyboard_ready(void) const {
+    bool virtual_hid_keyboard_ready() const {
       std::optional<bool> ready;
 
       if (io_service_client_keyboard_) {
@@ -371,7 +371,7 @@ private:
     }
 
     // This method is executed in the dispatcher thread.
-    bool virtual_hid_pointing_ready(void) const {
+    bool virtual_hid_pointing_ready() const {
       std::optional<bool> ready;
 
       if (io_service_client_pointing_) {
@@ -382,7 +382,7 @@ private:
     }
 
     // This method is executed in the dispatcher thread.
-    void async_send_driver_activated(void) const {
+    void async_send_driver_activated() const {
       bool driver_activated = io_service_client_nop_->driver_activated();
       auto response = pqrs::karabiner::driverkit::virtual_hid_device_service::response::driver_activated;
       uint8_t buffer[] = {
@@ -394,7 +394,7 @@ private:
     }
 
     // This method is executed in the dispatcher thread.
-    void async_send_driver_connected(void) const {
+    void async_send_driver_connected() const {
       bool driver_connected = io_service_client_nop_->driver_connected();
       auto response = pqrs::karabiner::driverkit::virtual_hid_device_service::response::driver_connected;
       uint8_t buffer[] = {
@@ -406,7 +406,7 @@ private:
     }
 
     // This method is executed in the dispatcher thread.
-    void async_send_driver_version_mismatched(void) const {
+    void async_send_driver_version_mismatched() const {
       bool driver_version_mismatched = io_service_client_nop_->driver_version_mismatched();
       auto response = pqrs::karabiner::driverkit::virtual_hid_device_service::response::driver_version_mismatched;
       uint8_t buffer[] = {
@@ -445,7 +445,7 @@ private:
     bool virtual_hid_pointing_enabled_;
   };
 
-  std::filesystem::path server_response_socket_file_path(void) const {
+  std::filesystem::path server_response_socket_file_path() const {
     auto now = std::chrono::system_clock::now();
     auto duration = now.time_since_epoch();
 

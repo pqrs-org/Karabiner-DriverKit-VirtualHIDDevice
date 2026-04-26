@@ -135,7 +135,7 @@ kern_return_t IMPL(org_pqrs_Karabiner_DriverKit_VirtualHIDPointing, Stop) {
   return Stop(provider, SUPERDISPATCH);
 }
 
-OSDictionary* org_pqrs_Karabiner_DriverKit_VirtualHIDPointing::newDeviceDescription(void) {
+OSDictionary* org_pqrs_Karabiner_DriverKit_VirtualHIDPointing::newDeviceDescription() {
   os_log(OS_LOG_DEFAULT, LOG_PREFIX " newDeviceDescription");
 
   auto dictionary = OSDictionary::withCapacity(10);
@@ -191,7 +191,7 @@ OSDictionary* org_pqrs_Karabiner_DriverKit_VirtualHIDPointing::newDeviceDescript
   return dictionary;
 }
 
-OSData* org_pqrs_Karabiner_DriverKit_VirtualHIDPointing::newReportDescriptor(void) {
+OSData* org_pqrs_Karabiner_DriverKit_VirtualHIDPointing::newReportDescriptor() {
   os_log(OS_LOG_DEFAULT, LOG_PREFIX " newReportDescriptor");
 
   return OSData::withBytes(reportDescriptor, sizeof(reportDescriptor));

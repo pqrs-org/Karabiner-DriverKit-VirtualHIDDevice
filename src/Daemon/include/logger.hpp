@@ -9,7 +9,7 @@
 
 class logger final {
 public:
-  static pqrs::not_null_shared_ptr_t<spdlog::logger> get_logger(void) {
+  static pqrs::not_null_shared_ptr_t<spdlog::logger> get_logger() {
     std::lock_guard<std::mutex> guard(mutex_);
 
     if (logger_) {

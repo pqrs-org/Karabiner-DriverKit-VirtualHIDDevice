@@ -32,7 +32,7 @@ public:
     logger::get_logger()->info("virtual_hid_device_service_server is initialized");
   }
 
-  virtual ~virtual_hid_device_service_server(void) {
+  virtual ~virtual_hid_device_service_server() {
     detach_from_dispatcher([this] {
       server_ = nullptr;
 
@@ -61,7 +61,7 @@ private:
     return true;
   }
 
-  void create_rootonly_directory(void) const {
+  void create_rootonly_directory() const {
     std::error_code error_code;
     std::filesystem::create_directories(
         pqrs::karabiner::driverkit::virtual_hid_device_service::constants::get_rootonly_directory(),
@@ -87,7 +87,7 @@ private:
     }
   }
 
-  std::string server_socket_file_path(void) const {
+  std::string server_socket_file_path() const {
     auto now = std::chrono::system_clock::now();
     auto duration = now.time_since_epoch();
 
@@ -101,7 +101,7 @@ private:
     return ss.str();
   }
 
-  void create_server(void) {
+  void create_server() {
     // Remove old files and prepare a socket directores.
     prepare_socket_directories();
 
@@ -314,7 +314,7 @@ private:
     server_->async_start();
   }
 
-  void prepare_socket_directories(void) const {
+  void prepare_socket_directories() const {
     create_rootonly_directory();
 
     // Remove old socket files.

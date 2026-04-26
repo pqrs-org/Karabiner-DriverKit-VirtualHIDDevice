@@ -17,8 +17,8 @@ public:
     virtual bool handleStart(IOService* provider) override;
     virtual kern_return_t Stop(IOService* provider) override;
 
-    virtual OSDictionary* newDeviceDescription(void) override;
-    virtual OSData* newReportDescriptor(void) override;
+    virtual OSDictionary* newDeviceDescription() override;
+    virtual OSData* newReportDescriptor() override;
     virtual kern_return_t setReport(IOMemoryDescriptor* report,
                                     IOHIDReportType reportType,
                                     IOOptionBits options,
@@ -26,9 +26,9 @@ public:
                                     OSAction* action) override;
 
     virtual kern_return_t postReport(IOMemoryDescriptor* report);
-    virtual kern_return_t reset(void);
+    virtual kern_return_t reset();
 
-    virtual bool getReady(void);
+    virtual bool getReady();
 };
 
 #endif
