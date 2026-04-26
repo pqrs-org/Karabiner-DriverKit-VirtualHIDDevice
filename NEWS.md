@@ -1,5 +1,18 @@
 # Changelog
 
+## Karabiner-DriverKit-VirtualHIDDevice 6.14.0
+
+- 📅 Release date
+    - Apr 26, 2026
+- ⚡️ Improvements
+    - Simplified code using C++23 features.
+    - Hardened virtual HID daemon packet handling by improving buffer parsing and avoiding unsafe casts.
+    - Updated dependent vendor code.
+        - pqrs::cf::run_loop_thread v2.11
+        - pqrs::dispatcher v2.15
+        - pqrs::local_datagram v10.4
+        - pqrs::osx::iokit_service_monitor v6.1.0
+
 ## Karabiner-DriverKit-VirtualHIDDevice 6.13.0
 
 - 📅 Release date
