@@ -31,14 +31,12 @@ public:
 
     auto endpoint_filename = std::filesystem::path(endpoint_path).filename();
 
-    {
-      auto it = entries_.find(endpoint_path);
-      if (it != std::end(entries_)) {
-        logger::get_logger()->info(
-            "{0} client already exists",
-            endpoint_filename.c_str());
-        return;
-      }
+    if (auto it = entries_.find(endpoint_path);
+        it != entries_.end()) {
+      logger::get_logger()->info(
+          "{0} client already exists",
+          endpoint_filename.c_str());
+      return;
     }
 
     logger::get_logger()->info(
@@ -113,8 +111,8 @@ public:
       throw std::logic_error(fmt::format("{0} is called in wrong thread", __func__));
     }
 
-    auto it = entries_.find(endpoint_path);
-    if (it != std::end(entries_)) {
+    if (auto it = entries_.find(endpoint_path);
+        it != entries_.end()) {
       it->second->initialize_keyboard(parameters);
     }
   }
@@ -124,8 +122,8 @@ public:
       throw std::logic_error(fmt::format("{0} is called in wrong thread", __func__));
     }
 
-    auto it = entries_.find(endpoint_path);
-    if (it != std::end(entries_)) {
+    if (auto it = entries_.find(endpoint_path);
+        it != entries_.end()) {
       it->second->terminate_keyboard();
     }
   }
@@ -135,8 +133,8 @@ public:
       throw std::logic_error(fmt::format("{0} is called in wrong thread", __func__));
     }
 
-    auto it = entries_.find(endpoint_path);
-    if (it != std::end(entries_)) {
+    if (auto it = entries_.find(endpoint_path);
+        it != entries_.end()) {
       it->second->initialize_pointing();
     }
   }
@@ -146,8 +144,8 @@ public:
       throw std::logic_error(fmt::format("{0} is called in wrong thread", __func__));
     }
 
-    auto it = entries_.find(endpoint_path);
-    if (it != std::end(entries_)) {
+    if (auto it = entries_.find(endpoint_path);
+        it != entries_.end()) {
       it->second->terminate_pointing();
     }
   }
@@ -158,8 +156,8 @@ public:
       throw std::logic_error(fmt::format("{0} is called in wrong thread", __func__));
     }
 
-    auto it = entries_.find(endpoint_path);
-    if (it != std::end(entries_)) {
+    if (auto it = entries_.find(endpoint_path);
+        it != entries_.end()) {
       if (auto c = it->second->get_io_service_client_keyboard()) {
         c->async_virtual_hid_keyboard_reset();
       }
@@ -172,8 +170,8 @@ public:
       throw std::logic_error(fmt::format("{0} is called in wrong thread", __func__));
     }
 
-    auto it = entries_.find(endpoint_path);
-    if (it != std::end(entries_)) {
+    if (auto it = entries_.find(endpoint_path);
+        it != entries_.end()) {
       if (auto c = it->second->get_io_service_client_pointing()) {
         c->async_virtual_hid_pointing_reset();
       }
@@ -485,8 +483,8 @@ private:
       return;
     }
 
-    auto it = entries_.find(endpoint_path);
-    if (it != std::end(entries_)) {
+    if (auto it = entries_.find(endpoint_path);
+        it != entries_.end()) {
       if (auto c = get_io_service_client(*(it->second))) {
         c->async_post_report(user_client_method,
                              std::move(buffer),

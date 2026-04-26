@@ -80,18 +80,18 @@ public:
 
     if (driver_version_ == pqrs::karabiner::driverkit::driver_version::embedded_driver_version) {
       return false;
-    } else {
-      auto message = fmt::format("{0} driver_version_ is mismatched: Karabiner-VirtualHIDDevice-Daemon expected: {1}, actual dext: {2}",
-                                 virtual_hid_device_service_client_endpoint_filename_,
-                                 type_safe::get(pqrs::karabiner::driverkit::driver_version::embedded_driver_version),
-                                 type_safe::get(*driver_version_));
-      if (driver_version_mismatched_log_message_ != message) {
-        driver_version_mismatched_log_message_ = message;
-        logger::get_logger()->warn(message);
-      }
-
-      return true;
     }
+
+    auto message = fmt::format("{0} driver_version_ is mismatched: Karabiner-VirtualHIDDevice-Daemon expected: {1}, actual dext: {2}",
+                               virtual_hid_device_service_client_endpoint_filename_,
+                               type_safe::get(pqrs::karabiner::driverkit::driver_version::embedded_driver_version),
+                               type_safe::get(*driver_version_));
+    if (driver_version_mismatched_log_message_ != message) {
+      driver_version_mismatched_log_message_ = message;
+      logger::get_logger()->warn(message);
+    }
+
+    return true;
   }
 
   std::optional<bool> get_virtual_hid_keyboard_ready(void) const {
@@ -362,27 +362,27 @@ private:
     }
 
     std::shared_ptr<matched_service> find(pqrs::osx::iokit_registry_entry_id::value_t registry_entry_id) const {
-      auto it = std::ranges::find_if(services_,
-                                     [registry_entry_id](const auto& s) {
-                                       return s->get_registry_entry_id() == registry_entry_id;
-                                     });
-      if (it == std::end(services_)) {
-        return nullptr;
+      if (auto it = std::ranges::find_if(services_,
+                                         [registry_entry_id](const auto& s) {
+                                           return s->get_registry_entry_id() == registry_entry_id;
+                                         });
+          it != services_.end()) {
+        return *it;
       }
 
-      return *it;
+      return nullptr;
     }
 
     std::shared_ptr<matched_service> find_opened(void) const {
-      auto it = std::ranges::find_if(services_,
-                                     [](const auto& s) {
-                                       return s->get_opened();
-                                     });
-      if (it == std::end(services_)) {
-        return nullptr;
+      if (auto it = std::ranges::find_if(services_,
+                                         [](const auto& s) {
+                                           return s->get_opened();
+                                         });
+          it != services_.end()) {
+        return *it;
       }
 
-      return *it;
+      return nullptr;
     }
 
   private:

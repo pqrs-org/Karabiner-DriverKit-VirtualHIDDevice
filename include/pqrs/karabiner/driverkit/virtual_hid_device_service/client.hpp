@@ -8,6 +8,7 @@
 #include "parameters.hpp"
 #include "request.hpp"
 #include "response.hpp"
+#include <algorithm>
 #include <glob/glob.hpp>
 #include <cstring>
 #include <pqrs/dispatcher.hpp>
@@ -158,7 +159,7 @@ private:
   std::filesystem::path find_server_socket_file_path(void) const {
     auto pattern = (pqrs::karabiner::driverkit::virtual_hid_device_service::constants::get_server_socket_directory_path() / "*.sock").string();
     auto paths = glob::glob(pattern);
-    std::sort(std::begin(paths), std::end(paths));
+    std::ranges::sort(paths);
 
     if (!paths.empty()) {
       return paths.back();
