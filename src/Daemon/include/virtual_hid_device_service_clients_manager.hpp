@@ -8,8 +8,8 @@
 #include <pqrs/dispatcher.hpp>
 #include <pqrs/karabiner/driverkit/virtual_hid_device_service.hpp>
 #include <pqrs/unix_domain_stream.hpp>
-#include <type_traits>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 class virtual_hid_device_service_clients_manager final : public pqrs::dispatcher::extra::dispatcher_client {
@@ -350,7 +350,7 @@ private:
         ready = io_service_client_keyboard_->get_virtual_hid_keyboard_ready();
       }
 
-      return ready ? *ready : false;
+      return ready.value_or(false);
     }
 
     // This method is executed in the dispatcher thread.
@@ -361,14 +361,14 @@ private:
         ready = io_service_client_pointing_->get_virtual_hid_pointing_ready();
       }
 
-      return ready ? *ready : false;
+      return ready.value_or(false);
     }
 
     void append_response(std::vector<uint8_t>& buffer,
                          pqrs::karabiner::driverkit::virtual_hid_device_service::response response,
                          bool value) const {
       buffer.insert(buffer.end(), {
-                                      static_cast<std::underlying_type<decltype(response)>::type>(response),
+                                      std::to_underlying(response),
                                       static_cast<uint8_t>(value),
                                   });
     }
