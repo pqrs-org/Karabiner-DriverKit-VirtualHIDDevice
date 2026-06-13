@@ -4,10 +4,7 @@
 // Distributed under the Boost Software License, Version 1.0.
 // (See https://www.boost.org/LICENSE_1_0.txt)
 
-namespace pqrs {
-namespace karabiner {
-namespace driverkit {
-namespace virtual_hid_device_driver {
+namespace pqrs::karabiner::driverkit::virtual_hid_device_driver {
 enum class user_client_method {
   driver_version,
 
@@ -29,7 +26,4 @@ enum class user_client_method {
   virtual_hid_pointing_post_report,
   virtual_hid_pointing_reset,
 };
-} // namespace virtual_hid_device_driver
-} // namespace driverkit
-} // namespace karabiner
-} // namespace pqrs
+} // namespace pqrs::karabiner::driverkit::virtual_hid_device_driver

@@ -6,10 +6,7 @@
 
 #include <string_view>
 
-namespace pqrs {
-namespace karabiner {
-namespace driverkit {
-namespace virtual_hid_device_service {
+namespace pqrs::karabiner::driverkit::virtual_hid_device_service {
 enum class response : uint8_t {
   none,
   driver_activated,
@@ -18,7 +15,4 @@ enum class response : uint8_t {
   virtual_hid_keyboard_ready,
   virtual_hid_pointing_ready,
 };
-} // namespace virtual_hid_device_service
-} // namespace driverkit
-} // namespace karabiner
-} // namespace pqrs
+} // namespace pqrs::karabiner::driverkit::virtual_hid_device_service

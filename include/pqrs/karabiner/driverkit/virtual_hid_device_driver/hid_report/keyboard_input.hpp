@@ -8,11 +8,7 @@
 #include "modifiers.hpp"
 #include <cstdint>
 
-namespace pqrs {
-namespace karabiner {
-namespace driverkit {
-namespace virtual_hid_device_driver {
-namespace hid_report {
+namespace pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report {
 
 class __attribute__((packed)) keyboard_input final {
 public:
@@ -32,9 +28,4 @@ private:
 public:
   keys keys;
 };
-
-} // namespace hid_report
-} // namespace virtual_hid_device_driver
-} // namespace driverkit
-} // namespace karabiner
-} // namespace pqrs
+} // namespace pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report

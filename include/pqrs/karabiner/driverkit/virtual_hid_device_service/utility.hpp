@@ -7,11 +7,7 @@
 #include <IOKit/IOKitLib.h>
 #include <pqrs/osx/iokit_types.hpp>
 
-namespace pqrs {
-namespace karabiner {
-namespace driverkit {
-namespace virtual_hid_device_service {
-namespace utility {
+namespace pqrs::karabiner::driverkit::virtual_hid_device_service::utility {
 inline bool driver_running() {
   auto service = IOServiceGetMatchingService(type_safe::get(pqrs::osx::iokit_mach_port::null),
                                              IOServiceNameMatching("org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceRoot"));
@@ -44,8 +40,4 @@ inline bool virtual_hid_pointing_exists() {
   IOObjectRelease(service);
   return true;
 }
-} // namespace utility
-} // namespace virtual_hid_device_service
-} // namespace driverkit
-} // namespace karabiner
-} // namespace pqrs
+} // namespace pqrs::karabiner::driverkit::virtual_hid_device_service::utility

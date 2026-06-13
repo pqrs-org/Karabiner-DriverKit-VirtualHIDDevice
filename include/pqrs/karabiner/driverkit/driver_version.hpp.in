@@ -4,10 +4,7 @@
 #include <iostream>
 #include <type_safe/strong_typedef.hpp>
 
-namespace pqrs {
-namespace karabiner {
-namespace driverkit {
-namespace driver_version {
+namespace pqrs::karabiner::driverkit::driver_version {
 struct value_t : type_safe::strong_typedef<value_t, uint64_t>,
                  type_safe::strong_typedef_op::equality_comparison<value_t>,
                  type_safe::strong_typedef_op::relational_comparison<value_t> {
@@ -25,7 +22,4 @@ inline std::ostream& operator<<(std::ostream& stream, const value_t& value) {
 // clang-format off
 constexpr value_t embedded_driver_version(@DRIVER_VERSION_NUMBER@);
 // clang-format on
-} // namespace driver_version
-} // namespace driverkit
-} // namespace karabiner
-} // namespace pqrs
+} // namespace pqrs::karabiner::driverkit::driver_version

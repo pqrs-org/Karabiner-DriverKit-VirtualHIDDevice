@@ -7,10 +7,7 @@
 #include <pqrs/hid.hpp>
 #include <string_view>
 
-namespace pqrs {
-namespace karabiner {
-namespace driverkit {
-namespace virtual_hid_device_service {
+namespace pqrs::karabiner::driverkit::virtual_hid_device_service {
 class virtual_hid_keyboard_parameters final {
 public:
   virtual_hid_keyboard_parameters()
@@ -58,7 +55,4 @@ private:
   pqrs::hid::product_id::value_t product_id_;
   pqrs::hid::country_code::value_t country_code_;
 };
-} // namespace virtual_hid_device_service
-} // namespace driverkit
-} // namespace karabiner
-} // namespace pqrs
+} // namespace pqrs::karabiner::driverkit::virtual_hid_device_service

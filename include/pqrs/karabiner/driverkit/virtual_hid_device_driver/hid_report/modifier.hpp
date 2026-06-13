@@ -6,11 +6,7 @@
 
 #include <cstdint>
 
-namespace pqrs {
-namespace karabiner {
-namespace driverkit {
-namespace virtual_hid_device_driver {
-namespace hid_report {
+namespace pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report {
 
 enum class modifier : uint8_t {
   left_control = 0x1 << 0,
@@ -22,9 +18,4 @@ enum class modifier : uint8_t {
   right_option = 0x1 << 6,
   right_command = 0x1 << 7,
 };
-}
-
-} // namespace virtual_hid_device_driver
-} // namespace driverkit
-} // namespace karabiner
-} // namespace pqrs
+} // namespace pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report
