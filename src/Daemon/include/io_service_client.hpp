@@ -452,11 +452,11 @@ private:
         continue;
       }
 
-      io_connect_t c;
+      io_connect_t new_connection;
       pqrs::osx::iokit_return r = IOServiceOpen(*(matched_service->get_service()),
                                                 mach_task_self(),
                                                 0,
-                                                &c);
+                                                &new_connection);
 
       if (!r) {
         logger::get_logger()->error("{0} io_service_client IOServiceOpen error: {1}",
@@ -469,17 +469,17 @@ private:
       // Check driver version
       //
 
-      auto driver_version = call_driver_version(c);
+      auto driver_version = call_driver_version(new_connection);
       set_driver_version(driver_version);
       if (!driver_version) {
         logger::get_logger()->error("{0} io_service_client failed to get driver_version",
                                     log_label_);
-        IOServiceClose(c);
+        IOServiceClose(new_connection);
         matched_service->set_invalidated(true);
         continue;
       }
 
-      connection_ = pqrs::osx::iokit_object_ptr(c);
+      connection_ = pqrs::osx::iokit_object_ptr(new_connection);
       matched_service->set_opened(true);
 
       enqueue_to_dispatcher([this] {
