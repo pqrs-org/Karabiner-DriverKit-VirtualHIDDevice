@@ -215,10 +215,15 @@ private:
     }
 
     const auto& response_buffer = *buffer;
+    if (response_buffer.size() % 2 != 0) {
+      warning_reported("virtual_hid_device_service::client: response buffer size is invalid");
+      return;
+    }
 
     for (auto i : std::views::iota(size_t{0}, response_buffer.size() / 2)) {
       auto r = response(response_buffer[i * 2]);
       auto value = response_buffer[i * 2 + 1];
+
       switch (r) {
         case response::none:
           break;
@@ -243,6 +248,10 @@ private:
         case response::virtual_hid_pointing_ready:
           last_virtual_hid_pointing_ready_ = value;
           virtual_hid_pointing_ready(value);
+          break;
+
+        default:
+          warning_reported("virtual_hid_device_service::client: unknown response");
           break;
       }
     }
