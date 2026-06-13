@@ -8,19 +8,14 @@
 #include "parameters.hpp"
 #include "request.hpp"
 #include "response.hpp"
-#include <algorithm>
-#include <glob/glob.hpp>
 #include <cstring>
 #include <pqrs/dispatcher.hpp>
 #include <pqrs/hid.hpp>
-#include <pqrs/local_datagram.hpp>
-#include <sstream>
+#include <pqrs/unix_domain_stream.hpp>
+#include <ranges>
 #include <type_traits>
 
-namespace pqrs {
-namespace karabiner {
-namespace driverkit {
-namespace virtual_hid_device_service {
+namespace pqrs::karabiner::driverkit::virtual_hid_device_service {
 class client final : public dispatcher::extra::dispatcher_client {
 public:
   // Signals (invoked from the dispatcher thread)
@@ -39,11 +34,13 @@ public:
   // Methods
 
   client()
-      : dispatcher_client() {
+      : dispatcher_client(),
+        status_request_timer_(*this) {
   }
 
-  virtual ~client() {
+  ~client() override {
     detach_from_dispatcher([this] {
+      status_request_timer_.stop();
       client_ = nullptr;
     });
   }
@@ -64,6 +61,7 @@ public:
 
   void async_stop() {
     enqueue_to_dispatcher([this] {
+      status_request_timer_.stop();
       client_ = nullptr;
 
       clear_state();
@@ -81,16 +79,16 @@ public:
 
     last_virtual_hid_keyboard_parameters_ = parameters;
 
-    async_send(request::virtual_hid_keyboard_initialize,
-               parameters);
+    async_request(make_request_buffer(request::virtual_hid_keyboard_initialize,
+                                      parameters));
   }
 
   void async_virtual_hid_keyboard_terminate() {
-    async_send(request::virtual_hid_keyboard_terminate);
+    async_request(make_request_buffer(request::virtual_hid_keyboard_terminate));
   }
 
   void async_virtual_hid_keyboard_reset() {
-    async_send(request::virtual_hid_keyboard_reset);
+    async_request(make_request_buffer(request::virtual_hid_keyboard_reset));
   }
 
   void async_virtual_hid_pointing_initialize(bool force = false) {
@@ -100,74 +98,48 @@ public:
       }
     }
 
-    async_send(request::virtual_hid_pointing_initialize);
+    async_request(make_request_buffer(request::virtual_hid_pointing_initialize));
   }
 
   void async_virtual_hid_pointing_terminate() {
-    async_send(request::virtual_hid_pointing_terminate);
+    async_request(make_request_buffer(request::virtual_hid_pointing_terminate));
   }
 
   void async_virtual_hid_pointing_reset() {
-    async_send(request::virtual_hid_pointing_reset);
+    async_request(make_request_buffer(request::virtual_hid_pointing_reset));
   }
 
   void async_post_report(const virtual_hid_device_driver::hid_report::keyboard_input& report) {
-    async_send(request::post_keyboard_input_report, report);
+    async_request(make_request_buffer(request::post_keyboard_input_report,
+                                      report));
   }
 
   void async_post_report(const virtual_hid_device_driver::hid_report::consumer_input& report) {
-    async_send(request::post_consumer_input_report, report);
+    async_request(make_request_buffer(request::post_consumer_input_report,
+                                      report));
   }
 
   void async_post_report(const virtual_hid_device_driver::hid_report::apple_vendor_keyboard_input& report) {
-    async_send(request::post_apple_vendor_keyboard_input_report, report);
+    async_request(make_request_buffer(request::post_apple_vendor_keyboard_input_report,
+                                      report));
   }
 
   void async_post_report(const virtual_hid_device_driver::hid_report::apple_vendor_top_case_input& report) {
-    async_send(request::post_apple_vendor_top_case_input_report, report);
+    async_request(make_request_buffer(request::post_apple_vendor_top_case_input_report,
+                                      report));
   }
 
   void async_post_report(const virtual_hid_device_driver::hid_report::generic_desktop_input& report) {
-    async_send(request::post_generic_desktop_input_report, report);
+    async_request(make_request_buffer(request::post_generic_desktop_input_report,
+                                      report));
   }
 
   void async_post_report(const virtual_hid_device_driver::hid_report::pointing_input& report) {
-    async_send(request::post_pointing_input_report, report);
+    async_request(make_request_buffer(request::post_pointing_input_report,
+                                      report));
   }
 
 private:
-  std::string client_socket_file_path() const {
-    while (true) {
-      auto now = std::chrono::system_clock::now();
-      auto duration = now.time_since_epoch();
-
-      std::stringstream ss;
-      ss << pqrs::karabiner::driverkit::virtual_hid_device_service::constants::get_client_socket_directory_path().string()
-         << "/"
-         << std::hex
-         << std::chrono::duration_cast<std::chrono::nanoseconds>(duration).count()
-         << ".sock";
-
-      auto path = ss.str();
-      std::error_code ec;
-      if (!std::filesystem::exists(path, ec)) {
-        return path;
-      }
-    }
-  }
-
-  std::filesystem::path find_server_socket_file_path() const {
-    auto pattern = (pqrs::karabiner::driverkit::virtual_hid_device_service::constants::get_server_socket_directory_path() / "*.sock").string();
-    auto paths = glob::glob(pattern);
-    std::ranges::sort(paths);
-
-    if (!paths.empty()) {
-      return paths.back();
-    }
-
-    return pqrs::karabiner::driverkit::virtual_hid_device_service::constants::get_server_socket_directory_path() / "not_found.sock";
-  }
-
   void clear_state() {
     last_virtual_hid_keyboard_ready_ = std::nullopt;
     virtual_hid_keyboard_ready(false);
@@ -179,36 +151,42 @@ private:
   }
 
   void create_client() {
-    client_ = std::make_unique<local_datagram::client>(weak_dispatcher_,
-                                                       find_server_socket_file_path(),
-                                                       client_socket_file_path(),
-                                                       constants::local_datagram_buffer_size);
-    client_->set_server_check_interval(std::chrono::milliseconds(3000));
-    client_->set_reconnect_interval(std::chrono::milliseconds(1000));
-    client_->set_server_socket_file_path_resolver([this] {
-      return find_server_socket_file_path();
-    });
+    auto options = pqrs::unix_domain_stream::client_options(
+        {
+            .max_message_size = constants::unix_domain_stream_max_message_size,
+        },
+        {
+            .reconnect_interval = std::chrono::milliseconds(1000),
+        });
 
-    client_->warning_reported.connect([this](auto&& message) {
-      enqueue_to_dispatcher([this, message] {
-        warning_reported(message);
-      });
-    });
+    client_ = std::make_unique<unix_domain_stream::client>(weak_dispatcher_,
+                                                           constants::get_server_socket_file_path(),
+                                                           options);
 
-    client_->connected.connect([this](auto&& peer_pid) {
+    client_->connected.connect([this](auto&&) {
       enqueue_to_dispatcher([this] {
         connected();
+
+        status_request_timer_.start(
+            [this] {
+              async_request(make_request_buffer(request::none));
+            },
+            std::chrono::milliseconds(1000));
       });
     });
 
     client_->connect_failed.connect([this](auto&& error_code) {
-      enqueue_to_dispatcher([this, error_code] {
-        connect_failed(error_code);
+      auto ec = error_code;
+
+      enqueue_to_dispatcher([this, ec] {
+        connect_failed(ec);
       });
     });
 
     client_->closed.connect([this] {
       enqueue_to_dispatcher([this] {
+        status_request_timer_.stop();
+
         closed();
 
         clear_state();
@@ -216,97 +194,100 @@ private:
     });
 
     client_->error_occurred.connect([this](auto&& error_code) {
-      enqueue_to_dispatcher([this, error_code] {
-        error_occurred(error_code);
+      auto ec = error_code;
+
+      enqueue_to_dispatcher([this, ec] {
+        error_occurred(ec);
       });
     });
 
-    client_->next_heartbeat_deadline_exceeded.connect([this](auto&& sender_endpoint) {
+    client_->peer_verification_failed.connect([this](auto&&) {
       enqueue_to_dispatcher([this] {
-        if (client_) {
-          async_stop();
-          async_start();
-        }
+        warning_reported("peer_verification_failed");
       });
     });
+  }
 
-    client_->received.connect([this](auto&& buffer, auto&& sender_endpoint) {
-      if (buffer->empty()) {
-        return;
-      }
+  void handle_response(const std::shared_ptr<std::vector<uint8_t>>& buffer) {
+    if (!buffer ||
+        buffer->empty()) {
+      return;
+    }
 
-      auto p = &((*buffer)[0]);
-      auto size = buffer->size();
+    const auto& response_buffer = *buffer;
 
-      auto r = response(*p);
-      ++p;
-      --size;
-
+    for (auto i : std::views::iota(size_t{0}, response_buffer.size() / 2)) {
+      auto r = response(response_buffer[i * 2]);
+      auto value = response_buffer[i * 2 + 1];
       switch (r) {
         case response::none:
           break;
 
         case response::driver_activated:
-          if (size == 1) {
-            driver_activated(*p);
-          }
+          driver_activated(value);
           break;
 
         case response::driver_connected:
-          if (size == 1) {
-            driver_connected(*p);
-          }
+          driver_connected(value);
           break;
 
         case response::driver_version_mismatched:
-          if (size == 1) {
-            driver_version_mismatched(*p);
-          }
+          driver_version_mismatched(value);
           break;
 
         case response::virtual_hid_keyboard_ready:
-          if (size == 1) {
-            last_virtual_hid_keyboard_ready_ = *p;
-            virtual_hid_keyboard_ready(*p);
-          }
+          last_virtual_hid_keyboard_ready_ = value;
+          virtual_hid_keyboard_ready(value);
           break;
 
         case response::virtual_hid_pointing_ready:
-          if (size == 1) {
-            last_virtual_hid_pointing_ready_ = *p;
-            virtual_hid_pointing_ready(*p);
-          }
+          last_virtual_hid_pointing_ready_ = value;
+          virtual_hid_pointing_ready(value);
           break;
+      }
+    }
+  }
+
+  void async_request(std::shared_ptr<std::vector<uint8_t>> request_buffer) {
+    enqueue_to_dispatcher([this, request_buffer] {
+      if (client_) {
+        client_->async_request(
+            *request_buffer,
+            [this](auto&& error_code, auto&& response_buffer) {
+              auto ec = error_code;
+              auto buffer = response_buffer;
+
+              enqueue_to_dispatcher([this, ec, buffer] {
+                if (ec) {
+                  error_occurred(ec);
+                  return;
+                }
+
+                if (buffer) {
+                  handle_response(buffer);
+                }
+              });
+            });
       }
     });
   }
 
-  void async_send(request r) {
-    enqueue_to_dispatcher([this, r] {
-      if (client_) {
-        std::vector<uint8_t> buffer;
-        append_data(buffer, 'c');
-        append_data(buffer, 'p');
-        append_data(buffer, client_protocol_version::embedded_client_protocol_version);
-        append_data(buffer, r);
-        client_->async_send(buffer);
-      }
-    });
+  std::shared_ptr<std::vector<uint8_t>> make_request_buffer(request r) const {
+    auto buffer = std::make_shared<std::vector<uint8_t>>();
+
+    append_data(*buffer, client_protocol_version::embedded_client_protocol_version);
+    append_data(*buffer, r);
+
+    return buffer;
   }
 
   template <typename T>
-  void async_send(request r, const T& data) {
-    enqueue_to_dispatcher([this, r, data] {
-      if (client_) {
-        std::vector<uint8_t> buffer;
-        append_data(buffer, 'c');
-        append_data(buffer, 'p');
-        append_data(buffer, client_protocol_version::embedded_client_protocol_version);
-        append_data(buffer, r);
-        append_data(buffer, data);
-        client_->async_send(buffer);
-      }
-    });
+  std::shared_ptr<std::vector<uint8_t>> make_request_buffer(request r, const T& data) const {
+    auto buffer = make_request_buffer(r);
+
+    append_data(*buffer, data);
+
+    return buffer;
   }
 
   template <typename T>
@@ -320,14 +301,12 @@ private:
                 sizeof(data));
   }
 
-  std::unique_ptr<local_datagram::client> client_;
+  dispatcher::extra::timer status_request_timer_;
+  std::unique_ptr<unix_domain_stream::client> client_;
 
   std::optional<bool> last_virtual_hid_keyboard_ready_;
   std::optional<bool> last_virtual_hid_pointing_ready_;
 
   std::optional<pqrs::karabiner::driverkit::virtual_hid_device_service::virtual_hid_keyboard_parameters> last_virtual_hid_keyboard_parameters_;
 };
-} // namespace virtual_hid_device_service
-} // namespace driverkit
-} // namespace karabiner
-} // namespace pqrs
+} // namespace pqrs::karabiner::driverkit::virtual_hid_device_service

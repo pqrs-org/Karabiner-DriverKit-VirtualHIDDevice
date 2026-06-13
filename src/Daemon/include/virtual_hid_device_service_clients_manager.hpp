@@ -1,12 +1,14 @@
 #pragma once
 
 #include "logger.hpp"
-#include <filesystem>
+#include <algorithm>
+#include <array>
 #include <memory>
 #include <nod/nod.hpp>
 #include <pqrs/dispatcher.hpp>
 #include <pqrs/karabiner/driverkit/virtual_hid_device_service.hpp>
-#include <pqrs/local_datagram.hpp>
+#include <pqrs/unix_domain_stream.hpp>
+#include <type_traits>
 #include <unordered_map>
 #include <vector>
 
@@ -17,146 +19,106 @@ public:
         run_loop_thread_(run_loop_thread) {
   }
 
-  virtual ~virtual_hid_device_service_clients_manager() {
+  ~virtual_hid_device_service_clients_manager() override {
     detach_from_dispatcher([this] {
       entries_.clear();
     });
   }
 
   // This method needs to be called in the dispatcher thread.
-  void create_client(const std::string& endpoint_path) {
+  void create_client(pqrs::unix_domain_stream::peer_id peer_id) {
     if (!dispatcher_thread()) {
       throw std::logic_error(fmt::format("{0} is called in wrong thread", __func__));
     }
 
-    auto endpoint_filename = std::filesystem::path(endpoint_path).filename();
+    auto peer_name = fmt::format("peer_id:{0}", peer_id);
 
-    if (auto it = entries_.find(endpoint_path);
-        it != entries_.end()) {
+    if (entries_.contains(peer_id)) {
       logger::get_logger()->info(
           "{0} client already exists",
-          endpoint_filename.c_str());
+          peer_name);
       return;
     }
 
     logger::get_logger()->info(
         "{0} create a client for virtual_hid_device_service::client",
-        endpoint_filename.c_str());
+        peer_name);
 
-    //
-    // Create pqrs::local_datagram::client
-    //
-
-    auto c = std::make_shared<pqrs::local_datagram::client>(
-        weak_dispatcher_,
-        endpoint_path,
-        server_response_socket_file_path(),
-        pqrs::karabiner::driverkit::virtual_hid_device_service::constants::local_datagram_buffer_size);
-
-    c->set_server_check_interval(std::chrono::milliseconds(1000));
-    c->set_next_heartbeat_deadline(std::chrono::milliseconds(5000));
-
-    c->warning_reported.connect([endpoint_filename](auto&& message) {
-      logger::get_logger()->warn(
-          "{0} client: {1}",
-          endpoint_filename.c_str(),
-          message);
-    });
-
-    c->connect_failed.connect([this, endpoint_path, endpoint_filename](auto&& error_code) {
-      logger::get_logger()->info(
-          "{0} client connect_failed",
-          endpoint_filename.c_str());
-
-      erase_client(endpoint_path);
-    });
-
-    c->closed.connect([this, endpoint_path, endpoint_filename] {
-      logger::get_logger()->info(
-          "{0} client closed",
-          endpoint_filename.c_str());
-
-      erase_client(endpoint_path);
-    });
-
-    c->async_start();
-
-    entries_[endpoint_path] = std::make_unique<entry>(c,
-                                                      run_loop_thread_,
-                                                      endpoint_filename);
+    entries_[peer_id] = std::make_unique<entry>(run_loop_thread_,
+                                                peer_name);
 
     logger::get_logger()->info("{0} virtual_hid_device_service_clients_manager client is added (size: {1})",
-                               endpoint_filename.c_str(),
+                               peer_name,
                                entries_.size());
   }
 
   // This method needs to be called in the dispatcher thread.
-  void erase_client(const std::string& endpoint_path) {
+  void erase_client(pqrs::unix_domain_stream::peer_id peer_id) {
     if (!dispatcher_thread()) {
       throw std::logic_error(fmt::format("{0} is called in wrong thread", __func__));
     }
 
-    auto endpoint_filename = std::filesystem::path(endpoint_path).filename();
+    auto peer_name = fmt::format("peer_id:{0}", peer_id);
 
-    entries_.erase(endpoint_path);
+    entries_.erase(peer_id);
 
     logger::get_logger()->info("{0} virtual_hid_device_service_clients_manager client is removed (size: {1})",
-                               endpoint_filename.c_str(),
+                               peer_name,
                                entries_.size());
   }
 
-  void initialize_keyboard(const std::string& endpoint_path,
+  void initialize_keyboard(pqrs::unix_domain_stream::peer_id peer_id,
                            const pqrs::karabiner::driverkit::virtual_hid_device_service::virtual_hid_keyboard_parameters& parameters) {
     if (!dispatcher_thread()) {
       throw std::logic_error(fmt::format("{0} is called in wrong thread", __func__));
     }
 
-    if (auto it = entries_.find(endpoint_path);
+    if (auto it = entries_.find(peer_id);
         it != entries_.end()) {
       it->second->initialize_keyboard(parameters);
     }
   }
 
-  void terminate_keyboard(const std::string& endpoint_path) {
+  void terminate_keyboard(pqrs::unix_domain_stream::peer_id peer_id) {
     if (!dispatcher_thread()) {
       throw std::logic_error(fmt::format("{0} is called in wrong thread", __func__));
     }
 
-    if (auto it = entries_.find(endpoint_path);
+    if (auto it = entries_.find(peer_id);
         it != entries_.end()) {
       it->second->terminate_keyboard();
     }
   }
 
-  void initialize_pointing(const std::string& endpoint_path) {
+  void initialize_pointing(pqrs::unix_domain_stream::peer_id peer_id) {
     if (!dispatcher_thread()) {
       throw std::logic_error(fmt::format("{0} is called in wrong thread", __func__));
     }
 
-    if (auto it = entries_.find(endpoint_path);
+    if (auto it = entries_.find(peer_id);
         it != entries_.end()) {
       it->second->initialize_pointing();
     }
   }
 
-  void terminate_pointing(const std::string& endpoint_path) {
+  void terminate_pointing(pqrs::unix_domain_stream::peer_id peer_id) {
     if (!dispatcher_thread()) {
       throw std::logic_error(fmt::format("{0} is called in wrong thread", __func__));
     }
 
-    if (auto it = entries_.find(endpoint_path);
+    if (auto it = entries_.find(peer_id);
         it != entries_.end()) {
       it->second->terminate_pointing();
     }
   }
 
   // This method needs to be called in the dispatcher thread.
-  void virtual_hid_keyboard_reset(const std::string& endpoint_path) const {
+  void virtual_hid_keyboard_reset(pqrs::unix_domain_stream::peer_id peer_id) const {
     if (!dispatcher_thread()) {
       throw std::logic_error(fmt::format("{0} is called in wrong thread", __func__));
     }
 
-    if (auto it = entries_.find(endpoint_path);
+    if (auto it = entries_.find(peer_id);
         it != entries_.end()) {
       if (auto c = it->second->get_io_service_client_keyboard()) {
         c->async_virtual_hid_keyboard_reset();
@@ -165,12 +127,12 @@ public:
   }
 
   // This method needs to be called in the dispatcher thread.
-  void virtual_hid_pointing_reset(const std::string& endpoint_path) const {
+  void virtual_hid_pointing_reset(pqrs::unix_domain_stream::peer_id peer_id) const {
     if (!dispatcher_thread()) {
       throw std::logic_error(fmt::format("{0} is called in wrong thread", __func__));
     }
 
-    if (auto it = entries_.find(endpoint_path);
+    if (auto it = entries_.find(peer_id);
         it != entries_.end()) {
       if (auto c = it->second->get_io_service_client_pointing()) {
         c->async_virtual_hid_pointing_reset();
@@ -179,13 +141,27 @@ public:
   }
 
   // This method needs to be called in the dispatcher thread.
-  void post_keyboard_report(const std::string& endpoint_path,
+  std::vector<uint8_t> make_response(pqrs::unix_domain_stream::peer_id peer_id) const {
+    if (!dispatcher_thread()) {
+      throw std::logic_error(fmt::format("{0} is called in wrong thread", __func__));
+    }
+
+    if (auto it = entries_.find(peer_id);
+        it != entries_.end()) {
+      return it->second->make_response();
+    }
+
+    return {};
+  }
+
+  // This method needs to be called in the dispatcher thread.
+  void post_keyboard_report(pqrs::unix_domain_stream::peer_id peer_id,
                             std::shared_ptr<std::vector<uint8_t>> buffer,
                             size_t report_offset,
                             pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method user_client_method,
                             const char* report_name,
                             size_t expected_size) const {
-    post_report(endpoint_path,
+    post_report(peer_id,
                 std::move(buffer),
                 report_offset,
                 user_client_method,
@@ -197,13 +173,13 @@ public:
   }
 
   // This method needs to be called in the dispatcher thread.
-  void post_pointing_report(const std::string& endpoint_path,
+  void post_pointing_report(pqrs::unix_domain_stream::peer_id peer_id,
                             std::shared_ptr<std::vector<uint8_t>> buffer,
                             size_t report_offset,
                             pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method user_client_method,
                             const char* report_name,
                             size_t expected_size) const {
-    post_report(endpoint_path,
+    post_report(peer_id,
                 std::move(buffer),
                 report_offset,
                 user_client_method,
@@ -217,11 +193,9 @@ public:
 private:
   class entry final : public pqrs::dispatcher::extra::dispatcher_client {
   public:
-    entry(pqrs::not_null_shared_ptr_t<pqrs::local_datagram::client> local_datagram_client,
-          pqrs::not_null_shared_ptr_t<pqrs::cf::run_loop_thread> run_loop_thread,
+    entry(pqrs::not_null_shared_ptr_t<pqrs::cf::run_loop_thread> run_loop_thread,
           const std::string& virtual_hid_device_service_client_endpoint_filename)
-        : local_datagram_client_(local_datagram_client),
-          run_loop_thread_(run_loop_thread),
+        : run_loop_thread_(run_loop_thread),
           initialize_timer_(*this),
           ready_timer_(*this),
           virtual_hid_keyboard_enabled_(false),
@@ -285,18 +259,6 @@ private:
             if (auto c = io_service_client_pointing_) {
               c->async_virtual_hid_pointing_ready();
             }
-
-            //
-            // Send state to client
-            //
-
-            async_send_driver_activated();
-            async_send_driver_connected();
-            async_send_driver_version_mismatched();
-            async_send_ready(pqrs::karabiner::driverkit::virtual_hid_device_service::response::virtual_hid_keyboard_ready,
-                             virtual_hid_keyboard_ready());
-            async_send_ready(pqrs::karabiner::driverkit::virtual_hid_device_service::response::virtual_hid_pointing_ready,
-                             virtual_hid_pointing_ready());
           },
           std::chrono::milliseconds(1000));
     }
@@ -358,6 +320,27 @@ private:
       });
     }
 
+    std::vector<uint8_t> make_response() const {
+      std::vector<uint8_t> buffer;
+      using response = pqrs::karabiner::driverkit::virtual_hid_device_service::response;
+
+      std::ranges::for_each(
+          std::array{
+              std::pair{response::driver_activated, io_service_client_nop_->driver_activated()},
+              std::pair{response::driver_connected, io_service_client_nop_->driver_connected()},
+              std::pair{response::driver_version_mismatched, io_service_client_nop_->driver_version_mismatched()},
+              std::pair{response::virtual_hid_keyboard_ready, virtual_hid_keyboard_ready()},
+              std::pair{response::virtual_hid_pointing_ready, virtual_hid_pointing_ready()},
+          },
+          [this, &buffer](const auto& pair) {
+            append_response(buffer,
+                            pair.first,
+                            pair.second);
+          });
+
+      return buffer;
+    }
+
   private:
     // This method is executed in the dispatcher thread.
     bool virtual_hid_keyboard_ready() const {
@@ -381,54 +364,15 @@ private:
       return ready ? *ready : false;
     }
 
-    // This method is executed in the dispatcher thread.
-    void async_send_driver_activated() const {
-      bool driver_activated = io_service_client_nop_->driver_activated();
-      auto response = pqrs::karabiner::driverkit::virtual_hid_device_service::response::driver_activated;
-      uint8_t buffer[] = {
-          static_cast<std::underlying_type<decltype(response)>::type>(response),
-          driver_activated,
-      };
-
-      local_datagram_client_->async_send(buffer, sizeof(buffer));
+    void append_response(std::vector<uint8_t>& buffer,
+                         pqrs::karabiner::driverkit::virtual_hid_device_service::response response,
+                         bool value) const {
+      buffer.insert(buffer.end(), {
+                                      static_cast<std::underlying_type<decltype(response)>::type>(response),
+                                      static_cast<uint8_t>(value),
+                                  });
     }
 
-    // This method is executed in the dispatcher thread.
-    void async_send_driver_connected() const {
-      bool driver_connected = io_service_client_nop_->driver_connected();
-      auto response = pqrs::karabiner::driverkit::virtual_hid_device_service::response::driver_connected;
-      uint8_t buffer[] = {
-          static_cast<std::underlying_type<decltype(response)>::type>(response),
-          driver_connected,
-      };
-
-      local_datagram_client_->async_send(buffer, sizeof(buffer));
-    }
-
-    // This method is executed in the dispatcher thread.
-    void async_send_driver_version_mismatched() const {
-      bool driver_version_mismatched = io_service_client_nop_->driver_version_mismatched();
-      auto response = pqrs::karabiner::driverkit::virtual_hid_device_service::response::driver_version_mismatched;
-      uint8_t buffer[] = {
-          static_cast<std::underlying_type<decltype(response)>::type>(response),
-          driver_version_mismatched,
-      };
-
-      local_datagram_client_->async_send(buffer, sizeof(buffer));
-    }
-
-    // This method is executed in the dispatcher thread.
-    void async_send_ready(pqrs::karabiner::driverkit::virtual_hid_device_service::response response,
-                          bool ready) const {
-      uint8_t buffer[] = {
-          static_cast<std::underlying_type<decltype(response)>::type>(response),
-          ready,
-      };
-
-      local_datagram_client_->async_send(buffer, sizeof(buffer));
-    }
-
-    pqrs::not_null_shared_ptr_t<pqrs::local_datagram::client> local_datagram_client_;
     pqrs::not_null_shared_ptr_t<pqrs::cf::run_loop_thread> run_loop_thread_;
 
     std::shared_ptr<io_service_client> io_service_client_nop_;
@@ -445,22 +389,8 @@ private:
     bool virtual_hid_pointing_enabled_;
   };
 
-  std::filesystem::path server_response_socket_file_path() const {
-    auto now = std::chrono::system_clock::now();
-    auto duration = now.time_since_epoch();
-
-    std::stringstream ss;
-    ss << pqrs::karabiner::driverkit::virtual_hid_device_service::constants::get_server_response_socket_directory_path().string()
-       << "/"
-       << std::hex
-       << std::chrono::duration_cast<std::chrono::nanoseconds>(duration).count()
-       << ".sock";
-
-    return ss.str();
-  }
-
   template <typename GetIoServiceClient>
-  void post_report(const std::string& endpoint_path,
+  void post_report(pqrs::unix_domain_stream::peer_id peer_id,
                    std::shared_ptr<std::vector<uint8_t>> buffer,
                    size_t report_offset,
                    pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method user_client_method,
@@ -483,7 +413,7 @@ private:
       return;
     }
 
-    if (auto it = entries_.find(endpoint_path);
+    if (auto it = entries_.find(peer_id);
         it != entries_.end()) {
       if (auto c = get_io_service_client(*(it->second))) {
         c->async_post_report(user_client_method,
@@ -495,5 +425,5 @@ private:
   }
 
   pqrs::not_null_shared_ptr_t<pqrs::cf::run_loop_thread> run_loop_thread_;
-  std::unordered_map<std::string, std::unique_ptr<entry>> entries_;
+  std::unordered_map<pqrs::unix_domain_stream::peer_id, std::unique_ptr<entry>> entries_;
 };

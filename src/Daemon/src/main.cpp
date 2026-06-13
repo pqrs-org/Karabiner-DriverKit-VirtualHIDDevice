@@ -5,7 +5,6 @@
 #include <iostream>
 #include <memory>
 #include <pqrs/hid.hpp>
-#include <pqrs/local_datagram.hpp>
 #include <pqrs/osx/iokit_return.hpp>
 #include <pqrs/osx/process_info.hpp>
 

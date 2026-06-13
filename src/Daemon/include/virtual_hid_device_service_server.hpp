@@ -7,8 +7,7 @@
 #include <pqrs/dispatcher.hpp>
 #include <pqrs/karabiner/driverkit/virtual_hid_device_driver.hpp>
 #include <pqrs/karabiner/driverkit/virtual_hid_device_service.hpp>
-#include <pqrs/local_datagram.hpp>
-#include <sstream>
+#include <pqrs/unix_domain_stream.hpp>
 #include <type_traits>
 #include <vector>
 
@@ -32,7 +31,7 @@ public:
     logger::get_logger()->info("virtual_hid_device_service_server is initialized");
   }
 
-  virtual ~virtual_hid_device_service_server() {
+  ~virtual_hid_device_service_server() override {
     detach_from_dispatcher([this] {
       server_ = nullptr;
 
@@ -87,35 +86,23 @@ private:
     }
   }
 
-  std::string server_socket_file_path() const {
-    auto now = std::chrono::system_clock::now();
-    auto duration = now.time_since_epoch();
-
-    std::stringstream ss;
-    ss << pqrs::karabiner::driverkit::virtual_hid_device_service::constants::get_server_socket_directory_path().string()
-       << "/"
-       << std::hex
-       << std::chrono::duration_cast<std::chrono::nanoseconds>(duration).count()
-       << ".sock";
-
-    return ss.str();
-  }
-
   void create_server() {
     // Remove old files and prepare a socket directores.
     prepare_socket_directories();
 
-    server_ = std::make_unique<pqrs::local_datagram::server>(
-        weak_dispatcher_,
-        server_socket_file_path(),
-        pqrs::karabiner::driverkit::virtual_hid_device_service::constants::local_datagram_buffer_size);
-    server_->set_server_check_interval(std::chrono::milliseconds(3000));
-    server_->set_reconnect_interval(std::chrono::milliseconds(1000));
+    auto options = pqrs::unix_domain_stream::server_options(
+        {
+            .max_message_size = pqrs::karabiner::driverkit::virtual_hid_device_service::constants::unix_domain_stream_max_message_size,
+        },
+        {
+            .bind_retry_interval = std::chrono::milliseconds(1000),
+            .socket_path_health_check_interval = std::chrono::milliseconds(3000),
+        });
 
-    server_->warning_reported.connect([](auto&& message) {
-      logger::get_logger()->warn("virtual_hid_device_service_server: {0}",
-                                 message);
-    });
+    server_ = std::make_unique<pqrs::unix_domain_stream::server>(
+        weak_dispatcher_,
+        pqrs::karabiner::driverkit::virtual_hid_device_service::constants::get_server_socket_file_path(),
+        options);
 
     server_->bound.connect([] {
       logger::get_logger()->info("virtual_hid_device_service_server: bound");
@@ -134,47 +121,59 @@ private:
       logger::get_logger()->info("virtual_hid_device_service_server: closed");
     });
 
-    server_->received.connect([this](auto&& buffer, auto&& sender_endpoint) {
-      if (!pqrs::local_datagram::non_empty_filesystem_endpoint_path(*sender_endpoint)) {
-        logger::get_logger()->error("virtual_hid_device_service_server: sender_endpoint path is empty");
-        return;
-      }
+    server_->peer_connected.connect([this](auto peer_id, auto&&) {
+      logger::get_logger()->info("virtual_hid_device_service_server: peer_connected ({0})",
+                                 peer_id);
+
+      virtual_hid_device_service_clients_manager_->create_client(peer_id);
+    });
+
+    server_->peer_closed.connect([this](auto peer_id) {
+      logger::get_logger()->info("virtual_hid_device_service_server: peer_closed ({0})",
+                                 peer_id);
+
+      virtual_hid_device_service_clients_manager_->erase_client(peer_id);
+    });
+
+    server_->peer_error_occurred.connect([](auto peer_id, auto&& error_code) {
+      logger::get_logger()->error("virtual_hid_device_service_server: peer_error_occurred ({0}): {1}",
+                                  peer_id,
+                                  error_code.message());
+    });
+
+    server_->request_received.connect([this](auto peer_id, auto request_id, auto&& buffer) {
+      auto respond_empty = [this, peer_id, request_id] {
+        if (server_) {
+          server_->async_respond(peer_id, request_id, {});
+        }
+      };
 
       if (buffer->empty()) {
         logger::get_logger()->error("virtual_hid_device_service_server: payload is empty");
+        respond_empty();
         return;
       }
-
-      auto sender_endpoint_filename = std::filesystem::path(sender_endpoint->path()).filename();
 
       size_t offset = 0;
 
       //
       // Read common data
       //
-      // buffer[0]: 'c'
-      // buffer[1]: 'p'
-      // buffer[2]: client_protocol_version[0]
-      // buffer[3]: client_protocol_version[1]
-      // buffer[4]: pqrs::karabiner::driverkit::virtual_hid_device_service::request
-
-      if (buffer->size() < 2 ||
-          (*buffer)[0] != 'c' ||
-          (*buffer)[1] != 'p') {
-        logger::get_logger()->error("virtual_hid_device_service_server: unknown request");
-        return;
-      }
-      offset = 2;
+      // buffer[0]: client_protocol_version[0]
+      // buffer[1]: client_protocol_version[1]
+      // buffer[2]: pqrs::karabiner::driverkit::virtual_hid_device_service::request
 
       pqrs::karabiner::driverkit::client_protocol_version::value_t received_client_protocol_version(0);
       if (!read_data(*buffer, offset, received_client_protocol_version)) {
         logger::get_logger()->error("virtual_hid_device_service_server: payload is not enough");
+        respond_empty();
         return;
       }
 
       pqrs::karabiner::driverkit::virtual_hid_device_service::request request{};
       if (!read_data(*buffer, offset, request)) {
         logger::get_logger()->error("virtual_hid_device_service_server: payload is not enough");
+        respond_empty();
         return;
       }
 
@@ -186,6 +185,7 @@ private:
         logger::get_logger()->warn("client protocol version is mismatched: expected: {0}, actual: {1}",
                                    type_safe::get(pqrs::karabiner::driverkit::client_protocol_version::embedded_client_protocol_version),
                                    type_safe::get(received_client_protocol_version));
+        respond_empty();
         return;
       }
 
@@ -198,12 +198,13 @@ private:
           break;
 
         case pqrs::karabiner::driverkit::virtual_hid_device_service::request::virtual_hid_keyboard_initialize: {
-          logger::get_logger()->info("{0} received request::virtual_hid_keyboard_initialize",
-                                     sender_endpoint_filename.c_str());
+          logger::get_logger()->info("peer_id:{0} received request::virtual_hid_keyboard_initialize",
+                                     peer_id);
 
           auto payload_size = buffer->size() - offset;
           if (sizeof(pqrs::karabiner::driverkit::virtual_hid_device_service::virtual_hid_keyboard_parameters) != payload_size) {
             logger::get_logger()->warn("virtual_hid_device_service_server: received: virtual_hid_keyboard_initialize buffer size error");
+            respond_empty();
             return;
           }
 
@@ -212,46 +213,44 @@ private:
                       buffer->data() + offset,
                       sizeof(parameters));
 
-          virtual_hid_device_service_clients_manager_->create_client(sender_endpoint->path());
-          virtual_hid_device_service_clients_manager_->initialize_keyboard(sender_endpoint->path(),
+          virtual_hid_device_service_clients_manager_->initialize_keyboard(peer_id,
                                                                            parameters);
           break;
         }
 
         case pqrs::karabiner::driverkit::virtual_hid_device_service::request::virtual_hid_keyboard_terminate:
-          logger::get_logger()->info("{0} received request::virtual_hid_keyboard_terminate",
-                                     sender_endpoint_filename.c_str());
+          logger::get_logger()->info("peer_id:{0} received request::virtual_hid_keyboard_terminate",
+                                     peer_id);
 
-          virtual_hid_device_service_clients_manager_->terminate_keyboard(sender_endpoint->path());
+          virtual_hid_device_service_clients_manager_->terminate_keyboard(peer_id);
           break;
 
         case pqrs::karabiner::driverkit::virtual_hid_device_service::request::virtual_hid_keyboard_reset:
-          virtual_hid_device_service_clients_manager_->virtual_hid_keyboard_reset(sender_endpoint->path());
+          virtual_hid_device_service_clients_manager_->virtual_hid_keyboard_reset(peer_id);
           break;
 
         case pqrs::karabiner::driverkit::virtual_hid_device_service::request::virtual_hid_pointing_initialize: {
-          logger::get_logger()->info("{0} received request::virtual_hid_pointing_initialize",
-                                     sender_endpoint_filename.c_str());
+          logger::get_logger()->info("peer_id:{0} received request::virtual_hid_pointing_initialize",
+                                     peer_id);
 
-          virtual_hid_device_service_clients_manager_->create_client(sender_endpoint->path());
-          virtual_hid_device_service_clients_manager_->initialize_pointing(sender_endpoint->path());
+          virtual_hid_device_service_clients_manager_->initialize_pointing(peer_id);
           break;
         }
 
         case pqrs::karabiner::driverkit::virtual_hid_device_service::request::virtual_hid_pointing_terminate:
-          logger::get_logger()->info("{0} received request::virtual_hid_pointing_terminate",
-                                     sender_endpoint_filename.c_str());
+          logger::get_logger()->info("peer_id:{0} received request::virtual_hid_pointing_terminate",
+                                     peer_id);
 
-          virtual_hid_device_service_clients_manager_->terminate_pointing(sender_endpoint->path());
+          virtual_hid_device_service_clients_manager_->terminate_pointing(peer_id);
           break;
 
         case pqrs::karabiner::driverkit::virtual_hid_device_service::request::virtual_hid_pointing_reset:
-          virtual_hid_device_service_clients_manager_->virtual_hid_pointing_reset(sender_endpoint->path());
+          virtual_hid_device_service_clients_manager_->virtual_hid_pointing_reset(peer_id);
           break;
 
         case pqrs::karabiner::driverkit::virtual_hid_device_service::request::post_keyboard_input_report:
           virtual_hid_device_service_clients_manager_->post_keyboard_report(
-              sender_endpoint->path(),
+              peer_id,
               buffer,
               offset,
               pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_keyboard_post_report,
@@ -261,7 +260,7 @@ private:
 
         case pqrs::karabiner::driverkit::virtual_hid_device_service::request::post_consumer_input_report:
           virtual_hid_device_service_clients_manager_->post_keyboard_report(
-              sender_endpoint->path(),
+              peer_id,
               buffer,
               offset,
               pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_keyboard_post_report,
@@ -271,7 +270,7 @@ private:
 
         case pqrs::karabiner::driverkit::virtual_hid_device_service::request::post_apple_vendor_keyboard_input_report:
           virtual_hid_device_service_clients_manager_->post_keyboard_report(
-              sender_endpoint->path(),
+              peer_id,
               buffer,
               offset,
               pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_keyboard_post_report,
@@ -281,7 +280,7 @@ private:
 
         case pqrs::karabiner::driverkit::virtual_hid_device_service::request::post_apple_vendor_top_case_input_report:
           virtual_hid_device_service_clients_manager_->post_keyboard_report(
-              sender_endpoint->path(),
+              peer_id,
               buffer,
               offset,
               pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_keyboard_post_report,
@@ -291,7 +290,7 @@ private:
 
         case pqrs::karabiner::driverkit::virtual_hid_device_service::request::post_generic_desktop_input_report:
           virtual_hid_device_service_clients_manager_->post_keyboard_report(
-              sender_endpoint->path(),
+              peer_id,
               buffer,
               offset,
               pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_keyboard_post_report,
@@ -301,13 +300,19 @@ private:
 
         case pqrs::karabiner::driverkit::virtual_hid_device_service::request::post_pointing_input_report:
           virtual_hid_device_service_clients_manager_->post_pointing_report(
-              sender_endpoint->path(),
+              peer_id,
               buffer,
               offset,
               pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_pointing_post_report,
               "virtual_hid_pointing_post_report(pointing_input)",
               sizeof(pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report::pointing_input));
           break;
+      }
+
+      if (server_) {
+        server_->async_respond(peer_id,
+                               request_id,
+                               virtual_hid_device_service_clients_manager_->make_response(peer_id));
       }
     });
 
@@ -316,30 +321,10 @@ private:
 
   void prepare_socket_directories() const {
     create_rootonly_directory();
-
-    // Remove old socket files.
-    {
-      auto directory_path = pqrs::karabiner::driverkit::virtual_hid_device_service::constants::get_server_socket_directory_path();
-      std::error_code ec;
-      std::filesystem::remove_all(directory_path, ec);
-      std::filesystem::create_directory(directory_path, ec);
-    }
-    {
-      auto directory_path = pqrs::karabiner::driverkit::virtual_hid_device_service::constants::get_server_response_socket_directory_path();
-      std::error_code ec;
-      std::filesystem::remove_all(directory_path, ec);
-      std::filesystem::create_directory(directory_path, ec);
-    }
-    {
-      auto directory_path = pqrs::karabiner::driverkit::virtual_hid_device_service::constants::get_client_socket_directory_path();
-      std::error_code ec;
-      std::filesystem::remove_all(directory_path, ec);
-      std::filesystem::create_directory(directory_path, ec);
-    }
   }
 
   pqrs::not_null_shared_ptr_t<pqrs::cf::run_loop_thread> run_loop_thread_;
 
   std::unique_ptr<virtual_hid_device_service_clients_manager> virtual_hid_device_service_clients_manager_;
-  std::unique_ptr<pqrs::local_datagram::server> server_;
+  std::unique_ptr<pqrs::unix_domain_stream::server> server_;
 };
