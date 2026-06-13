@@ -17,6 +17,7 @@ namespace {
 // Thus, we have to set a smallest value to usage maximum.
 //
 
+// clang-format off
 const uint8_t reportDescriptor[] = {
     0x05, 0x01,       // Usage Page (Generic Desktop)
     0x09, 0x06,       // Usage (Keyboard)
@@ -131,6 +132,7 @@ const uint8_t reportDescriptor[] = {
     0x81, 0x00,       //   Input...................(Data, Array, Absolute)
     0xc0,             // End Collection
 };
+// clang-format on
 } // namespace
 
 struct org_pqrs_Karabiner_DriverKit_VirtualHIDKeyboard_IVars {

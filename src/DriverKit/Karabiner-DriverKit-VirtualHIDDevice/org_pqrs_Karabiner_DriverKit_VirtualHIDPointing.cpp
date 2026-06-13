@@ -10,6 +10,7 @@
 #define LOG_PREFIX "Karabiner-DriverKit-VirtualHIDPointing " KARABINER_DRIVERKIT_VERSION
 
 namespace {
+// clang-format off
 const uint8_t reportDescriptor[] = {
     0x05, 0x01,        // USAGE_PAGE (Generic Desktop)
     0x09, 0x02,        // USAGE (Mouse)
@@ -78,7 +79,8 @@ const uint8_t reportDescriptor[] = {
     0xc0,              //   END_COLLECTION
     0xc0               // END_COLLECTION};
 };
-}
+// clang-format on
+} // namespace
 
 struct org_pqrs_Karabiner_DriverKit_VirtualHIDPointing_IVars {
   org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceUserClient* provider;
