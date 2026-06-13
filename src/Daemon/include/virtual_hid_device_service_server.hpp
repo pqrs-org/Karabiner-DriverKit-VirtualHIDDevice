@@ -15,7 +15,8 @@ class virtual_hid_device_service_server final : public pqrs::dispatcher::extra::
 public:
   virtual_hid_device_service_server(pqrs::not_null_shared_ptr_t<pqrs::cf::run_loop_thread> run_loop_thread)
       : dispatcher_client(),
-        run_loop_thread_(run_loop_thread) {
+        run_loop_thread_(run_loop_thread),
+        create_server_retry_timer_(*this) {
     //
     // Preparation
     //
@@ -33,6 +34,7 @@ public:
 
   ~virtual_hid_device_service_server() override {
     detach_from_dispatcher([this] {
+      create_server_retry_timer_.stop();
       server_ = nullptr;
 
       virtual_hid_device_service_clients_manager_ = nullptr;
@@ -60,7 +62,7 @@ private:
     return true;
   }
 
-  void create_rootonly_directory() const {
+  bool create_rootonly_directory() const {
     std::error_code error_code;
     std::filesystem::create_directories(
         pqrs::karabiner::driverkit::virtual_hid_device_service::constants::get_rootonly_directory(),
@@ -70,7 +72,7 @@ private:
           "virtual_hid_device_service_server::{0} create_directories error: {1}",
           __func__,
           error_code.message());
-      return;
+      return false;
     }
 
     std::filesystem::permissions(
@@ -82,13 +84,20 @@ private:
           "virtual_hid_device_service_server::{0} permissions error: {1}",
           __func__,
           error_code.message());
-      return;
+      return false;
     }
+
+    return true;
   }
 
   void create_server() {
-    // Remove old files and prepare a socket directores.
-    prepare_socket_directories();
+    create_server_retry_timer_.stop();
+
+    // Prepare socket directories.
+    if (!prepare_socket_directories()) {
+      start_create_server_retry_timer();
+      return;
+    }
 
     auto options = pqrs::unix_domain_stream::server_options(
         {
@@ -114,7 +123,17 @@ private:
 
       // If the socket directory is deleted for any reason,
       // bind_failed will be triggered, so recreate the directory each time.
-      prepare_socket_directories();
+      if (!prepare_socket_directories()) {
+        if (server_) {
+          server_->async_stop();
+        }
+
+        enqueue_to_dispatcher([this] {
+          server_ = nullptr;
+
+          start_create_server_retry_timer();
+        });
+      }
     });
 
     server_->closed.connect([] {
@@ -194,7 +213,7 @@ private:
       //
 
       switch (request) {
-        case pqrs::karabiner::driverkit::virtual_hid_device_service::request::none:
+        case pqrs::karabiner::driverkit::virtual_hid_device_service::request::get_status:
           break;
 
         case pqrs::karabiner::driverkit::virtual_hid_device_service::request::virtual_hid_keyboard_initialize: {
@@ -256,7 +275,8 @@ private:
               pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_keyboard_post_report,
               "virtual_hid_keyboard_post_report(keyboard_input)",
               sizeof(pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report::keyboard_input));
-          break;
+          respond_empty();
+          return;
 
         case pqrs::karabiner::driverkit::virtual_hid_device_service::request::post_consumer_input_report:
           virtual_hid_device_service_clients_manager_->post_keyboard_report(
@@ -266,7 +286,8 @@ private:
               pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_keyboard_post_report,
               "virtual_hid_keyboard_post_report(consumer_input)",
               sizeof(pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report::consumer_input));
-          break;
+          respond_empty();
+          return;
 
         case pqrs::karabiner::driverkit::virtual_hid_device_service::request::post_apple_vendor_keyboard_input_report:
           virtual_hid_device_service_clients_manager_->post_keyboard_report(
@@ -276,7 +297,8 @@ private:
               pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_keyboard_post_report,
               "virtual_hid_keyboard_post_report(apple_vendor_keyboard_input)",
               sizeof(pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report::apple_vendor_keyboard_input));
-          break;
+          respond_empty();
+          return;
 
         case pqrs::karabiner::driverkit::virtual_hid_device_service::request::post_apple_vendor_top_case_input_report:
           virtual_hid_device_service_clients_manager_->post_keyboard_report(
@@ -286,7 +308,8 @@ private:
               pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_keyboard_post_report,
               "virtual_hid_keyboard_post_report(apple_vendor_top_case_input)",
               sizeof(pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report::apple_vendor_top_case_input));
-          break;
+          respond_empty();
+          return;
 
         case pqrs::karabiner::driverkit::virtual_hid_device_service::request::post_generic_desktop_input_report:
           virtual_hid_device_service_clients_manager_->post_keyboard_report(
@@ -296,7 +319,8 @@ private:
               pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_keyboard_post_report,
               "virtual_hid_keyboard_post_report(generic_desktop_input)",
               sizeof(pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report::generic_desktop_input));
-          break;
+          respond_empty();
+          return;
 
         case pqrs::karabiner::driverkit::virtual_hid_device_service::request::post_pointing_input_report:
           virtual_hid_device_service_clients_manager_->post_pointing_report(
@@ -306,7 +330,13 @@ private:
               pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_pointing_post_report,
               "virtual_hid_pointing_post_report(pointing_input)",
               sizeof(pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report::pointing_input));
-          break;
+          respond_empty();
+          return;
+
+        default:
+          logger::get_logger()->warn("virtual_hid_device_service_server: unknown request");
+          respond_empty();
+          return;
       }
 
       if (server_) {
@@ -319,12 +349,23 @@ private:
     server_->async_start();
   }
 
-  void prepare_socket_directories() const {
-    create_rootonly_directory();
+  bool prepare_socket_directories() const {
+    return create_rootonly_directory();
+  }
+
+  void start_create_server_retry_timer() {
+    logger::get_logger()->info("virtual_hid_device_service_server: retry create_server");
+
+    create_server_retry_timer_.start(
+        [this] {
+          create_server();
+        },
+        std::chrono::milliseconds(1000));
   }
 
   pqrs::not_null_shared_ptr_t<pqrs::cf::run_loop_thread> run_loop_thread_;
 
+  pqrs::dispatcher::extra::timer create_server_retry_timer_;
   std::unique_ptr<virtual_hid_device_service_clients_manager> virtual_hid_device_service_clients_manager_;
   std::unique_ptr<pqrs::unix_domain_stream::server> server_;
 };

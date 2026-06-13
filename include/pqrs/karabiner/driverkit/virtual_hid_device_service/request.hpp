@@ -8,7 +8,7 @@
 
 namespace pqrs::karabiner::driverkit::virtual_hid_device_service {
 enum class request : uint8_t {
-  none,
+  get_status,
   virtual_hid_keyboard_initialize,
   virtual_hid_keyboard_terminate,
   virtual_hid_keyboard_reset,

@@ -169,7 +169,7 @@ private:
 
         status_request_timer_.start(
             [this] {
-              async_request(make_request_buffer(request::none));
+              async_request(make_request_buffer(request::get_status));
             },
             std::chrono::milliseconds(1000));
       });
