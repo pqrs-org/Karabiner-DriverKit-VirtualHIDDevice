@@ -1,5 +1,22 @@
 # Changelog
 
+## Karabiner-DriverKit-VirtualHIDDevice 7.0.0
+
+- 📅 Release date
+    - Jun 13, 2026
+- 💥 Breaking changes
+    - Changed the IPC backend used by `virtual_hid_device_service` from `pqrs::local_datagram` to `pqrs::unix_domain_stream`.
+      If you use `virtual_hid_device_service::client`, update both the daemon and client together.
+    - Updated `client_protocol_version` from 5 to 6.
+- ⚡️ Improvements
+    - Improved `virtual_hid_device_service` communication to use request-response messaging.
+    - Consolidated virtual HID device service status responses into a single `get_status` request.
+    - Simplified code using C++23 features.
+    - Updated dependent vendor code:
+        - nemtrif/utf8cpp v4.1.1
+        - pqrs::hid v3.0.0
+        - pqrs::unix_domain_stream v2.1.0
+
 ## Karabiner-DriverKit-VirtualHIDDevice 6.14.0
 
 - 📅 Release date
