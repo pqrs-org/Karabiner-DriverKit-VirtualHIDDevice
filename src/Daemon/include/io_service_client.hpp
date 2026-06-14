@@ -45,8 +45,8 @@ public:
                                __func__);
 
     detach_from_dispatcher([this] {
-      if (auto s = matched_services_.find_opened()) {
-        close_connection(s->get_registry_entry_id());
+      if (auto matched_service = matched_services_.find_opened()) {
+        close_connection(matched_service->get_registry_entry_id());
       }
 
       service_monitor_ = nullptr;
@@ -194,14 +194,14 @@ public:
           type_safe::get(parameters.get_country_code()),
       };
 
-      auto r = call_scalar_method(pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_keyboard_initialize,
-                                  input.data(),
-                                  input.size());
+      auto result = call_scalar_method(pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_keyboard_initialize,
+                                       input.data(),
+                                       input.size());
 
-      if (!r) {
+      if (!result) {
         logger::get_logger()->error("{0} virtual_hid_keyboard_initialize error: {1}",
                                     log_label_,
-                                    r.to_string());
+                                    result.to_string());
       }
     });
   }
@@ -218,12 +218,12 @@ public:
 
   void async_virtual_hid_keyboard_reset() const {
     enqueue_to_dispatcher([this] {
-      auto r = call(pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_keyboard_reset);
+      auto result = call(pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_keyboard_reset);
 
-      if (!r) {
+      if (!result) {
         logger::get_logger()->error("{0} virtual_hid_keyboard_reset error: {1}",
                                     log_label_,
-                                    r.to_string());
+                                    result.to_string());
       }
     });
   }
@@ -234,12 +234,12 @@ public:
                                __func__);
 
     enqueue_to_dispatcher([this] {
-      auto r = call(pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_pointing_initialize);
+      auto result = call(pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_pointing_initialize);
 
-      if (!r) {
+      if (!result) {
         logger::get_logger()->error("{0} virtual_hid_pointing_initialize error: {1}",
                                     log_label_,
-                                    r.to_string());
+                                    result.to_string());
       }
     });
   }
@@ -256,12 +256,12 @@ public:
 
   void async_virtual_hid_pointing_reset() const {
     enqueue_to_dispatcher([this] {
-      auto r = call(pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_pointing_reset);
+      auto result = call(pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_pointing_reset);
 
-      if (!r) {
+      if (!result) {
         logger::get_logger()->error("{0} virtual_hid_pointing_reset error: {1}",
                                     log_label_,
-                                    r.to_string());
+                                    result.to_string());
       }
     });
   }
@@ -280,15 +280,15 @@ public:
 
       auto report_size = report_buffer->size() - report_offset;
 
-      auto r = post_report(user_client_method,
-                           report_buffer->data() + report_offset,
-                           report_size);
+      auto result = post_report(user_client_method,
+                                report_buffer->data() + report_offset,
+                                report_size);
 
-      if (!r) {
+      if (!result) {
         logger::get_logger()->error("{0} {1} error: {2}",
                                     log_label_,
                                     report_name,
-                                    r.to_string());
+                                    result.to_string());
       }
     });
   }
@@ -453,15 +453,15 @@ private:
       }
 
       io_connect_t new_connection;
-      pqrs::osx::iokit_return r = IOServiceOpen(*(matched_service->get_service()),
-                                                mach_task_self(),
-                                                0,
-                                                &new_connection);
+      pqrs::osx::iokit_return result = IOServiceOpen(*(matched_service->get_service()),
+                                                     mach_task_self(),
+                                                     0,
+                                                     &new_connection);
 
-      if (!r) {
+      if (!result) {
         logger::get_logger()->error("{0} io_service_client IOServiceOpen error: {1}",
                                     log_label_,
-                                    r.to_string());
+                                    result.to_string());
         continue;
       }
 

@@ -10,6 +10,7 @@
 #include "response.hpp"
 #include <cstring>
 #include <pqrs/dispatcher.hpp>
+#include <pqrs/gsl.hpp>
 #include <pqrs/hid.hpp>
 #include <pqrs/unix_domain_stream.hpp>
 #include <ranges>
@@ -176,10 +177,8 @@ private:
     });
 
     client_->connect_failed.connect([this](auto&& error_code) {
-      auto ec = error_code;
-
-      enqueue_to_dispatcher([this, ec] {
-        connect_failed(ec);
+      enqueue_to_dispatcher([this, error_code] {
+        connect_failed(error_code);
       });
     });
 
@@ -194,10 +193,8 @@ private:
     });
 
     client_->error_occurred.connect([this](auto&& error_code) {
-      auto ec = error_code;
-
-      enqueue_to_dispatcher([this, ec] {
-        error_occurred(ec);
+      enqueue_to_dispatcher([this, error_code] {
+        error_occurred(error_code);
       });
     });
 
@@ -208,9 +205,8 @@ private:
     });
   }
 
-  void handle_response(const std::shared_ptr<std::vector<uint8_t>>& buffer) {
-    if (!buffer ||
-        buffer->empty()) {
+  void handle_response(pqrs::not_null_shared_ptr_t<std::vector<uint8_t>> buffer) {
+    if (buffer->empty()) {
       return;
     }
 
@@ -220,11 +216,11 @@ private:
       return;
     }
 
-    for (auto i : std::views::iota(size_t{0}, response_buffer.size() / 2)) {
-      auto r = response(response_buffer[i * 2]);
-      auto value = response_buffer[i * 2 + 1];
+    for (auto index : std::views::iota(size_t{0}, response_buffer.size() / 2)) {
+      auto response_type = response(response_buffer[index * 2]);
+      auto value = response_buffer[index * 2 + 1];
 
-      switch (r) {
+      switch (response_type) {
         case response::none:
           break;
 
@@ -257,42 +253,37 @@ private:
     }
   }
 
-  void async_request(std::shared_ptr<std::vector<uint8_t>> request_buffer) {
+  void async_request(pqrs::not_null_shared_ptr_t<std::vector<uint8_t>> request_buffer) {
     enqueue_to_dispatcher([this, request_buffer] {
       if (client_) {
         client_->async_request(
             *request_buffer,
             [this](auto&& error_code, auto&& response_buffer) {
-              auto ec = error_code;
-              auto buffer = response_buffer;
-
-              enqueue_to_dispatcher([this, ec, buffer] {
-                if (ec) {
-                  error_occurred(ec);
+              enqueue_to_dispatcher([this, error_code, response_buffer] {
+                if (error_code) {
+                  error_occurred(error_code);
                   return;
                 }
 
-                if (buffer) {
-                  handle_response(buffer);
-                }
+                handle_response(response_buffer);
               });
             });
       }
     });
   }
 
-  std::shared_ptr<std::vector<uint8_t>> make_request_buffer(request r) const {
-    auto buffer = std::make_shared<std::vector<uint8_t>>();
+  pqrs::not_null_shared_ptr_t<std::vector<uint8_t>> make_request_buffer(request request_type) const {
+    pqrs::not_null_shared_ptr_t<std::vector<uint8_t>> buffer(std::make_shared<std::vector<uint8_t>>());
 
     append_data(*buffer, client_protocol_version::embedded_client_protocol_version);
-    append_data(*buffer, r);
+    append_data(*buffer, request_type);
 
     return buffer;
   }
 
   template <typename T>
-  std::shared_ptr<std::vector<uint8_t>> make_request_buffer(request r, const T& data) const {
-    auto buffer = make_request_buffer(r);
+  pqrs::not_null_shared_ptr_t<std::vector<uint8_t>> make_request_buffer(request request_type, const T& data) const {
+    auto buffer = make_request_buffer(request_type);
 
     append_data(*buffer, data);
 
