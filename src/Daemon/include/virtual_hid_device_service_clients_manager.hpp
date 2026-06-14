@@ -31,24 +31,24 @@ public:
       throw std::logic_error(fmt::format("{0} is called in wrong thread", __func__));
     }
 
-    auto peer_name = fmt::format("peer_id:{0}", peer_id);
+    auto log_label = fmt::format("peer_id:{0}", peer_id);
 
     if (entries_.contains(peer_id)) {
       logger::get_logger()->info(
           "{0} client already exists",
-          peer_name);
+          log_label);
       return;
     }
 
     logger::get_logger()->info(
         "{0} create a client for virtual_hid_device_service::client",
-        peer_name);
+        log_label);
 
     entries_[peer_id] = std::make_unique<entry>(run_loop_thread_,
-                                                peer_name);
+                                                log_label);
 
     logger::get_logger()->info("{0} virtual_hid_device_service_clients_manager client is added (size: {1})",
-                               peer_name,
+                               log_label,
                                entries_.size());
   }
 
@@ -58,12 +58,12 @@ public:
       throw std::logic_error(fmt::format("{0} is called in wrong thread", __func__));
     }
 
-    auto peer_name = fmt::format("peer_id:{0}", peer_id);
+    auto log_label = fmt::format("peer_id:{0}", peer_id);
 
     entries_.erase(peer_id);
 
     logger::get_logger()->info("{0} virtual_hid_device_service_clients_manager client is removed (size: {1})",
-                               peer_name,
+                               log_label,
                                entries_.size());
   }
 
@@ -120,8 +120,8 @@ public:
 
     if (auto it = entries_.find(peer_id);
         it != entries_.end()) {
-      if (auto c = it->second->get_io_service_client_keyboard()) {
-        c->async_virtual_hid_keyboard_reset();
+      if (auto client = it->second->get_io_service_client_keyboard()) {
+        client->async_virtual_hid_keyboard_reset();
       }
     }
   }
@@ -134,8 +134,8 @@ public:
 
     if (auto it = entries_.find(peer_id);
         it != entries_.end()) {
-      if (auto c = it->second->get_io_service_client_pointing()) {
-        c->async_virtual_hid_pointing_reset();
+      if (auto client = it->second->get_io_service_client_pointing()) {
+        client->async_virtual_hid_pointing_reset();
       }
     }
   }
@@ -194,58 +194,17 @@ private:
   class entry final : public pqrs::dispatcher::extra::dispatcher_client {
   public:
     entry(pqrs::not_null_shared_ptr_t<pqrs::cf::run_loop_thread> run_loop_thread,
-          const std::string& virtual_hid_device_service_client_endpoint_filename)
+          const std::string& log_label)
         : run_loop_thread_(run_loop_thread),
-          initialize_timer_(*this),
+          log_label_(log_label),
           ready_timer_(*this),
+          virtual_hid_keyboard_client_generation_id_(0),
           virtual_hid_keyboard_enabled_(false),
+          virtual_hid_pointing_client_generation_id_(0),
           virtual_hid_pointing_enabled_(false) {
-      io_service_client_nop_ = std::make_shared<io_service_client>(run_loop_thread_,
-                                                                   virtual_hid_device_service_client_endpoint_filename);
-      io_service_client_nop_->async_start();
-
-      initialize_timer_.start(
-          [this, virtual_hid_device_service_client_endpoint_filename] {
-            //
-            // Setup virtual_hid_keyboard
-            //
-
-            if (virtual_hid_keyboard_enabled_) {
-              if (!virtual_hid_keyboard_ready()) {
-                io_service_client_keyboard_ = std::make_shared<io_service_client>(run_loop_thread_,
-                                                                                  virtual_hid_device_service_client_endpoint_filename);
-
-                io_service_client_keyboard_->opened.connect([this] {
-                  io_service_client_keyboard_->async_virtual_hid_keyboard_initialize(virtual_hid_keyboard_parameters_);
-                });
-
-                io_service_client_keyboard_->async_start();
-              }
-            } else {
-              io_service_client_keyboard_ = nullptr;
-            }
-
-            //
-            // Setup virtual_hid_pointing
-            //
-
-            if (virtual_hid_pointing_enabled_) {
-              if (!virtual_hid_pointing_ready()) {
-                io_service_client_pointing_ = std::make_shared<io_service_client>(run_loop_thread_,
-                                                                                  virtual_hid_device_service_client_endpoint_filename);
-
-                io_service_client_pointing_->opened.connect([this] {
-                  io_service_client_pointing_->async_virtual_hid_pointing_initialize();
-                });
-
-                io_service_client_pointing_->async_start();
-              }
-            } else {
-              io_service_client_pointing_ = nullptr;
-            }
-          },
-          // The call interval of `initialize_timer_` must be longer than that of `ready_timer_`.
-          std::chrono::milliseconds(5000));
+      io_service_client_no_virtual_devices_ = std::make_shared<io_service_client>(run_loop_thread_,
+                                                                                  log_label);
+      io_service_client_no_virtual_devices_->async_start();
 
       ready_timer_.start(
           [this] {
@@ -253,11 +212,11 @@ private:
             // Query `ready` state to driver
             //
 
-            if (auto c = io_service_client_keyboard_) {
-              c->async_virtual_hid_keyboard_ready();
+            if (auto client = io_service_client_keyboard_) {
+              client->async_virtual_hid_keyboard_ready();
             }
-            if (auto c = io_service_client_pointing_) {
-              c->async_virtual_hid_pointing_ready();
+            if (auto client = io_service_client_pointing_) {
+              client->async_virtual_hid_pointing_ready();
             }
           },
           std::chrono::milliseconds(1000));
@@ -267,7 +226,7 @@ private:
       detach_from_dispatcher([this] {
         io_service_client_pointing_ = nullptr;
         io_service_client_keyboard_ = nullptr;
-        io_service_client_nop_ = nullptr;
+        io_service_client_no_virtual_devices_ = nullptr;
       });
     }
 
@@ -295,12 +254,17 @@ private:
 
         virtual_hid_keyboard_enabled_ = true;
         virtual_hid_keyboard_parameters_ = parameters;
+
+        setup_virtual_hid_devices();
       });
     }
 
     void terminate_keyboard() {
       enqueue_to_dispatcher([this] {
         virtual_hid_keyboard_enabled_ = false;
+
+        ++virtual_hid_keyboard_client_generation_id_;
+        io_service_client_keyboard_ = nullptr;
       });
     }
 
@@ -311,12 +275,17 @@ private:
     void initialize_pointing() {
       enqueue_to_dispatcher([this] {
         virtual_hid_pointing_enabled_ = true;
+
+        setup_virtual_hid_devices();
       });
     }
 
     void terminate_pointing() {
       enqueue_to_dispatcher([this] {
         virtual_hid_pointing_enabled_ = false;
+
+        ++virtual_hid_pointing_client_generation_id_;
+        io_service_client_pointing_ = nullptr;
       });
     }
 
@@ -326,9 +295,9 @@ private:
 
       std::ranges::for_each(
           std::array{
-              std::pair{response::driver_activated, io_service_client_nop_->driver_activated()},
-              std::pair{response::driver_connected, io_service_client_nop_->driver_connected()},
-              std::pair{response::driver_version_mismatched, io_service_client_nop_->driver_version_mismatched()},
+              std::pair{response::driver_activated, io_service_client_no_virtual_devices_->driver_activated()},
+              std::pair{response::driver_connected, io_service_client_no_virtual_devices_->driver_connected()},
+              std::pair{response::driver_version_mismatched, io_service_client_no_virtual_devices_->driver_version_mismatched()},
               std::pair{response::virtual_hid_keyboard_ready, virtual_hid_keyboard_ready()},
               std::pair{response::virtual_hid_pointing_ready, virtual_hid_pointing_ready()},
           },
@@ -342,6 +311,114 @@ private:
     }
 
   private:
+    // This method is executed in the dispatcher thread.
+    void setup_virtual_hid_devices() {
+      //
+      // Setup virtual_hid_keyboard
+      //
+
+      if (virtual_hid_keyboard_enabled_) {
+        if (!virtual_hid_keyboard_ready() &&
+            !io_service_client_keyboard_) {
+          create_virtual_hid_keyboard_client();
+        }
+      } else {
+        io_service_client_keyboard_ = nullptr;
+      }
+
+      //
+      // Setup virtual_hid_pointing
+      //
+
+      if (virtual_hid_pointing_enabled_) {
+        if (!virtual_hid_pointing_ready() &&
+            !io_service_client_pointing_) {
+          create_virtual_hid_pointing_client();
+        }
+      } else {
+        io_service_client_pointing_ = nullptr;
+      }
+    }
+
+    // This method is executed in the dispatcher thread.
+    void create_virtual_hid_keyboard_client() {
+      create_virtual_hid_client(
+          io_service_client_keyboard_,
+          virtual_hid_keyboard_client_generation_id_,
+          [this](auto client) {
+            client->async_virtual_hid_keyboard_initialize(virtual_hid_keyboard_parameters_);
+          },
+          [this] {
+            return virtual_hid_keyboard_enabled_;
+          },
+          [this] {
+            return virtual_hid_keyboard_ready();
+          },
+          "recreate io_service_client_keyboard_ since virtual_hid_keyboard is not ready");
+    }
+
+    // This method is executed in the dispatcher thread.
+    void create_virtual_hid_pointing_client() {
+      create_virtual_hid_client(
+          io_service_client_pointing_,
+          virtual_hid_pointing_client_generation_id_,
+          [](auto client) {
+            client->async_virtual_hid_pointing_initialize();
+          },
+          [this] {
+            return virtual_hid_pointing_enabled_;
+          },
+          [this] {
+            return virtual_hid_pointing_ready();
+          },
+          "recreate io_service_client_pointing_ since virtual_hid_pointing is not ready");
+    }
+
+    // This method is executed in the dispatcher thread.
+    template <typename InitializeClient, typename IsEnabled, typename IsReady>
+    void create_virtual_hid_client(std::shared_ptr<io_service_client>& client,
+                                   int& client_generation_id,
+                                   InitializeClient initialize_client,
+                                   IsEnabled is_enabled,
+                                   IsReady is_ready,
+                                   const char* recreate_log_message) {
+      ++client_generation_id;
+
+      auto client_ptr = &client;
+      auto client_generation_id_ptr = &client_generation_id;
+
+      client = std::make_shared<io_service_client>(run_loop_thread_,
+                                                   log_label_);
+
+      client->opened.connect([client, initialize_client] {
+        initialize_client(client);
+      });
+
+      client->async_start();
+
+      enqueue_to_dispatcher(
+          [this,
+           client_ptr,
+           client_generation_id_ptr,
+           generation_id = client_generation_id,
+           is_enabled,
+           is_ready,
+           recreate_log_message] {
+            if (generation_id != *client_generation_id_ptr) {
+              return;
+            }
+
+            if (is_enabled() &&
+                !is_ready()) {
+              logger::get_logger()->info(recreate_log_message);
+
+              *client_ptr = nullptr;
+              setup_virtual_hid_devices();
+            }
+          },
+          when_now() + std::chrono::milliseconds(5000));
+    }
+
     // This method is executed in the dispatcher thread.
     bool virtual_hid_keyboard_ready() const {
       std::optional<bool> ready;
@@ -374,18 +451,20 @@ private:
     }
 
     pqrs::not_null_shared_ptr_t<pqrs::cf::run_loop_thread> run_loop_thread_;
+    std::string log_label_;
 
-    std::shared_ptr<io_service_client> io_service_client_nop_;
+    std::shared_ptr<io_service_client> io_service_client_no_virtual_devices_;
     std::shared_ptr<io_service_client> io_service_client_keyboard_;
     std::shared_ptr<io_service_client> io_service_client_pointing_;
-    pqrs::dispatcher::extra::timer initialize_timer_;
     pqrs::dispatcher::extra::timer ready_timer_;
 
     // virtual_hid_keyboard
+    int virtual_hid_keyboard_client_generation_id_;
     bool virtual_hid_keyboard_enabled_;
     pqrs::karabiner::driverkit::virtual_hid_device_service::virtual_hid_keyboard_parameters virtual_hid_keyboard_parameters_;
 
     // virtual_hid_pointing
+    int virtual_hid_pointing_client_generation_id_;
     bool virtual_hid_pointing_enabled_;
   };
 
@@ -415,11 +494,11 @@ private:
 
     if (auto it = entries_.find(peer_id);
         it != entries_.end()) {
-      if (auto c = get_io_service_client(*(it->second))) {
-        c->async_post_report(user_client_method,
-                             std::move(buffer),
-                             report_offset,
-                             report_name);
+      if (auto client = get_io_service_client(*(it->second))) {
+        client->async_post_report(user_client_method,
+                                  std::move(buffer),
+                                  report_offset,
+                                  report_name);
       }
     }
   }
