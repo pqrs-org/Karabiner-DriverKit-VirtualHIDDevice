@@ -1,5 +1,16 @@
 # Changelog
 
+## Karabiner-DriverKit-VirtualHIDDevice 7.1.0
+
+- 📅 Release date
+    - Jun 14, 2026
+- ⚡️ Improvements
+    - Reduced startup latency by creating virtual HID keyboard and pointing clients immediately when initialization is requested.
+    - Improved virtual HID device recreation by checking readiness 5 seconds after client creation instead of using a periodic retry timer.
+    - Renamed internal daemon variables for clarity.
+    - Updated dependent vendor code:
+        - pqrs::unix_domain_stream v2.2.0
+
 ## Karabiner-DriverKit-VirtualHIDDevice 7.0.0
 
 - 📅 Release date
