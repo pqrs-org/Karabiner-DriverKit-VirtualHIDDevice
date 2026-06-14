@@ -384,14 +384,11 @@ private:
                                    const char* recreate_log_message) {
       ++client_generation_id;
 
-      auto client_ptr = &client;
-      auto client_generation_id_ptr = &client_generation_id;
-
       client = std::make_shared<io_service_client>(run_loop_thread_,
                                                    log_label_);
 
-      std::weak_ptr<io_service_client> weak_client(client);
-      client->opened.connect([weak_client, initialize_client] {
+      client->opened.connect([weak_client = std::weak_ptr<io_service_client>(client),
+                              initialize_client] {
         if (auto client = weak_client.lock()) {
           initialize_client(client);
         }
@@ -401,8 +398,8 @@ private:
 
       enqueue_to_dispatcher(
           [this,
-           client_ptr,
-           client_generation_id_ptr,
+           client_ptr = &client,
+           client_generation_id_ptr = &client_generation_id,
            generation_id = client_generation_id,
            is_enabled,
            is_ready,

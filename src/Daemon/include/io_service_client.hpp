@@ -208,9 +208,8 @@ public:
 
   void async_virtual_hid_keyboard_ready() {
     enqueue_to_dispatcher([this] {
-      auto ready = call_ready(pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_keyboard_ready);
-
-      enqueue_to_dispatcher([this, ready] {
+      enqueue_to_dispatcher([this,
+                             ready = call_ready(pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_keyboard_ready)] {
         set_virtual_hid_keyboard_ready(ready);
       });
     });
@@ -246,9 +245,8 @@ public:
 
   void async_virtual_hid_pointing_ready() {
     enqueue_to_dispatcher([this] {
-      auto ready = call_ready(pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_pointing_ready);
-
-      enqueue_to_dispatcher([this, ready] {
+      enqueue_to_dispatcher([this,
+                             ready = call_ready(pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_pointing_ready)] {
         set_virtual_hid_pointing_ready(ready);
       });
     });
