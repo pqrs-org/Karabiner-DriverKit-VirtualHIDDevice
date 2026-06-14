@@ -52,4 +52,4 @@ swift-format:
 swiftlint:
 	swiftlint
 
-notarized-dmg: package notarize
+notarized-pkg: package notarize
