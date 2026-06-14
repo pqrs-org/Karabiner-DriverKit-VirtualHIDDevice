@@ -390,8 +390,11 @@ private:
       client = std::make_shared<io_service_client>(run_loop_thread_,
                                                    log_label_);
 
-      client->opened.connect([client, initialize_client] {
-        initialize_client(client);
+      std::weak_ptr<io_service_client> weak_client(client);
+      client->opened.connect([weak_client, initialize_client] {
+        if (auto client = weak_client.lock()) {
+          initialize_client(client);
+        }
       });
 
       client->async_start();
