@@ -234,8 +234,8 @@ private:
                 return;
               }
 
-              auto v = std::make_shared<std::vector<uint8_t>>(std::begin(self->read_body_) + protocol::type_size,
-                                                              std::end(self->read_body_));
+              not_null_shared_ptr_t<std::vector<uint8_t>> v(std::make_shared<std::vector<uint8_t>>(std::begin(self->read_body_) + protocol::type_size,
+                                                                                                   std::end(self->read_body_)));
               self->enqueue_to_dispatcher([p = self.get(), v] {
                 p->received(v);
               });
@@ -254,8 +254,8 @@ private:
 
               auto request_id = protocol::decode_uint64(self->read_body_,
                                                         protocol::type_size);
-              auto v = std::make_shared<std::vector<uint8_t>>(std::begin(self->read_body_) + protocol::type_size + protocol::request_id_size,
-                                                              std::end(self->read_body_));
+              not_null_shared_ptr_t<std::vector<uint8_t>> v(std::make_shared<std::vector<uint8_t>>(std::begin(self->read_body_) + protocol::type_size + protocol::request_id_size,
+                                                                                                   std::end(self->read_body_)));
 
               if (type == protocol::message_type::request) {
                 self->enqueue_to_dispatcher([p = self.get(), request_id, v] {
