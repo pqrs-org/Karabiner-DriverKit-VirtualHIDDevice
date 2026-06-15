@@ -178,6 +178,12 @@ private:
           self->read_deadline_.cancel();
 
           if (error_code) {
+            if (error_code == asio::error::eof &&
+                bytes_transferred == 0) {
+              self->close();
+              return;
+            }
+
             self->handle_error(error_code);
             return;
           }
