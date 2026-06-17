@@ -1,5 +1,10 @@
 # Changelog
 
+## Beta
+
+- ⚡️ Improvements
+    - Changed the log level of the peer_error_occurred log message to debug.
+
 ## Karabiner-DriverKit-VirtualHIDDevice 7.2.0
 
 - 📅 Release date
