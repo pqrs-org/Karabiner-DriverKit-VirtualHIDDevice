@@ -1,7 +1,9 @@
 # Changelog
 
-## Beta
+## Karabiner-DriverKit-VirtualHIDDevice 7.3.0
 
+- 📅 Release date
+    - Jun 17, 2026
 - ⚡️ Improvements
     - Changed the log level of the peer_error_occurred log message to debug.
 
