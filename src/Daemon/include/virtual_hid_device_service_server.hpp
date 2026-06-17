@@ -155,7 +155,7 @@ private:
     });
 
     server_->peer_error_occurred.connect([](auto peer_id, auto&& error_code) {
-      logger::get_logger()->error("virtual_hid_device_service_server: peer_error_occurred ({0}): {1}",
+      logger::get_logger()->debug("virtual_hid_device_service_server: peer_error_occurred ({0}): {1}",
                                   peer_id,
                                   error_code.message());
     });
