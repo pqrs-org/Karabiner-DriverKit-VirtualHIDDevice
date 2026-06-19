@@ -1,15 +1,14 @@
 VERSION = `/usr/bin/python3 scripts/get_version.py package_version`
 
 CLANG_FORMAT_FILES = \
-	'examples/*.cpp' \
-	'include/*.hpp' \
-	'include/*.hpp.in' \
-	'src/*.cpp' \
-	'src/*.hpp.in' \
-	'src/*.hpp' \
-	'src/*.iig' \
-	'tests/*.cpp' \
-	'tests/*.hpp'
+	'*.h' \
+	'*.hpp' \
+	'*.hpp.in' \
+	'*.iig' \
+	'*.mm' \
+	'*.cpp' \
+	':(exclude)docs/vendor/**' \
+	':(exclude)vendor/**'
 
 all:
 	@echo 'Type `make package`'
