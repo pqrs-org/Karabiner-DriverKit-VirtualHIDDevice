@@ -40,10 +40,6 @@ public:
       return;
     }
 
-    logger::get_logger()->debug(
-        "{0} create a client for virtual_hid_device_service::client",
-        log_label);
-
     client_entries_[peer_id] = std::make_unique<client_entry>(run_loop_thread_,
                                                               log_label);
 

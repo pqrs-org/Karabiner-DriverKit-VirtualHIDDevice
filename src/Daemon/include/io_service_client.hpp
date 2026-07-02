@@ -34,16 +34,9 @@ public:
         run_loop_thread_(run_loop_thread),
         log_label_(log_label),
         service_name_("org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceRoot") {
-    logger::get_logger()->debug("{0} io_service_client::{1}",
-                                log_label_,
-                                __func__);
   }
 
   ~io_service_client() {
-    logger::get_logger()->debug("{0} io_service_client::{1}",
-                                log_label_,
-                                __func__);
-
     detach_from_dispatcher([this] {
       if (auto matched_service = matched_services_.find_opened()) {
         close_connection(matched_service->get_registry_entry_id());
@@ -121,15 +114,8 @@ public:
   }
 
   void async_start() {
-    logger::get_logger()->debug("{0} io_service_client::{1}",
-                                log_label_,
-                                __func__);
-
     enqueue_to_dispatcher([this] {
       if (auto matching_dictionary = IOServiceNameMatching(service_name_.c_str())) {
-        logger::get_logger()->debug("{0} create service_monitor_",
-                                    log_label_);
-
         service_monitor_ = std::make_unique<pqrs::osx::iokit_service_monitor>(weak_dispatcher_,
                                                                               run_loop_thread_,
                                                                               matching_dictionary);
@@ -141,10 +127,6 @@ public:
           matched_services_.insert(registry_entry_id,
                                    service_ptr);
 
-          logger::get_logger()->debug("{0} matched_services_ size: {1}",
-                                      log_label_,
-                                      matched_services_.get_services().size());
-
           open_connection();
         });
 
@@ -155,10 +137,6 @@ public:
           close_connection(registry_entry_id);
 
           matched_services_.erase(registry_entry_id);
-
-          logger::get_logger()->debug("{0} matched_services_ size: {1}",
-                                      log_label_,
-                                      matched_services_.get_services().size());
 
           // If the alive connection is closed by `close_connection`,
           // we attempt to connect to the next available service.
@@ -172,9 +150,6 @@ public:
                                       kern_return);
         });
 
-        logger::get_logger()->debug("{0} service_monitor_->async_start()",
-                                    log_label_);
-
         service_monitor_->async_start();
 
         CFRelease(matching_dictionary);
@@ -183,10 +158,6 @@ public:
   }
 
   void async_virtual_hid_keyboard_initialize(const pqrs::karabiner::driverkit::virtual_hid_device_service::virtual_hid_keyboard_parameters& parameters) const {
-    logger::get_logger()->debug("{0} io_service_client::{1}",
-                                log_label_,
-                                __func__);
-
     enqueue_to_dispatcher([this, parameters] {
       std::array<uint64_t, 3> input = {
           type_safe::get(parameters.get_vendor_id()),
@@ -228,10 +199,6 @@ public:
   }
 
   void async_virtual_hid_pointing_initialize() const {
-    logger::get_logger()->debug("{0} io_service_client::{1}",
-                                log_label_,
-                                __func__);
-
     enqueue_to_dispatcher([this] {
       auto result = call(pqrs::karabiner::driverkit::virtual_hid_device_driver::user_client_method::virtual_hid_pointing_initialize);
 
@@ -481,9 +448,6 @@ private:
       matched_service->set_opened(true);
 
       enqueue_to_dispatcher([this] {
-        logger::get_logger()->debug("{0} io_service_client::opened",
-                                    log_label_);
-
         opened();
       });
 
@@ -509,9 +473,6 @@ private:
     connection_.reset();
 
     enqueue_to_dispatcher([this] {
-      logger::get_logger()->debug("{0} io_service_client::closed",
-                                  log_label_);
-
       closed();
     });
 
