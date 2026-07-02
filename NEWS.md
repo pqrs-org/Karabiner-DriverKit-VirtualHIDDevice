@@ -2,6 +2,10 @@
 
 ## Beta
 
+- 💥 Breaking changes
+    - Removed `virtual_hid_device_service::request::get_status`, which changes the numeric values of subsequent `request` enum entries.
+      Client applications that use `include/pqrs/karabiner/driverkit` must be rebuilt with the updated headers.
+    - Updated `client_protocol_version` from 6 to 7.
 - ⚡️ Improvements
     - Reduced verbose log messages.
     - Updated dependent vendor code:
