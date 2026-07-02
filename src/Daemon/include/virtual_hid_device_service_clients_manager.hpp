@@ -34,22 +34,22 @@ public:
     auto log_label = fmt::format("peer_id:{0}", peer_id);
 
     if (client_entries_.contains(peer_id)) {
-      logger::get_logger()->info(
+      logger::get_logger()->debug(
           "{0} client already exists",
           log_label);
       return;
     }
 
-    logger::get_logger()->info(
+    logger::get_logger()->debug(
         "{0} create a client for virtual_hid_device_service::client",
         log_label);
 
     client_entries_[peer_id] = std::make_unique<client_entry>(run_loop_thread_,
                                                               log_label);
 
-    logger::get_logger()->info("{0} virtual_hid_device_service_clients_manager client is added (size: {1})",
-                               log_label,
-                               client_entries_.size());
+    logger::get_logger()->debug("{0} virtual_hid_device_service_clients_manager client is added (size: {1})",
+                                log_label,
+                                client_entries_.size());
   }
 
   // This method needs to be called in the dispatcher thread.
@@ -62,9 +62,9 @@ public:
 
     client_entries_.erase(peer_id);
 
-    logger::get_logger()->info("{0} virtual_hid_device_service_clients_manager client is removed (size: {1})",
-                               log_label,
-                               client_entries_.size());
+    logger::get_logger()->debug("{0} virtual_hid_device_service_clients_manager client is removed (size: {1})",
+                                log_label,
+                                client_entries_.size());
   }
 
   void initialize_keyboard(pqrs::unix_domain_stream::peer_id peer_id,
@@ -247,7 +247,7 @@ private:
         // Destroy virtual_hid_keyboard_io_service_client_ if parameters is changed.
         if (virtual_hid_keyboard_io_service_client_ &&
             virtual_hid_keyboard_parameters_ != parameters) {
-          logger::get_logger()->info("destroy virtual_hid_keyboard_io_service_client_ due to parameter changes");
+          logger::get_logger()->debug("destroy virtual_hid_keyboard_io_service_client_ due to parameter changes");
 
           virtual_hid_keyboard_io_service_client_ = nullptr;
         }
@@ -410,7 +410,7 @@ private:
 
             if (is_enabled() &&
                 !is_ready()) {
-              logger::get_logger()->info(recreate_log_message);
+              logger::get_logger()->debug(recreate_log_message);
 
               *client_ptr = nullptr;
               setup_virtual_hid_devices();

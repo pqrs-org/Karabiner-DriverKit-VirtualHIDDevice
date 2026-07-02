@@ -29,7 +29,7 @@ public:
 
     create_server();
 
-    logger::get_logger()->info("virtual_hid_device_service_server is initialized");
+    logger::get_logger()->debug("virtual_hid_device_service_server is initialized");
   }
 
   ~virtual_hid_device_service_server() override {
@@ -40,7 +40,7 @@ public:
       virtual_hid_device_service_clients_manager_ = nullptr;
     });
 
-    logger::get_logger()->info("virtual_hid_device_service_server is terminated");
+    logger::get_logger()->debug("virtual_hid_device_service_server is terminated");
   }
 
 private:
@@ -114,7 +114,7 @@ private:
         options);
 
     server_->bound.connect([] {
-      logger::get_logger()->info("virtual_hid_device_service_server: bound");
+      logger::get_logger()->debug("virtual_hid_device_service_server: bound");
     });
 
     server_->bind_failed.connect([this](auto&& error_code) {
@@ -137,19 +137,19 @@ private:
     });
 
     server_->closed.connect([] {
-      logger::get_logger()->info("virtual_hid_device_service_server: closed");
+      logger::get_logger()->debug("virtual_hid_device_service_server: closed");
     });
 
     server_->peer_connected.connect([this](auto peer_id, auto&&) {
-      logger::get_logger()->info("virtual_hid_device_service_server: peer_connected ({0})",
-                                 peer_id);
+      logger::get_logger()->debug("virtual_hid_device_service_server: peer_connected ({0})",
+                                  peer_id);
 
       virtual_hid_device_service_clients_manager_->create_client(peer_id);
     });
 
     server_->peer_closed.connect([this](auto peer_id) {
-      logger::get_logger()->info("virtual_hid_device_service_server: peer_closed ({0})",
-                                 peer_id);
+      logger::get_logger()->debug("virtual_hid_device_service_server: peer_closed ({0})",
+                                  peer_id);
 
       virtual_hid_device_service_clients_manager_->erase_client(peer_id);
     });
@@ -217,8 +217,8 @@ private:
           break;
 
         case pqrs::karabiner::driverkit::virtual_hid_device_service::request::virtual_hid_keyboard_initialize: {
-          logger::get_logger()->info("peer_id:{0} received request::virtual_hid_keyboard_initialize",
-                                     peer_id);
+          logger::get_logger()->debug("peer_id:{0} received request::virtual_hid_keyboard_initialize",
+                                      peer_id);
 
           auto payload_size = buffer->size() - offset;
           if (sizeof(pqrs::karabiner::driverkit::virtual_hid_device_service::virtual_hid_keyboard_parameters) != payload_size) {
@@ -238,8 +238,8 @@ private:
         }
 
         case pqrs::karabiner::driverkit::virtual_hid_device_service::request::virtual_hid_keyboard_terminate:
-          logger::get_logger()->info("peer_id:{0} received request::virtual_hid_keyboard_terminate",
-                                     peer_id);
+          logger::get_logger()->debug("peer_id:{0} received request::virtual_hid_keyboard_terminate",
+                                      peer_id);
 
           virtual_hid_device_service_clients_manager_->terminate_keyboard(peer_id);
           break;
@@ -249,16 +249,16 @@ private:
           break;
 
         case pqrs::karabiner::driverkit::virtual_hid_device_service::request::virtual_hid_pointing_initialize: {
-          logger::get_logger()->info("peer_id:{0} received request::virtual_hid_pointing_initialize",
-                                     peer_id);
+          logger::get_logger()->debug("peer_id:{0} received request::virtual_hid_pointing_initialize",
+                                      peer_id);
 
           virtual_hid_device_service_clients_manager_->initialize_pointing(peer_id);
           break;
         }
 
         case pqrs::karabiner::driverkit::virtual_hid_device_service::request::virtual_hid_pointing_terminate:
-          logger::get_logger()->info("peer_id:{0} received request::virtual_hid_pointing_terminate",
-                                     peer_id);
+          logger::get_logger()->debug("peer_id:{0} received request::virtual_hid_pointing_terminate",
+                                      peer_id);
 
           virtual_hid_device_service_clients_manager_->terminate_pointing(peer_id);
           break;
@@ -354,7 +354,7 @@ private:
   }
 
   void start_create_server_retry_timer() {
-    logger::get_logger()->info("virtual_hid_device_service_server: retry create_server");
+    logger::get_logger()->debug("virtual_hid_device_service_server: retry create_server");
 
     create_server_retry_timer_.start(
         [this] {

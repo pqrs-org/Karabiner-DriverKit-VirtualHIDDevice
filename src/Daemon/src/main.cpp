@@ -52,7 +52,7 @@ int main() {
   {
     dispatch_source_t sigint_source = dispatch_source_create(DISPATCH_SOURCE_TYPE_SIGNAL, SIGINT, 0, dispatch_get_main_queue());
     dispatch_source_set_event_handler(sigint_source, ^{
-      logger::get_logger()->info("SIGINT");
+      logger::get_logger()->debug("SIGINT");
       termination_handler();
     });
     dispatch_resume(sigint_source);
@@ -60,7 +60,7 @@ int main() {
   {
     dispatch_source_t sigterm_source = dispatch_source_create(DISPATCH_SOURCE_TYPE_SIGNAL, SIGTERM, 0, dispatch_get_main_queue());
     dispatch_source_set_event_handler(sigterm_source, ^{
-      logger::get_logger()->info("SIGTERM");
+      logger::get_logger()->debug("SIGTERM");
       termination_handler();
     });
     dispatch_resume(sigterm_source);
