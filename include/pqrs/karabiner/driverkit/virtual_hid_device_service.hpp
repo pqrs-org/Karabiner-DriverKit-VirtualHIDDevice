@@ -11,4 +11,3 @@
 #include "virtual_hid_device_service/parameters.hpp"
 #include "virtual_hid_device_service/request.hpp"
 #include "virtual_hid_device_service/response.hpp"
-#include "virtual_hid_device_service/utility.hpp"

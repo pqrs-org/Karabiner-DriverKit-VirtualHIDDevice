@@ -9,12 +9,14 @@
 #include <nod/nod.hpp>
 #include <optional>
 #include <os/log.h>
+#include <pqrs/cf/cf_ptr.hpp>
 #include <pqrs/dispatcher.hpp>
 #include <pqrs/hid.hpp>
 #include <pqrs/karabiner/driverkit/client_protocol_version.hpp>
 #include <pqrs/karabiner/driverkit/driver_version.hpp>
 #include <pqrs/karabiner/driverkit/virtual_hid_device_driver.hpp>
 #include <pqrs/karabiner/driverkit/virtual_hid_device_service.hpp>
+#include <pqrs/osx/iokit_object_ptr.hpp>
 #include <pqrs/osx/iokit_return.hpp>
 #include <pqrs/osx/iokit_service_monitor.hpp>
 #include <vector>
@@ -49,14 +51,10 @@ public:
   }
 
   bool driver_activated() const {
-    auto service = IOServiceGetMatchingService(type_safe::get(pqrs::osx::iokit_mach_port::null),
-                                               IOServiceNameMatching(service_name_.c_str()));
-    if (!service) {
-      return false;
-    }
-
-    IOObjectRelease(service);
-    return true;
+    auto service = pqrs::osx::adopt_iokit_object_ptr(
+        IOServiceGetMatchingService(type_safe::get(pqrs::osx::iokit_mach_port::null),
+                                    IOServiceNameMatching(service_name_.c_str())));
+    return static_cast<bool>(service);
   }
 
   bool driver_connected() const {
@@ -117,10 +115,10 @@ public:
 
   void async_start() {
     enqueue_to_dispatcher([this] {
-      if (auto matching_dictionary = IOServiceNameMatching(service_name_.c_str())) {
+      if (auto matching_dictionary = pqrs::cf::adopt_cf_ptr(IOServiceNameMatching(service_name_.c_str()))) {
         service_monitor_ = std::make_unique<pqrs::osx::iokit_service_monitor>(weak_dispatcher_,
                                                                               run_loop_thread_,
-                                                                              matching_dictionary);
+                                                                              *matching_dictionary);
 
         service_monitor_->service_matched.connect([this](auto&& registry_entry_id, auto&& service_ptr) {
           logger::get_logger()->debug("{0} iokit_service_monitor::service_matched",
@@ -161,8 +159,6 @@ public:
         });
 
         service_monitor_->async_start();
-
-        CFRelease(matching_dictionary);
       }
     });
   }
