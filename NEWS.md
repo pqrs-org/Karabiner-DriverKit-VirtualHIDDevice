@@ -1,5 +1,31 @@
 # Changelog
 
+## Beta
+
+- ⚡️ Improvements
+    - Reduced verbose log messages.
+    - Updated dependent vendor code:
+        - pqrs::cf::cf_ptr v2.3.0
+        - pqrs::cf::run_loop_thread v3.1.0
+        - pqrs::cf::string v2.2.0
+        - pqrs::dispatcher v2.16.0
+        - pqrs::gsl v1.3.0
+        - pqrs::hash v2.1.0
+        - pqrs::hid v3.1.0
+        - pqrs::json v1.8.0
+        - pqrs::osx::iokit_iterator v1.2.0
+        - pqrs::osx::iokit_object_ptr v3.2.0
+        - pqrs::osx::iokit_service v3.1.0
+        - pqrs::osx::iokit_return v1.4.0
+        - pqrs::osx::iokit_service_monitor v6.2.0
+        - pqrs::osx::iokit_types v6.4.0
+        - pqrs::osx::kern_return v1.2.0
+        - pqrs::osx::process_info v2.4.0
+        - pqrs::spdlog v3.1.0
+        - pqrs::string v2.0.0
+        - pqrs::thread_wait v2.2.0
+        - pqrs::unix_domain_stream v3.0.0
+
 ## Karabiner-DriverKit-VirtualHIDDevice 7.3.0
 
 - 📅 Release date
