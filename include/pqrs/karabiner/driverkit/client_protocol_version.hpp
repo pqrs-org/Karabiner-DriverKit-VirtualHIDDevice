@@ -20,6 +20,6 @@ inline std::ostream& operator<<(std::ostream& stream, const value_t& value) {
 }
 
 // clang-format off
-constexpr value_t embedded_client_protocol_version(6);
+constexpr value_t embedded_client_protocol_version(7);
 // clang-format on
 } // namespace pqrs::karabiner::driverkit::client_protocol_version

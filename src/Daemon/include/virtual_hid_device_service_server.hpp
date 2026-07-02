@@ -21,7 +21,12 @@ public:
     // Preparation
     //
 
-    virtual_hid_device_service_clients_manager_ = std::make_unique<virtual_hid_device_service_clients_manager>(run_loop_thread_);
+    virtual_hid_device_service_clients_manager_ = std::make_unique<virtual_hid_device_service_clients_manager>(weak_dispatcher_,
+                                                                                                               run_loop_thread_);
+    virtual_hid_device_service_clients_manager_->status_changed.connect([this](auto peer_id, const auto& response) {
+      async_deliver_status(peer_id,
+                           response);
+    });
 
     //
     // Creation
@@ -145,6 +150,7 @@ private:
                                   peer_id);
 
       virtual_hid_device_service_clients_manager_->create_client(peer_id);
+      virtual_hid_device_service_clients_manager_->async_check_status_changed(peer_id);
     });
 
     server_->peer_closed.connect([this](auto peer_id) {
@@ -213,9 +219,6 @@ private:
       //
 
       switch (request) {
-        case pqrs::karabiner::driverkit::virtual_hid_device_service::request::get_status:
-          break;
-
         case pqrs::karabiner::driverkit::virtual_hid_device_service::request::virtual_hid_keyboard_initialize: {
           logger::get_logger()->debug("peer_id:{0} received request::virtual_hid_keyboard_initialize",
                                       peer_id);
@@ -361,6 +364,24 @@ private:
           create_server();
         },
         std::chrono::milliseconds(1000));
+  }
+
+  void async_deliver_status(pqrs::unix_domain_stream::peer_id peer_id,
+                            const std::vector<uint8_t>& response) {
+    if (!server_) {
+      return;
+    }
+
+    server_->async_request(
+        peer_id,
+        response,
+        [peer_id](auto&& error_code, auto&&) {
+          if (error_code) {
+            logger::get_logger()->debug("virtual_hid_device_service_server: status delivery failed ({0}): {1}",
+                                        peer_id,
+                                        error_code.message());
+          }
+        });
   }
 
   pqrs::not_null_shared_ptr_t<pqrs::cf::run_loop_thread> run_loop_thread_;

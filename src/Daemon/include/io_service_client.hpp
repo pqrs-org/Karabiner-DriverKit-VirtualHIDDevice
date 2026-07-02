@@ -25,12 +25,14 @@ public:
 
   nod::signal<void()> opened;
   nod::signal<void()> closed;
+  nod::signal<void()> state_changed;
 
   // Methods
 
-  io_service_client(pqrs::not_null_shared_ptr_t<pqrs::cf::run_loop_thread> run_loop_thread,
+  io_service_client(std::weak_ptr<pqrs::dispatcher::dispatcher> weak_dispatcher,
+                    pqrs::not_null_shared_ptr_t<pqrs::cf::run_loop_thread> run_loop_thread,
                     const std::string& log_label)
-      : dispatcher_client(),
+      : dispatcher_client(weak_dispatcher),
         run_loop_thread_(run_loop_thread),
         log_label_(log_label),
         service_name_("org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceRoot") {
@@ -371,6 +373,10 @@ private:
             "{0} driver_version_ is changed: std::nullopt",
             log_label_);
       }
+
+      enqueue_to_dispatcher([this] {
+        state_changed();
+      });
     }
   }
 
@@ -385,6 +391,10 @@ private:
           "{0} virtual_hid_keyboard_ready_ is changed: {1}",
           log_label_,
           value ? (*value ? "true" : "false") : "std::nullopt");
+
+      enqueue_to_dispatcher([this] {
+        state_changed();
+      });
     }
   }
 
@@ -399,6 +409,10 @@ private:
           "{0} virtual_hid_pointing_ready_ is changed: {1}",
           log_label_,
           value ? (*value ? "true" : "false") : "std::nullopt");
+
+      enqueue_to_dispatcher([this] {
+        state_changed();
+      });
     }
   }
 

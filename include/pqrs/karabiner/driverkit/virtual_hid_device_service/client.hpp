@@ -35,13 +35,11 @@ public:
   // Methods
 
   client()
-      : dispatcher_client(),
-        status_request_timer_(*this) {
+      : dispatcher_client() {
   }
 
   ~client() override {
     detach_from_dispatcher([this] {
-      status_request_timer_.stop();
       client_ = nullptr;
     });
   }
@@ -62,7 +60,6 @@ public:
 
   void async_stop() {
     enqueue_to_dispatcher([this] {
-      status_request_timer_.stop();
       client_ = nullptr;
 
       clear_state();
@@ -167,12 +164,6 @@ private:
     client_->connected.connect([this](auto&&) {
       enqueue_to_dispatcher([this] {
         connected();
-
-        status_request_timer_.start(
-            [this] {
-              async_request(make_request_buffer(request::get_status));
-            },
-            std::chrono::milliseconds(1000));
       });
     });
 
@@ -184,8 +175,6 @@ private:
 
     client_->closed.connect([this] {
       enqueue_to_dispatcher([this] {
-        status_request_timer_.stop();
-
         closed();
 
         clear_state();
@@ -203,16 +192,27 @@ private:
         warning_reported("peer_verification_failed");
       });
     });
+
+    client_->request_received.connect([this](auto request_id, auto&& buffer) {
+      enqueue_to_dispatcher([this, request_id, buffer] {
+        handle_message(buffer);
+
+        if (client_) {
+          client_->async_respond(request_id,
+                                 {});
+        }
+      });
+    });
   }
 
-  void handle_response(pqrs::not_null_shared_ptr_t<std::vector<uint8_t>> buffer) {
+  void handle_message(pqrs::not_null_shared_ptr_t<std::vector<uint8_t>> buffer) {
     if (buffer->empty()) {
       return;
     }
 
     const auto& response_buffer = *buffer;
     if (response_buffer.size() % 2 != 0) {
-      warning_reported("virtual_hid_device_service::client: response buffer size is invalid");
+      warning_reported("virtual_hid_device_service::client: message buffer size is invalid");
       return;
     }
 
@@ -247,7 +247,7 @@ private:
           break;
 
         default:
-          warning_reported("virtual_hid_device_service::client: unknown response");
+          warning_reported("virtual_hid_device_service::client: unknown message");
           break;
       }
     }
@@ -265,7 +265,7 @@ private:
                   return;
                 }
 
-                handle_response(response_buffer);
+                handle_message(response_buffer);
               });
             });
       }
@@ -301,7 +301,6 @@ private:
                 sizeof(data));
   }
 
-  dispatcher::extra::timer status_request_timer_;
   std::unique_ptr<unix_domain_stream::client> client_;
 
   std::optional<bool> last_virtual_hid_keyboard_ready_;

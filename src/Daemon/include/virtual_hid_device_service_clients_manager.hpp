@@ -14,8 +14,11 @@
 
 class virtual_hid_device_service_clients_manager final : public pqrs::dispatcher::extra::dispatcher_client {
 public:
-  virtual_hid_device_service_clients_manager(pqrs::not_null_shared_ptr_t<pqrs::cf::run_loop_thread> run_loop_thread)
-      : dispatcher_client(),
+  nod::signal<void(pqrs::unix_domain_stream::peer_id, const std::vector<uint8_t>&)> status_changed;
+
+  virtual_hid_device_service_clients_manager(std::weak_ptr<pqrs::dispatcher::dispatcher> weak_dispatcher,
+                                             pqrs::not_null_shared_ptr_t<pqrs::cf::run_loop_thread> run_loop_thread)
+      : dispatcher_client(weak_dispatcher),
         run_loop_thread_(run_loop_thread) {
   }
 
@@ -40,12 +43,32 @@ public:
       return;
     }
 
-    client_entries_[peer_id] = std::make_unique<client_entry>(run_loop_thread_,
-                                                              log_label);
+    auto entry = std::make_unique<client_entry>(weak_dispatcher_,
+                                                run_loop_thread_,
+                                                log_label);
+
+    entry->status_changed.connect([this, peer_id](const auto& response) {
+      status_changed(peer_id,
+                     response);
+    });
+
+    client_entries_[peer_id] = std::move(entry);
 
     logger::get_logger()->debug("{0} virtual_hid_device_service_clients_manager client is added (size: {1})",
                                 log_label,
                                 client_entries_.size());
+  }
+
+  // This method needs to be called in the dispatcher thread.
+  void async_check_status_changed(pqrs::unix_domain_stream::peer_id peer_id) {
+    if (!dispatcher_thread()) {
+      throw std::logic_error(fmt::format("{0} is called in wrong thread", __func__));
+    }
+
+    if (auto it = client_entries_.find(peer_id);
+        it != client_entries_.end()) {
+      it->second->async_check_status_changed();
+    }
   }
 
   // This method needs to be called in the dispatcher thread.
@@ -189,17 +212,35 @@ public:
 private:
   class client_entry final : public pqrs::dispatcher::extra::dispatcher_client {
   public:
-    client_entry(pqrs::not_null_shared_ptr_t<pqrs::cf::run_loop_thread> run_loop_thread,
+    nod::signal<void(const std::vector<uint8_t>&)> status_changed;
+
+    client_entry(std::weak_ptr<pqrs::dispatcher::dispatcher> weak_dispatcher,
+                 pqrs::not_null_shared_ptr_t<pqrs::cf::run_loop_thread> run_loop_thread,
                  const std::string& log_label)
-        : run_loop_thread_(run_loop_thread),
+        : dispatcher_client(weak_dispatcher),
+          run_loop_thread_(run_loop_thread),
           log_label_(log_label),
           ready_timer_(*this),
           virtual_hid_keyboard_client_generation_id_(0),
           virtual_hid_keyboard_enabled_(false),
           virtual_hid_pointing_client_generation_id_(0),
           virtual_hid_pointing_enabled_(false) {
-      no_virtual_devices_io_service_client_ = std::make_shared<io_service_client>(run_loop_thread_,
+      no_virtual_devices_io_service_client_ = std::make_shared<io_service_client>(weak_dispatcher_,
+                                                                                  run_loop_thread_,
                                                                                   log_label);
+
+      no_virtual_devices_io_service_client_->opened.connect([] {
+        // Do nothing
+      });
+
+      no_virtual_devices_io_service_client_->closed.connect([] {
+        // Do nothing
+      });
+
+      no_virtual_devices_io_service_client_->state_changed.connect([this] {
+        check_status_changed();
+      });
+
       no_virtual_devices_io_service_client_->async_start();
 
       ready_timer_.start(
@@ -252,6 +293,7 @@ private:
         virtual_hid_keyboard_parameters_ = parameters;
 
         setup_virtual_hid_devices();
+        check_status_changed();
       });
     }
 
@@ -261,6 +303,8 @@ private:
 
         ++virtual_hid_keyboard_client_generation_id_;
         virtual_hid_keyboard_io_service_client_ = nullptr;
+
+        check_status_changed();
       });
     }
 
@@ -273,6 +317,7 @@ private:
         virtual_hid_pointing_enabled_ = true;
 
         setup_virtual_hid_devices();
+        check_status_changed();
       });
     }
 
@@ -282,6 +327,14 @@ private:
 
         ++virtual_hid_pointing_client_generation_id_;
         virtual_hid_pointing_io_service_client_ = nullptr;
+
+        check_status_changed();
+      });
+    }
+
+    void async_check_status_changed() {
+      enqueue_to_dispatcher([this] {
+        check_status_changed();
       });
     }
 
@@ -380,14 +433,22 @@ private:
                                    const char* recreate_log_message) {
       ++client_generation_id;
 
-      client = std::make_shared<io_service_client>(run_loop_thread_,
+      client = std::make_shared<io_service_client>(weak_dispatcher_,
+                                                   run_loop_thread_,
                                                    log_label_);
+      client->state_changed.connect([this] {
+        check_status_changed();
+      });
 
       client->opened.connect([weak_client = std::weak_ptr<io_service_client>(client),
                               initialize_client] {
         if (auto client = weak_client.lock()) {
           initialize_client(client);
         }
+      });
+
+      client->closed.connect([] {
+        // Do nothing
       });
 
       client->async_start();
@@ -446,6 +507,16 @@ private:
                                   });
     }
 
+    // This method is executed in the dispatcher thread.
+    void check_status_changed() {
+      auto response = make_response();
+
+      if (last_response_ != response) {
+        last_response_ = response;
+        status_changed(response);
+      }
+    }
+
     pqrs::not_null_shared_ptr_t<pqrs::cf::run_loop_thread> run_loop_thread_;
     std::string log_label_;
 
@@ -453,6 +524,7 @@ private:
     std::shared_ptr<io_service_client> virtual_hid_keyboard_io_service_client_;
     std::shared_ptr<io_service_client> virtual_hid_pointing_io_service_client_;
     pqrs::dispatcher::extra::timer ready_timer_;
+    std::optional<std::vector<uint8_t>> last_response_;
 
     // virtual_hid_keyboard
     int virtual_hid_keyboard_client_generation_id_;
