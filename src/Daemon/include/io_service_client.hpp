@@ -130,6 +130,10 @@ public:
                                    service_ptr);
 
           open_connection();
+
+          enqueue_to_dispatcher([this] {
+            state_changed();
+          });
         });
 
         service_monitor_->service_terminated.connect([this](auto&& registry_entry_id) {
@@ -143,6 +147,10 @@ public:
           // If the alive connection is closed by `close_connection`,
           // we attempt to connect to the next available service.
           open_connection();
+
+          enqueue_to_dispatcher([this] {
+            state_changed();
+          });
         });
 
         service_monitor_->error_occurred.connect([this](auto&& message, auto&& kern_return) {
