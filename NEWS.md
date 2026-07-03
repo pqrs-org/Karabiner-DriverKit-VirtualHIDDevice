@@ -1,7 +1,9 @@
 # Changelog
 
-## Beta
+## Karabiner-DriverKit-VirtualHIDDevice 8.0.0
 
+- 📅 Release date
+    - Jul 3, 2026
 - 💥 Breaking changes
     - Removed `virtual_hid_device_service::request::get_status`, which changes the numeric values of subsequent `request` enum entries.
       Client applications that use `include/pqrs/karabiner/driverkit` must be rebuilt with the updated headers.
