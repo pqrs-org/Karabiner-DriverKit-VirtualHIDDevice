@@ -166,6 +166,10 @@ private:
                                   error_code.message());
     });
 
+    server_->received.connect([](auto, auto&&) {
+      // Do nothing
+    });
+
     server_->request_received.connect([this](auto peer_id, auto request_id, auto&& buffer) {
       auto respond_empty = [this, peer_id, request_id] {
         if (server_) {

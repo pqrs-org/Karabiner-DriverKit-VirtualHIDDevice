@@ -193,6 +193,10 @@ private:
       });
     });
 
+    client_->received.connect([](auto&&) {
+      // Do nothing
+    });
+
     client_->request_received.connect([this](auto request_id, auto&& buffer) {
       enqueue_to_dispatcher([this, request_id, buffer] {
         handle_message(buffer);
