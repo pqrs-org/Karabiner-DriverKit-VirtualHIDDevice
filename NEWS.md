@@ -5,6 +5,8 @@
 - 💥 Breaking changes
     - Removed `virtual_hid_device_service::request::get_status`, which changes the numeric values of subsequent `request` enum entries.
       Client applications that use `include/pqrs/karabiner/driverkit` must be rebuilt with the updated headers.
+    - Removed `virtual_hid_device_service/utility.hpp`.
+      Use the corresponding `virtual_hid_device_service::client` signals such as `driver_activated`, `virtual_hid_keyboard_ready`, and `virtual_hid_pointing_ready` instead.
     - Updated `client_protocol_version` from 6 to 7.
 - ⚡️ Improvements
     - Reduced verbose log messages.
