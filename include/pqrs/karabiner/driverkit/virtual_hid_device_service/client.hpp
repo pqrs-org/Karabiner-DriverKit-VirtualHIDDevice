@@ -4,6 +4,8 @@
 // Distributed under the Boost Software License, Version 1.0.
 // (See https://www.boost.org/LICENSE_1_0.txt)
 
+#include "../client_protocol_version.hpp"
+#include "../virtual_hid_device_driver.hpp"
 #include "constants.hpp"
 #include "parameters.hpp"
 #include "request.hpp"
@@ -68,17 +70,19 @@ public:
 
   void async_virtual_hid_keyboard_initialize(const pqrs::karabiner::driverkit::virtual_hid_device_service::virtual_hid_keyboard_parameters& parameters,
                                              bool force = false) {
-    if (!force) {
-      if (last_virtual_hid_keyboard_ready_ == true &&
-          last_virtual_hid_keyboard_parameters_ == parameters) {
-        return;
+    enqueue_to_dispatcher([this, parameters, force] {
+      if (!force) {
+        if (last_virtual_hid_keyboard_ready_ == true &&
+            last_virtual_hid_keyboard_parameters_ == parameters) {
+          return;
+        }
       }
-    }
 
-    last_virtual_hid_keyboard_parameters_ = parameters;
+      last_virtual_hid_keyboard_parameters_ = parameters;
 
-    async_request(make_request_buffer(request::virtual_hid_keyboard_initialize,
-                                      parameters));
+      async_request(make_request_buffer(request::virtual_hid_keyboard_initialize,
+                                        parameters));
+    });
   }
 
   void async_virtual_hid_keyboard_terminate() {
@@ -90,13 +94,15 @@ public:
   }
 
   void async_virtual_hid_pointing_initialize(bool force = false) {
-    if (!force) {
-      if (last_virtual_hid_pointing_ready_ == true) {
-        return;
+    enqueue_to_dispatcher([this, force] {
+      if (!force) {
+        if (last_virtual_hid_pointing_ready_ == true) {
+          return;
+        }
       }
-    }
 
-    async_request(make_request_buffer(request::virtual_hid_pointing_initialize));
+      async_request(make_request_buffer(request::virtual_hid_pointing_initialize));
+    });
   }
 
   void async_virtual_hid_pointing_terminate() {
@@ -138,6 +144,7 @@ public:
   }
 
 private:
+  // This method is executed in the dispatcher thread.
   void clear_state() {
     last_virtual_hid_keyboard_ready_ = std::nullopt;
     virtual_hid_keyboard_ready(false);
@@ -148,6 +155,7 @@ private:
     last_virtual_hid_keyboard_parameters_ = std::nullopt;
   }
 
+  // This method is executed in the dispatcher thread.
   void create_client() {
     auto options = pqrs::unix_domain_stream::client_options(
         {
@@ -209,6 +217,7 @@ private:
     });
   }
 
+  // This method is executed in the dispatcher thread.
   void handle_message(pqrs::not_null_shared_ptr_t<std::vector<uint8_t>> buffer) {
     if (buffer->empty()) {
       return;
