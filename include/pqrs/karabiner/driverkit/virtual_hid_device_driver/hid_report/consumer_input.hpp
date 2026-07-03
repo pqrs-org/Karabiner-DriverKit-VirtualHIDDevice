@@ -6,6 +6,7 @@
 
 #include "keys.hpp"
 #include <cstdint>
+#include <cstring>
 
 namespace pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report {
 

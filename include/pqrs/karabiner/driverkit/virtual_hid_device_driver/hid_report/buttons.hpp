@@ -5,6 +5,7 @@
 // (See https://www.boost.org/LICENSE_1_0.txt)
 
 #include <cstdint>
+#include <cstring>
 
 namespace pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report {
 

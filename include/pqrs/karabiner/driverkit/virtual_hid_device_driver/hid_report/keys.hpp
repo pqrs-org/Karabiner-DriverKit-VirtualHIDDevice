@@ -4,7 +4,9 @@
 // Distributed under the Boost Software License, Version 1.0.
 // (See https://www.boost.org/LICENSE_1_0.txt)
 
+#include <cstddef>
 #include <cstdint>
+#include <cstring>
 
 namespace pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report {
 
@@ -58,8 +60,8 @@ public:
     return false;
   }
 
-  size_t count() const {
-    size_t result = 0;
+  std::size_t count() const {
+    std::size_t result = 0;
     for (const auto& k : keys_) {
       if (k) {
         ++result;
