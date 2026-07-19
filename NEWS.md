@@ -1,5 +1,14 @@
 # Changelog
 
+## Karabiner-DriverKit-VirtualHIDDevice 8.1.0
+
+- 📅 Release date
+    - Jul 19, 2026
+- ⚡️ Improvements
+    - Relax Unix domain socket timeouts.
+    - Updated dependent vendor code:
+        - asio 1.38.1
+
 ## Karabiner-DriverKit-VirtualHIDDevice 8.0.0
 
 - 📅 Release date
