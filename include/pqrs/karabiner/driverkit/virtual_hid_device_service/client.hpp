@@ -160,6 +160,9 @@ private:
     auto options = pqrs::unix_domain_stream::client_options(
         {
             .max_message_size = constants::unix_domain_stream_max_message_size,
+            .heartbeat_timeout = std::chrono::milliseconds(30000),
+            .read_timeout = std::chrono::milliseconds(15000),
+            .write_timeout = std::chrono::milliseconds(15000),
         },
         {
             .reconnect_interval = std::chrono::milliseconds(1000),

@@ -107,6 +107,9 @@ private:
     auto options = pqrs::unix_domain_stream::server_options(
         {
             .max_message_size = pqrs::karabiner::driverkit::virtual_hid_device_service::constants::unix_domain_stream_max_message_size,
+            .heartbeat_timeout = std::chrono::milliseconds(30000),
+            .read_timeout = std::chrono::milliseconds(15000),
+            .write_timeout = std::chrono::milliseconds(15000),
         },
         {
             .bind_retry_interval = std::chrono::milliseconds(1000),
