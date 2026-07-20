@@ -1,5 +1,14 @@
 # Changelog
 
+## Karabiner-DriverKit-VirtualHIDDevice 8.2.0
+
+- 📅 Release date
+    - Jul 20, 2026
+- ⚡️ Improvements
+    - Updated dependent vendor code:
+        - asio 1.38.2
+        - pqrs::unix_domain_stream v3.1.0
+
 ## Karabiner-DriverKit-VirtualHIDDevice 8.1.0
 
 - 📅 Release date
