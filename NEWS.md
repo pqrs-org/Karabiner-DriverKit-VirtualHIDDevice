@@ -1,5 +1,16 @@
 # Changelog
 
+## Karabiner-DriverKit-VirtualHIDDevice 8.3.0
+
+- 📅 Release date
+    - Aug 29, 2026
+- ⚡️ Improvements
+    - Updated dependent vendor code:
+        - gsl 5.0.0
+        - pqrs::hid v3.2.0
+        - pqrs::spdlog v3.2.0
+        - pqrs::string v2.3.0
+
 ## Karabiner-DriverKit-VirtualHIDDevice 8.2.0
 
 - 📅 Release date
