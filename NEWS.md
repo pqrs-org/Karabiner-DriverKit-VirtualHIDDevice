@@ -1,5 +1,13 @@
 # Changelog
 
+## Karabiner-DriverKit-VirtualHIDDevice 8.4.0
+
+- 📅 Release date
+    - Sep 4, 2026
+- ⚡️ Improvements
+    - Updated dependent vendor code:
+        - pqrs::unix_domain_stream v4.0.0
+
 ## Karabiner-DriverKit-VirtualHIDDevice 8.3.0
 
 - 📅 Release date
