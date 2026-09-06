@@ -38,7 +38,9 @@ public:
     not_null_shared_ptr_t<asio::steady_timer> timer(std::make_shared<asio::steady_timer>(io_ctx_));
     timer->expires_after(timeout);
     timer->async_wait([this, id, timeout_callback](const auto& error_code) {
-      if (!error_code) {
+      // An expired timer may already be queued when completion cancels it.
+      // Only a request that is still pending may trigger timeout side effects.
+      if (!error_code && pending_requests_.contains(id)) {
         complete(id,
                  asio::error::timed_out,
                  nullptr);
@@ -66,13 +68,7 @@ public:
                 std::shared_ptr<std::vector<uint8_t>> data) {
     if (auto node = pending_requests_.extract(id);
         !node.empty()) {
-      auto request = std::move(node.mapped());
-
-      request.timer->cancel();
-      dispatcher_client_.enqueue_to_dispatcher([request, error_code, data] {
-        request.callback(error_code,
-                         data);
-      });
+      complete_request(std::move(node.mapped()), error_code, std::move(data));
     }
   }
 
@@ -102,13 +98,7 @@ public:
          it != std::end(pending_requests_);) {
       if (it->second.peer_id_value == id) {
         auto node = pending_requests_.extract(it++);
-        auto request = std::move(node.mapped());
-
-        request.timer->cancel();
-        dispatcher_client_.enqueue_to_dispatcher([request, error_code] {
-          request.callback(error_code,
-                           nullptr);
-        });
+        complete_request(std::move(node.mapped()), error_code, nullptr);
       } else {
         ++it;
       }
@@ -122,11 +112,7 @@ public:
                                           {});
 
     for (auto&& [_, request] : pending_requests) {
-      request.timer->cancel();
-      dispatcher_client_.enqueue_to_dispatcher([request, error_code] {
-        request.callback(error_code,
-                         nullptr);
-      });
+      complete_request(std::move(request), error_code, nullptr);
     }
   }
 
@@ -136,6 +122,17 @@ private:
     async_request_callback callback;
     not_null_shared_ptr_t<asio::steady_timer> timer;
   };
+
+  // The request has already been removed from pending_requests_ on the I/O thread.
+  void complete_request(pending_request request,
+                        const asio::error_code& error_code,
+                        std::shared_ptr<std::vector<uint8_t>> data) {
+    request.timer->cancel();
+    dispatcher_client_.enqueue_to_dispatcher(
+        [request = std::move(request), error_code, data = std::move(data)] {
+          request.callback(error_code, data);
+        });
+  }
 
   asio::io_context& io_ctx_;
   dispatcher::extra::dispatcher_client& dispatcher_client_;

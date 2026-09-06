@@ -12,7 +12,22 @@
 #undef ASIO_STANDALONE
 #endif
 
+#include <filesystem>
+
 namespace pqrs::unix_domain_stream::impl::asio_helper {
+
+// Convert endpoint construction errors into the same error-code path as I/O errors.
+inline asio::local::stream_protocol::endpoint make_endpoint(const std::filesystem::path& path,
+                                                            asio::error_code& error_code) {
+  try {
+    auto endpoint = asio::local::stream_protocol::endpoint(path);
+    error_code.clear();
+    return endpoint;
+  } catch (const asio::system_error& error) {
+    error_code = error.code();
+    return {};
+  }
+}
 
 namespace time_point {
 [[nodiscard]] inline asio::steady_timer::time_point now() noexcept {

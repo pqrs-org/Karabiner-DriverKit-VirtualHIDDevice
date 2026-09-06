@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <atomic>
 #include <deque>
+#include <functional>
 #include <nod/nod.hpp>
 #include <pqrs/dispatcher.hpp>
 #include <pqrs/gsl.hpp>
@@ -21,8 +22,12 @@ class peer final : public dispatcher::extra::dispatcher_client,
 public:
   nod::signal<void()> ready;
   nod::signal<void(not_null_shared_ptr_t<std::vector<uint8_t>>)> received;
-  nod::signal<void(uint64_t, not_null_shared_ptr_t<std::vector<uint8_t>>)> request_received;
-  nod::signal<void(uint64_t, not_null_shared_ptr_t<std::vector<uint8_t>>)> response_received;
+  nod::signal<void(uint64_t,
+                   not_null_shared_ptr_t<std::vector<uint8_t>>)>
+      request_received;
+  nod::signal<void(uint64_t,
+                   not_null_shared_ptr_t<std::vector<uint8_t>>)>
+      response_received;
   nod::signal<void()> health_check_response_received;
   nod::signal<void(const asio::error_code&)> error_occurred;
   nod::signal<void()> closed;
@@ -73,57 +78,45 @@ public:
         });
   }
 
-  void async_close() {
+  // The completion runs on the socket executor after the socket is closed.
+  void async_close(std::function<void()> completion = nullptr) {
     asio::post(
         socket_.get_executor(),
-        [self = shared_from_this()] {
+        [self = shared_from_this(), completion = std::move(completion)] {
           self->close();
+          if (completion) {
+            completion();
+          }
         });
   }
 
   void async_send(const std::vector<uint8_t>& data) {
-    auto frame = protocol::make_user_data_frame(data);
-
-    asio::post(
-        socket_.get_executor(),
-        [self = shared_from_this(), frame = std::move(frame)] {
-          self->push_frame(frame);
-        });
+    async_push_frame(protocol::make_user_data_frame(data));
   }
 
   void async_send_request(uint64_t request_id,
                           const std::vector<uint8_t>& data) {
-    auto frame = protocol::make_request_frame(request_id, data);
-
-    asio::post(
-        socket_.get_executor(),
-        [self = shared_from_this(), frame = std::move(frame)] {
-          self->push_frame(frame);
-        });
+    async_push_frame(protocol::make_request_frame(request_id, data));
   }
 
   void async_send_response(uint64_t request_id,
                            const std::vector<uint8_t>& data) {
-    auto frame = protocol::make_response_frame(request_id, data);
-
-    asio::post(
-        socket_.get_executor(),
-        [self = shared_from_this(), frame = std::move(frame)] {
-          self->push_frame(frame);
-        });
+    async_push_frame(protocol::make_response_frame(request_id, data));
   }
 
   void async_send_health_check() {
-    auto frame = protocol::make_health_check_frame();
-
-    asio::post(
-        socket_.get_executor(),
-        [self = shared_from_this(), frame = std::move(frame)] {
-          self->push_frame(frame);
-        });
+    async_push_frame(protocol::make_health_check_frame());
   }
 
 private:
+  void async_push_frame(std::vector<uint8_t> frame) {
+    asio::post(
+        socket_.get_executor(),
+        [self = shared_from_this(), frame = std::move(frame)]() mutable {
+          self->push_frame(std::move(frame));
+        });
+  }
+
   // This method is executed in `io_ctx_thread_`.
   void start_heartbeat_timer() {
     heartbeat_timer_.expires_after(normalize_scheduling_interval(options_.heartbeat_interval));
@@ -184,7 +177,8 @@ private:
     asio::async_read(
         socket_,
         asio::buffer(read_header_),
-        [self = shared_from_this()](auto&& error_code, auto bytes_transferred) {
+        [self = shared_from_this()](auto&& error_code,
+                                    auto bytes_transferred) {
           self->read_deadline_.cancel();
 
           if (error_code) {
@@ -222,7 +216,8 @@ private:
     asio::async_read(
         socket_,
         asio::buffer(read_body_),
-        [self = shared_from_this()](auto&& error_code, auto bytes_transferred) {
+        [self = shared_from_this()](auto&& error_code,
+                                    auto bytes_transferred) {
           self->read_deadline_.cancel();
 
           if (error_code) {
@@ -275,11 +270,13 @@ private:
 
               if (type == protocol::message_type::request) {
                 self->enqueue_to_dispatcher([p = self.get(), request_id, v] {
-                  p->request_received(request_id, v);
+                  p->request_received(request_id,
+                                      v);
                 });
               } else {
                 self->enqueue_to_dispatcher([p = self.get(), request_id, v] {
-                  p->response_received(request_id, v);
+                  p->response_received(request_id,
+                                       v);
                 });
               }
               break;
@@ -347,7 +344,9 @@ private:
     }
 
     std::array<uint8_t, protocol::header_size> header;
-    std::copy_n(std::begin(frame), protocol::header_size, std::begin(header));
+    std::copy_n(std::begin(frame),
+                protocol::header_size,
+                std::begin(header));
 
     auto body_size = protocol::decode_uint32(header);
     if (frame.size() != protocol::header_size + body_size ||
@@ -390,7 +389,8 @@ private:
     asio::async_write(
         socket_,
         asio::buffer(write_queue_.front()),
-        [self = shared_from_this()](auto&& error_code, auto) {
+        [self = shared_from_this()](auto&& error_code,
+                                    auto) {
           self->write_deadline_.cancel();
 
           if (error_code) {

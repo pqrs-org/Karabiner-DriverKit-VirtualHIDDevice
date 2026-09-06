@@ -31,9 +31,11 @@ private:
     return get_instance().io_context_;
   }
 
-  static void set_socket_file_path_owner(const std::filesystem::path& socket_file_path,
+  // These ownership operations use the path resolved at bind time. Do not
+  // resolve it again: the original path's symlinks may have changed.
+  static void set_socket_file_path_owner(const std::filesystem::path& resolved_socket_file_path,
                                          const server_state* owner) {
-    get_instance().socket_file_path_owners_[make_socket_file_path_key(socket_file_path)] = owner;
+    get_instance().socket_file_path_owners_[resolved_socket_file_path] = owner;
   }
 
   static void remove_socket_file_path(const std::filesystem::path& socket_file_path) {
@@ -45,17 +47,17 @@ private:
                             error_code);
   }
 
-  static void remove_socket_file_path_if_owned(const std::filesystem::path& socket_file_path,
+  static void remove_socket_file_path_if_owned(const std::filesystem::path& resolved_socket_file_path,
                                                const server_state* owner) {
     auto& owners = get_instance().socket_file_path_owners_;
 
-    if (auto it = owners.find(make_socket_file_path_key(socket_file_path));
+    if (auto it = owners.find(resolved_socket_file_path);
         it != std::end(owners) &&
         it->second == owner) {
       owners.erase(it);
 
       std::error_code error_code;
-      std::filesystem::remove(socket_file_path,
+      std::filesystem::remove(resolved_socket_file_path,
                               error_code);
     }
   }
