@@ -4,9 +4,9 @@
 # Karabiner-DriverKit-VirtualHIDDevice
 
 This project implements a virtual keyboard and virtual mouse using DriverKit on macOS.
-These virtual devices are recognized by macOS as same as physical hardware, allowing you to control macOS with keystrokes and mouse inputs from the virtual devices.
+These virtual devices are recognized by macOS in the same way as physical hardware, allowing you to control macOS with keystrokes and mouse inputs from the virtual devices.
 
-The client for controlling the virtual devices is provided as a header-only C++ library.
+The client for controlling the virtual devices is provided as a header-only C++23 library.
 By integrating this library, your software can control the virtual devices.
 
 **Note:**
@@ -16,6 +16,8 @@ This means that the software incorporating the client library must be run with r
 
 ## Supported systems
 
+- macOS 27 Golden Gate
+    - Apple Silicon Macs
 - macOS 26 Tahoe
     - Both Intel-based Macs and Apple Silicon Macs
 - macOS 15 Sequoia
@@ -28,7 +30,7 @@ This means that the software incorporating the client library must be run with r
 ## Screenshots
 
 - macOS Settings (macOS detects the virtual keyboard)<br/><br />
-  <img src="docs/images/macos-settings@2x.png" width="668" alt="System Preferences" /><br /><br />
+  <img src="docs/images/macos-settings@2x.png" width="668" alt="System Settings" /><br /><br />
 
 ---
 
@@ -42,13 +44,16 @@ This means that the software incorporating the client library must be run with r
     /Applications/.Karabiner-VirtualHIDDevice-Manager.app/Contents/MacOS/Karabiner-VirtualHIDDevice-Manager activate
     ```
 
-4.  Run Karabiner-VirtualHIDDevice-Daemon:
+    Follow any macOS prompts to approve the system extension.
+    If activation requires a restart, restart your Mac before continuing.
+
+4.  Run Karabiner-VirtualHIDDevice-Daemon and leave it running in this terminal:
 
     ```shell
     sudo '/Library/Application Support/org.pqrs/Karabiner-DriverKit-VirtualHIDDevice/Applications/Karabiner-VirtualHIDDevice-Daemon.app/Contents/MacOS/Karabiner-VirtualHIDDevice-Daemon'
     ```
 
-5.  Run a client program to test the driver extension.
+5.  In another terminal, build and run a client program to test the driver extension. Building the example requires Xcode and XcodeGen.
 
     ```shell
     git clone --depth 1 https://github.com/pqrs-org/Karabiner-DriverKit-VirtualHIDDevice.git
@@ -57,6 +62,9 @@ This means that the software incorporating the client library must be run with r
     make
     make run
     ```
+
+Use client headers with the same `client_protocol_version` as the installed daemon.
+The daemon rejects requests with a different protocol version.
 
 ## Uninstallation
 
@@ -85,8 +93,8 @@ The primary focus of this document is on signing.
 
 ### System requirements
 
-- macOS 15+
-- Xcode 16.3+
+- macOS 26+
+- Xcode 27+
 - Command Line Tools for Xcode
 - [XcodeGen](https://github.com/yonaskolb/XcodeGen)
 
@@ -233,23 +241,19 @@ make package
 
 ### Notarize the package
 
-Create App-Specific Passwords on <https://appleid.apple.com>.
+Create an app-specific password for your Apple Account at <https://account.apple.com>,
+following [Apple's instructions](https://support.apple.com/en-us/102654).
 
-- name: `pqrs.org notarization`
-
-Execute `store-credentials`
+Store your notarization credentials using the keychain profile name `pqrs.org notarization`,
+which is used by the Makefile. Replace the email address and team ID below with your own:
 
 ```shell
-xcrun notarytool store-credentials --apple-id tekezo@pqrs.org --team-id G43BCU2T37
-
-Profile name:
-> pqrs.org notarization
-
-App-specific password for tekezo@pqrs.org:
-> The password you created earlier
+xcrun notarytool store-credentials "pqrs.org notarization" \
+    --apple-id "you@example.com" \
+    --team-id "YOUR_TEAM_ID"
 ```
 
-Then, notarize the package:
+Enter the app-specific password when prompted. Then, notarize and staple the package:
 
 ```shell
 make notarize
@@ -261,7 +265,7 @@ make notarize
 
 ### Components
 
-Karabiner-DriverKit-VirtualHIDDevice consists the following components.
+Karabiner-DriverKit-VirtualHIDDevice consists of the following components.
 
 - Extension Manager (including DriverKit driver)
     - `/Applications/.Karabiner-VirtualHIDDevice-Manager.app`
@@ -274,8 +278,8 @@ Karabiner-DriverKit-VirtualHIDDevice consists the following components.
 - Client apps
     - Client apps are not included in the distributed package.
     - For example, you can build the client app from `examples/virtual-hid-device-service-client` in this repository.
-    - Client apps can send input events by communicating with Karabiner-VirtualHIDDevice-Daemon via UNIX domain socket.
-      (`/Library/Application Support/org.pqrs/tmp/rootonly/vhidd_server/*.sock`)
+    - Client apps can send input events by communicating with Karabiner-VirtualHIDDevice-Daemon via a Unix domain stream socket.
+      (`/Library/Application Support/org.pqrs/tmp/rootonly/karabiner_virtual_hid_device_service.sock`)
 
 ![components.svg](./docs/plantuml/output/components.svg)
 
@@ -290,8 +294,9 @@ Version is defined in `version.json`.
     - DriverKit driver internal version.
     - Increment this when the driver source code is updated.
 - `client_protocol_version`:
-    - The version for communication between Karabiner-VirtualHIDDevice-Daemon and the DriverKit driver.
-    - Increment this when the communication specifications are changed.
+    - The version of the communication protocol between client apps and Karabiner-VirtualHIDDevice-Daemon.
+    - Increment this when the client-daemon protocol changes incompatibly.
+      Update both the daemon and client headers together.
 
 ### Run Karabiner-VirtualHIDDevice-Daemon via launchd
 
