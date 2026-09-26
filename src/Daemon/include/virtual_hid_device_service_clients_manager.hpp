@@ -13,6 +13,10 @@
 #include <vector>
 
 class virtual_hid_device_service_clients_manager final : public pqrs::dispatcher::extra::dispatcher_client {
+private:
+  // Keep the guard first so member initialization failures also detach.
+  pqrs::dispatcher::extra::dispatcher_client_constructor_exception_guard dispatcher_client_constructor_exception_guard_{*this};
+
 public:
   nod::signal<void(pqrs::unix_domain_stream::peer_id, const std::vector<uint8_t>&)> status_changed;
 
@@ -20,6 +24,7 @@ public:
                                              pqrs::not_null_shared_ptr_t<pqrs::cf::run_loop_thread> run_loop_thread)
       : dispatcher_client(weak_dispatcher),
         run_loop_thread_(run_loop_thread) {
+    dispatcher_client_constructor_exception_guard_.initialize();
   }
 
   ~virtual_hid_device_service_clients_manager() override {
@@ -211,6 +216,10 @@ public:
 
 private:
   class client_entry final : public pqrs::dispatcher::extra::dispatcher_client {
+  private:
+    // Keep the guard first so member initialization failures also detach.
+    pqrs::dispatcher::extra::dispatcher_client_constructor_exception_guard dispatcher_client_constructor_exception_guard_{*this};
+
   public:
     nod::signal<void(const std::vector<uint8_t>&)> status_changed;
 
@@ -220,50 +229,54 @@ private:
         : dispatcher_client(weak_dispatcher),
           run_loop_thread_(run_loop_thread),
           log_label_(log_label),
-          ready_timer_(*this),
           virtual_hid_keyboard_client_generation_id_(0),
           virtual_hid_keyboard_enabled_(false),
           virtual_hid_pointing_client_generation_id_(0),
-          virtual_hid_pointing_enabled_(false) {
-      no_virtual_devices_io_service_client_ = std::make_shared<io_service_client>(weak_dispatcher_,
-                                                                                  run_loop_thread_,
-                                                                                  log_label);
+          virtual_hid_pointing_enabled_(false),
+          ready_timer_(*this) {
+      dispatcher_client_constructor_exception_guard_.initialize(
+          [&] {
+            no_virtual_devices_io_service_client_ = std::make_shared<io_service_client>(weak_dispatcher_,
+                                                                                        run_loop_thread_,
+                                                                                        log_label);
 
-      no_virtual_devices_io_service_client_->opened.connect([] {
-        // Do nothing
-      });
+            no_virtual_devices_io_service_client_->opened.connect([] {
+              // Do nothing
+            });
 
-      no_virtual_devices_io_service_client_->closed.connect([] {
-        // Do nothing
-      });
+            no_virtual_devices_io_service_client_->closed.connect([] {
+              // Do nothing
+            });
 
-      no_virtual_devices_io_service_client_->state_changed.connect([this] {
-        check_status_changed();
-      });
+            no_virtual_devices_io_service_client_->state_changed.connect([this] {
+              check_status_changed();
+            });
 
-      no_virtual_devices_io_service_client_->async_start();
+            no_virtual_devices_io_service_client_->async_start();
 
-      ready_timer_.start(
-          [this] {
-            //
-            // Query `ready` state to driver
-            //
+            ready_timer_.start(
+                [this] {
+                  //
+                  // Query `ready` state to driver
+                  //
 
-            if (auto client = virtual_hid_keyboard_io_service_client_) {
-              client->async_virtual_hid_keyboard_ready();
-            }
-            if (auto client = virtual_hid_pointing_io_service_client_) {
-              client->async_virtual_hid_pointing_ready();
-            }
+                  if (auto client = virtual_hid_keyboard_io_service_client_) {
+                    client->async_virtual_hid_keyboard_ready();
+                  }
+                  if (auto client = virtual_hid_pointing_io_service_client_) {
+                    client->async_virtual_hid_pointing_ready();
+                  }
+                },
+                std::chrono::milliseconds(1000));
           },
-          std::chrono::milliseconds(1000));
+          [this] {
+            cleanup();
+          });
     }
 
-    ~client_entry() {
+    ~client_entry() override {
       detach_from_dispatcher([this] {
-        virtual_hid_pointing_io_service_client_ = nullptr;
-        virtual_hid_keyboard_io_service_client_ = nullptr;
-        no_virtual_devices_io_service_client_ = nullptr;
+        cleanup();
       });
     }
 
@@ -360,6 +373,13 @@ private:
     }
 
   private:
+    // This method is executed in the dispatcher thread after detaching.
+    void cleanup() noexcept {
+      virtual_hid_pointing_io_service_client_ = nullptr;
+      virtual_hid_keyboard_io_service_client_ = nullptr;
+      no_virtual_devices_io_service_client_ = nullptr;
+    }
+
     // This method is executed in the dispatcher thread.
     void setup_virtual_hid_devices() {
       //
@@ -523,7 +543,6 @@ private:
     std::shared_ptr<io_service_client> no_virtual_devices_io_service_client_;
     std::shared_ptr<io_service_client> virtual_hid_keyboard_io_service_client_;
     std::shared_ptr<io_service_client> virtual_hid_pointing_io_service_client_;
-    pqrs::dispatcher::extra::timer ready_timer_;
     std::optional<std::vector<uint8_t>> last_response_;
 
     // virtual_hid_keyboard
@@ -534,6 +553,9 @@ private:
     // virtual_hid_pointing
     int virtual_hid_pointing_client_generation_id_;
     bool virtual_hid_pointing_enabled_;
+
+    // Construct after potentially throwing members; destruction requires detach.
+    pqrs::dispatcher::extra::timer ready_timer_;
   };
 
   template <typename GetIoServiceClient>

@@ -22,6 +22,10 @@
 #include <vector>
 
 class io_service_client final : public pqrs::dispatcher::extra::dispatcher_client {
+private:
+  // Keep the guard first so member initialization failures also detach.
+  pqrs::dispatcher::extra::dispatcher_client_constructor_exception_guard dispatcher_client_constructor_exception_guard_{*this};
+
 public:
   // Signals (invoked from the dispatcher thread)
 
@@ -38,9 +42,10 @@ public:
         run_loop_thread_(run_loop_thread),
         log_label_(log_label),
         service_name_("org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceRoot") {
+    dispatcher_client_constructor_exception_guard_.initialize();
   }
 
-  ~io_service_client() {
+  ~io_service_client() override {
     detach_from_dispatcher([this] {
       if (auto matched_service = matched_services_.find_opened()) {
         close_connection(matched_service->get_registry_entry_id());

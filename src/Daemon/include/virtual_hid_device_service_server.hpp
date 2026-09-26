@@ -12,43 +12,57 @@
 #include <vector>
 
 class virtual_hid_device_service_server final : public pqrs::dispatcher::extra::dispatcher_client {
+private:
+  // Keep the guard first so member initialization failures also detach.
+  pqrs::dispatcher::extra::dispatcher_client_constructor_exception_guard dispatcher_client_constructor_exception_guard_{*this};
+
 public:
   virtual_hid_device_service_server(pqrs::not_null_shared_ptr_t<pqrs::cf::run_loop_thread> run_loop_thread)
       : dispatcher_client(),
         run_loop_thread_(run_loop_thread),
         create_server_retry_timer_(*this) {
-    //
-    // Preparation
-    //
+    dispatcher_client_constructor_exception_guard_.initialize(
+        [&] {
+          //
+          // Preparation
+          //
 
-    virtual_hid_device_service_clients_manager_ = std::make_unique<virtual_hid_device_service_clients_manager>(weak_dispatcher_,
-                                                                                                               run_loop_thread_);
-    virtual_hid_device_service_clients_manager_->status_changed.connect([this](auto peer_id, const auto& response) {
-      async_deliver_status(peer_id,
-                           response);
-    });
+          virtual_hid_device_service_clients_manager_ = std::make_unique<virtual_hid_device_service_clients_manager>(weak_dispatcher_,
+                                                                                                                     run_loop_thread_);
+          virtual_hid_device_service_clients_manager_->status_changed.connect([this](auto peer_id, const auto& response) {
+            async_deliver_status(peer_id,
+                                 response);
+          });
 
-    //
-    // Creation
-    //
+          //
+          // Creation
+          //
 
-    create_server();
+          create_server();
 
-    logger::get_logger()->debug("virtual_hid_device_service_server is initialized");
+          logger::get_logger()->debug("virtual_hid_device_service_server is initialized");
+        },
+        [this] {
+          cleanup();
+        });
   }
 
   ~virtual_hid_device_service_server() override {
     detach_from_dispatcher([this] {
       create_server_retry_timer_.stop();
-      server_ = nullptr;
-
-      virtual_hid_device_service_clients_manager_ = nullptr;
+      cleanup();
     });
 
     logger::get_logger()->debug("virtual_hid_device_service_server is terminated");
   }
 
 private:
+  // This method is executed in the dispatcher thread after detaching.
+  void cleanup() noexcept {
+    server_ = nullptr;
+    virtual_hid_device_service_clients_manager_ = nullptr;
+  }
+
   template <typename T>
   static bool read_data(const std::vector<uint8_t>& buffer,
                         size_t& offset,
@@ -393,7 +407,9 @@ private:
 
   pqrs::not_null_shared_ptr_t<pqrs::cf::run_loop_thread> run_loop_thread_;
 
-  pqrs::dispatcher::extra::timer create_server_retry_timer_;
   std::unique_ptr<virtual_hid_device_service_clients_manager> virtual_hid_device_service_clients_manager_;
   std::unique_ptr<pqrs::unix_domain_stream::server> server_;
+
+  // Construct after potentially throwing members; destruction requires detach.
+  pqrs::dispatcher::extra::timer create_server_retry_timer_;
 };

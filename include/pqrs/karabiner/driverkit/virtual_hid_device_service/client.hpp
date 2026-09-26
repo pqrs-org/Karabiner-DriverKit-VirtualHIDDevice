@@ -20,6 +20,10 @@
 
 namespace pqrs::karabiner::driverkit::virtual_hid_device_service {
 class client final : public dispatcher::extra::dispatcher_client {
+private:
+  // Keep the guard first so member initialization failures also detach.
+  pqrs::dispatcher::extra::dispatcher_client_constructor_exception_guard dispatcher_client_constructor_exception_guard_{*this};
+
 public:
   // Signals (invoked from the dispatcher thread)
 
@@ -38,6 +42,7 @@ public:
 
   client()
       : dispatcher_client() {
+    dispatcher_client_constructor_exception_guard_.initialize();
   }
 
   ~client() override {
