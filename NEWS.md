@@ -1,5 +1,19 @@
 # Changelog
 
+## Karabiner-DriverKit-VirtualHIDDevice 8.6.0
+
+- 📅 Release date
+    - Sep 26, 2026
+- ⚡️ Improvements
+    - Improved exception safety in the daemon and client library by detaching dispatcher clients when construction fails.
+    - Updated the DriverKit deployment target from 20.4 to 22.0 to support building with Xcode 27.
+    - Updated dependent vendor code:
+        - gsl 5.0.1
+        - pqrs::dispatcher v2.19.0
+        - pqrs::osx::iokit_service_monitor v6.3.0
+        - pqrs::spdlog v3.3.0
+        - pqrs::unix_domain_stream v4.2.0
+
 ## Karabiner-DriverKit-VirtualHIDDevice 8.5.0
 
 - 📅 Release date
