@@ -1,6 +1,6 @@
 #pragma once
 
-// pqrs::osx::iokit_service_monitor v6.4.0
+// pqrs::osx::iokit_service_monitor v6.5.0
 
 // (C) Copyright Takayama Fumihiko 2018.
 // Distributed under the Boost Software License, Version 1.0.
@@ -48,8 +48,7 @@ public:
                         CFDictionaryRef _Nonnull matching_dictionary)
       : dispatcher_client(weak_dispatcher),
         run_loop_thread_(run_loop_thread),
-        matching_dictionary_(matching_dictionary),
-        scan_timer_(*this) {
+        matching_dictionary_(matching_dictionary) {
     dispatcher_client_constructor_exception_guard_.initialize();
   }
 
@@ -318,6 +317,6 @@ private:
   std::unordered_set<iokit_registry_entry_id::value_t> registry_entry_ids_;
 
   // Construct after potentially throwing members; destruction requires detach.
-  pqrs::dispatcher::extra::timer scan_timer_;
+  pqrs::dispatcher::extra::timer scan_timer_{*this};
 };
 } // namespace pqrs::osx

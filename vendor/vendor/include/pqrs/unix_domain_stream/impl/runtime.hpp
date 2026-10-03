@@ -85,12 +85,7 @@ private:
     return instance;
   }
 
-  runtime()
-      : work_guard_(asio::make_work_guard(io_context_)),
-        thread_([this] {
-          io_context_.run();
-        }) {
-  }
+  runtime() = default;
 
   ~runtime() {
     work_guard_.reset();
@@ -101,8 +96,10 @@ private:
   }
 
   asio::io_context io_context_;
-  asio::executor_work_guard<asio::io_context::executor_type> work_guard_;
-  std::thread thread_;
+  asio::executor_work_guard<asio::io_context::executor_type> work_guard_{asio::make_work_guard(io_context_)};
+  std::thread thread_{[this] {
+    io_context_.run();
+  }};
   std::unordered_map<std::filesystem::path, const server_state*> socket_file_path_owners_;
 };
 

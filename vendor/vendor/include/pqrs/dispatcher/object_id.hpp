@@ -94,7 +94,7 @@ private:
       : value_(value) {
   }
 
-  uint64_t value_ = 0;
+  uint64_t value_{0};
 };
 
 inline object_id make_new_object_id() {

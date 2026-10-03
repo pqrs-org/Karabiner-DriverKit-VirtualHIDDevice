@@ -15,8 +15,7 @@ namespace pqrs::dispatcher::extra {
 class dispatcher_client {
 public:
   explicit dispatcher_client(std::weak_ptr<dispatcher> weak_dispatcher = get_shared_dispatcher())
-      : weak_dispatcher_(std::move(weak_dispatcher)),
-        object_id_(make_new_object_id()) {
+      : weak_dispatcher_(std::move(weak_dispatcher)) {
     if (auto d = weak_dispatcher_.lock()) {
       // `attach` may fail if the dispatcher is terminating or already terminated.
       d->attach(object_id_);
@@ -81,6 +80,6 @@ public:
 
 protected:
   std::weak_ptr<dispatcher> weak_dispatcher_;
-  object_id object_id_;
+  object_id object_id_{make_new_object_id()};
 };
 } // namespace pqrs::dispatcher::extra

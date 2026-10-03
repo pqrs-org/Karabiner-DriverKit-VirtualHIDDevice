@@ -76,8 +76,8 @@ public:
 
 private:
   dispatcher::extra::dispatcher_client& owner_;
-  std::atomic_bool running_ = false;
-  std::atomic<token> generation_ = 0;
+  std::atomic_bool running_{false};
+  std::atomic<token> generation_{0};
 };
 
 } // namespace pqrs::unix_domain_stream::impl

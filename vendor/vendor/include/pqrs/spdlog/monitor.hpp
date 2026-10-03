@@ -33,8 +33,7 @@ public:
           size_t max_line_count)
       : dispatcher_client(weak_dispatcher),
         target_file_paths_(target_file_paths),
-        max_line_count_(max_line_count),
-        timer_(*this) {
+        max_line_count_(max_line_count) {
     dispatcher_client_constructor_exception_guard_.initialize();
   }
 
@@ -82,8 +81,10 @@ public:
 private:
   std::vector<::spdlog::filename_t> target_file_paths_;
   size_t max_line_count_;
+
   std::unordered_map<std::string, std::uintmax_t> file_sizes_;
+
   // Construct after potentially throwing members; destruction requires detach.
-  dispatcher::extra::timer timer_;
+  dispatcher::extra::timer timer_{*this};
 };
 } // namespace pqrs::spdlog

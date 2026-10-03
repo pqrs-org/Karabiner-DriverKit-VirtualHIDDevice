@@ -74,6 +74,6 @@ private:
   }
 
   dispatcher_client& dispatcher_client_;
-  uint64_t generation_ = 0;
+  uint64_t generation_{0};
 };
 } // namespace pqrs::dispatcher::extra

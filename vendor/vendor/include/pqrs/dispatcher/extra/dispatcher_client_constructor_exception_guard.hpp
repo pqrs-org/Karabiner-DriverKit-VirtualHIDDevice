@@ -136,6 +136,6 @@ private:
   }
 
   dispatcher_client* client_;
-  bool initialization_started_ = false;
+  bool initialization_started_{false};
 };
 } // namespace pqrs::dispatcher::extra

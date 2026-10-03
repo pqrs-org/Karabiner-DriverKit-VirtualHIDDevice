@@ -136,7 +136,7 @@ private:
 
   asio::io_context& io_ctx_;
   dispatcher::extra::dispatcher_client& dispatcher_client_;
-  request_id next_request_id_ = 0;
+  request_id next_request_id_{0};
   std::unordered_map<request_id, pending_request> pending_requests_;
 };
 

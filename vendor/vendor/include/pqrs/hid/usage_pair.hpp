@@ -40,8 +40,8 @@ public:
   [[nodiscard]] constexpr auto operator<=>(const usage_pair&) const noexcept = default;
 
 private:
-  usage_page::value_t usage_page_ = usage_page::undefined;
-  usage::value_t usage_ = usage::undefined;
+  usage_page::value_t usage_page_{usage_page::undefined};
+  usage::value_t usage_{usage::undefined};
 };
 } // namespace pqrs::hid
 

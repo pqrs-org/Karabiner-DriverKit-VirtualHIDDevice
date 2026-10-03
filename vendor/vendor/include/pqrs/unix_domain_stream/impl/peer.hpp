@@ -43,12 +43,7 @@ public:
        const common_options& options)
       : dispatcher_client(weak_dispatcher),
         socket_(std::move(socket)),
-        options_(options),
-        ready_deadline_(socket_.get_executor()),
-        heartbeat_timer_(socket_.get_executor()),
-        heartbeat_deadline_(socket_.get_executor()),
-        read_deadline_(socket_.get_executor()),
-        write_deadline_(socket_.get_executor()) {
+        options_(options) {
     dispatcher_client_constructor_exception_guard_.initialize();
   }
 
@@ -124,7 +119,7 @@ private:
 
   // This method is executed in `io_ctx_thread_`.
   void start_heartbeat_timer() {
-    heartbeat_timer_.expires_after(normalize_scheduling_interval(options_.heartbeat_interval));
+    heartbeat_timer_.expires_after(normalize_scheduling_interval(options_.common_parameters.heartbeat_interval));
 
     heartbeat_timer_.async_wait([self = shared_from_this()](const auto& error_code) {
       if (!error_code &&
@@ -137,7 +132,7 @@ private:
 
   // This method is executed in `io_ctx_thread_`.
   void refresh_heartbeat_deadline() {
-    heartbeat_deadline_.expires_after(options_.heartbeat_timeout);
+    heartbeat_deadline_.expires_after(options_.common_parameters.heartbeat_timeout);
 
     heartbeat_deadline_.async_wait([self = shared_from_this()](const auto& error_code) {
       if (!error_code) {
@@ -204,7 +199,7 @@ private:
 
           auto body_size = protocol::decode_uint32(self->read_header_);
           if (body_size < protocol::type_size ||
-              body_size > self->options_.max_message_size + protocol::type_size + protocol::request_id_size) {
+              body_size > self->options_.common_parameters.max_message_size + protocol::type_size + protocol::request_id_size) {
             self->handle_error(asio::error::message_size);
             return;
           }
@@ -245,7 +240,7 @@ private:
             case protocol::message_type::user_data: {
               self->ensure_ready();
 
-              if (self->read_body_.size() > self->options_.max_message_size + protocol::type_size) {
+              if (self->read_body_.size() > self->options_.common_parameters.max_message_size + protocol::type_size) {
                 self->handle_error(asio::error::message_size);
                 return;
               }
@@ -263,7 +258,7 @@ private:
               self->ensure_ready();
 
               if (self->read_body_.size() < protocol::type_size + protocol::request_id_size ||
-                  self->read_body_.size() > self->options_.max_message_size + protocol::type_size + protocol::request_id_size) {
+                  self->read_body_.size() > self->options_.common_parameters.max_message_size + protocol::type_size + protocol::request_id_size) {
                 self->handle_error(asio::error::message_size);
                 return;
               }
@@ -313,7 +308,7 @@ private:
 
   // This method is executed in `io_ctx_thread_`.
   void start_read_deadline() {
-    read_deadline_.expires_after(options_.read_timeout);
+    read_deadline_.expires_after(options_.common_parameters.read_timeout);
 
     read_deadline_.async_wait([self = shared_from_this()](const auto& error_code) {
       if (!error_code) {
@@ -329,7 +324,7 @@ private:
     }
 
     if (!valid_outgoing_frame(frame) ||
-        write_queue_.size() >= options_.max_send_queue_size) {
+        write_queue_.size() >= options_.common_parameters.max_send_queue_size) {
       handle_error(asio::error::no_buffer_space);
       return;
     }
@@ -364,13 +359,13 @@ private:
       case protocol::message_type::request:
       case protocol::message_type::response:
         return body_size >= protocol::type_size + protocol::request_id_size &&
-               body_size <= options_.max_message_size + protocol::type_size + protocol::request_id_size;
+               body_size <= options_.common_parameters.max_message_size + protocol::type_size + protocol::request_id_size;
 
       case protocol::message_type::heartbeat:
       case protocol::message_type::user_data:
       case protocol::message_type::health_check:
       case protocol::message_type::health_check_response:
-        return body_size <= options_.max_message_size + protocol::type_size;
+        return body_size <= options_.common_parameters.max_message_size + protocol::type_size;
     }
 
     return false;
@@ -383,7 +378,7 @@ private:
       return;
     }
 
-    write_deadline_.expires_after(options_.write_timeout);
+    write_deadline_.expires_after(options_.common_parameters.write_timeout);
 
     write_deadline_.async_wait([self = shared_from_this()](const auto& error_code) {
       if (!error_code) {
@@ -461,14 +456,15 @@ private:
 
   asio::local::stream_protocol::socket socket_;
   common_options options_;
-  std::atomic_bool closed_on_executor_ = false;
-  bool ready_ = false;
-  bool close_after_write_ = false;
-  asio::steady_timer ready_deadline_;
-  asio::steady_timer heartbeat_timer_;
-  asio::steady_timer heartbeat_deadline_;
-  asio::steady_timer read_deadline_;
-  asio::steady_timer write_deadline_;
+
+  std::atomic_bool closed_on_executor_{false};
+  bool ready_{false};
+  bool close_after_write_{false};
+  asio::steady_timer ready_deadline_{socket_.get_executor()};
+  asio::steady_timer heartbeat_timer_{socket_.get_executor()};
+  asio::steady_timer heartbeat_deadline_{socket_.get_executor()};
+  asio::steady_timer read_deadline_{socket_.get_executor()};
+  asio::steady_timer write_deadline_{socket_.get_executor()};
   std::array<uint8_t, protocol::header_size> read_header_;
   std::vector<uint8_t> read_body_;
   std::deque<std::vector<uint8_t>> write_queue_;

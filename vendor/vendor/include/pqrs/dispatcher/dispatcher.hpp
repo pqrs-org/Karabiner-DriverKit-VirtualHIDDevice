@@ -26,122 +26,7 @@ public:
   dispatcher& operator=(const dispatcher&) = delete;
 
   explicit dispatcher(std::weak_ptr<time_source> weak_time_source)
-      : weak_time_source_(std::move(weak_time_source)),
-        worker_thread_id_wait_(make_thread_wait()),
-        object_id_(make_new_object_id()) {
-    worker_thread_ = std::thread([this] {
-      worker_thread_id_ = std::this_thread::get_id();
-      worker_thread_id_wait_->notify();
-
-      while (true) {
-        std::unique_ptr<entry> e;
-
-        {
-          std::unique_lock<std::mutex> lock(mutex_);
-
-          // ----------------------------------------
-
-          const auto calculate_duration = [this] {
-            auto now = when_immediately();
-            auto when = when_immediately();
-
-            if (auto s = lock_weak_time_source()) {
-              auto n = s->now();
-              if (now < n) {
-                now = n;
-              }
-            }
-
-            if (!queue_.empty()) {
-              when = queue_.front()->get_when();
-            }
-
-            if (now < when) {
-              return when - now;
-            }
-
-            return duration::zero();
-          };
-
-          // ----------------------------------------
-          // Wait
-
-          auto d = calculate_duration();
-
-          if (d == duration::zero()) {
-            cv_.wait(lock, [this] {
-              return exit_ || !queue_.empty();
-            });
-          } else {
-            // when > now
-            cv_.wait_for(lock, d, [this, &calculate_duration] {
-              if (exit_) {
-                return true;
-              }
-
-              if (queue_.empty()) {
-                return false;
-              }
-
-              if (calculate_duration() == duration::zero()) {
-                return true;
-              }
-
-              return false;
-            });
-          }
-
-          // ----------------------------------------
-          // Check condition
-
-          if (exit_) {
-            break;
-          }
-
-          // Check `duration` again.
-
-          d = calculate_duration();
-
-          if (d > duration::zero()) {
-            continue;
-          }
-
-          // ----------------------------------------
-
-          if (!queue_.empty()) {
-            e = std::move(queue_.front());
-            queue_.pop_front();
-          }
-        }
-
-        if (e) {
-          // Set running_function_object_id_
-
-          {
-            std::lock_guard<std::mutex> lock(running_function_object_id_mutex_);
-
-            running_function_object_id_ = e->get_object_id_value();
-          }
-
-          running_function_object_id_cv_.notify_all();
-
-          // Run function
-
-          e->call_function();
-
-          // Unset running_function_object_id_
-
-          {
-            std::lock_guard<std::mutex> lock(running_function_object_id_mutex_);
-
-            running_function_object_id_ = std::nullopt;
-          }
-
-          running_function_object_id_cv_.notify_all();
-        }
-      }
-    });
-
+      : weak_time_source_(std::move(weak_time_source)) {
     worker_thread_id_wait_->wait_notice();
 
     attach(object_id_);
@@ -405,15 +290,127 @@ private:
     time_point when_;
   };
 
+  void run_worker() {
+    worker_thread_id_ = std::this_thread::get_id();
+    worker_thread_id_wait_->notify();
+
+    while (true) {
+      std::unique_ptr<entry> e;
+
+      {
+        std::unique_lock<std::mutex> lock(mutex_);
+
+        // ----------------------------------------
+
+        const auto calculate_duration = [this] {
+          auto now = when_immediately();
+          auto when = when_immediately();
+
+          if (auto s = lock_weak_time_source()) {
+            auto n = s->now();
+            if (now < n) {
+              now = n;
+            }
+          }
+
+          if (!queue_.empty()) {
+            when = queue_.front()->get_when();
+          }
+
+          if (now < when) {
+            return when - now;
+          }
+
+          return duration::zero();
+        };
+
+        // ----------------------------------------
+        // Wait
+
+        auto d = calculate_duration();
+
+        if (d == duration::zero()) {
+          cv_.wait(lock, [this] {
+            return exit_ || !queue_.empty();
+          });
+        } else {
+          // when > now
+          cv_.wait_for(lock, d, [this, &calculate_duration] {
+            if (exit_) {
+              return true;
+            }
+
+            if (queue_.empty()) {
+              return false;
+            }
+
+            if (calculate_duration() == duration::zero()) {
+              return true;
+            }
+
+            return false;
+          });
+        }
+
+        // ----------------------------------------
+        // Check condition
+
+        if (exit_) {
+          break;
+        }
+
+        // Check `duration` again.
+
+        d = calculate_duration();
+
+        if (d > duration::zero()) {
+          continue;
+        }
+
+        // ----------------------------------------
+
+        if (!queue_.empty()) {
+          e = std::move(queue_.front());
+          queue_.pop_front();
+        }
+      }
+
+      if (e) {
+        // Set running_function_object_id_
+
+        {
+          std::lock_guard<std::mutex> lock(running_function_object_id_mutex_);
+
+          running_function_object_id_ = e->get_object_id_value();
+        }
+
+        running_function_object_id_cv_.notify_all();
+
+        // Run function
+
+        e->call_function();
+
+        // Unset running_function_object_id_
+
+        {
+          std::lock_guard<std::mutex> lock(running_function_object_id_mutex_);
+
+          running_function_object_id_ = std::nullopt;
+        }
+
+        running_function_object_id_cv_.notify_all();
+      }
+    }
+  }
+
   std::weak_ptr<time_source> weak_time_source_;
   mutable std::mutex weak_time_source_mutex_;
 
-  std::thread worker_thread_;
   std::thread::id worker_thread_id_;
-  std::shared_ptr<thread_wait> worker_thread_id_wait_;
+  std::shared_ptr<thread_wait> worker_thread_id_wait_{make_thread_wait()};
 
   std::deque<std::unique_ptr<entry>> queue_;
-  bool exit_ = false;
+  bool exit_{false};
 
   // Protects queue_, exit_, and the worker thread wait condition.
   // Lock order: acquire object_ids_mutex_ before mutex_ if both are needed.
@@ -422,12 +419,17 @@ private:
   std::condition_variable cv_;
 
   // `object_id_` is for a function after detach
-  object_id object_id_;
+  object_id object_id_{make_new_object_id()};
   std::unordered_set<uint64_t> object_ids_;
   std::mutex object_ids_mutex_;
 
   std::optional<uint64_t> running_function_object_id_;
   mutable std::mutex running_function_object_id_mutex_;
   std::condition_variable running_function_object_id_cv_;
+
+  // Start the worker after all members it uses have been initialized.
+  std::thread worker_thread_{[this] {
+    run_worker();
+  }};
 };
 } // namespace pqrs::dispatcher
