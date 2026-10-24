@@ -12,14 +12,14 @@ namespace pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report {
 
 class __attribute__((packed)) pointing_input final {
 public:
-  pointing_input() : buttons{}, x(0), y(0), vertical_wheel(0), horizontal_wheel(0) {}
+  pointing_input() = default;
   bool operator==(const pointing_input& other) const { return (memcmp(this, &other, sizeof(*this)) == 0); }
   bool operator!=(const pointing_input& other) const { return !(*this == other); }
 
-  buttons buttons;
-  uint8_t x;
-  uint8_t y;
-  uint8_t vertical_wheel;
-  uint8_t horizontal_wheel;
+  buttons buttons{};
+  uint8_t x{0};
+  uint8_t y{0};
+  uint8_t vertical_wheel{0};
+  uint8_t horizontal_wheel{0};
 };
 } // namespace pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report

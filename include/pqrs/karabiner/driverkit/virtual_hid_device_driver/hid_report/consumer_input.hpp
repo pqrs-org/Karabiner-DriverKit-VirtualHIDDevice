@@ -12,12 +12,12 @@ namespace pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report {
 
 class __attribute__((packed)) consumer_input final {
 public:
-  consumer_input() : report_id_(2) {}
+  consumer_input() = default;
   bool operator==(const consumer_input& other) const { return (memcmp(this, &other, sizeof(*this)) == 0); }
   bool operator!=(const consumer_input& other) const { return !(*this == other); }
 
 private:
-  uint8_t report_id_ __attribute__((unused));
+  uint8_t report_id_ __attribute__((unused)){2};
 
 public:
   keys keys;

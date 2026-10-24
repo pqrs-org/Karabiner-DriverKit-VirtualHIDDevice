@@ -228,12 +228,7 @@ private:
                  const std::string& log_label)
         : dispatcher_client(weak_dispatcher),
           run_loop_thread_(run_loop_thread),
-          log_label_(log_label),
-          virtual_hid_keyboard_client_generation_id_(0),
-          virtual_hid_keyboard_enabled_(false),
-          virtual_hid_pointing_client_generation_id_(0),
-          virtual_hid_pointing_enabled_(false),
-          ready_timer_(*this) {
+          log_label_(log_label) {
       dispatcher_client_constructor_exception_guard_.initialize(
           [&] {
             no_virtual_devices_io_service_client_ = std::make_shared<io_service_client>(weak_dispatcher_,
@@ -546,16 +541,16 @@ private:
     std::optional<std::vector<uint8_t>> last_response_;
 
     // virtual_hid_keyboard
-    int virtual_hid_keyboard_client_generation_id_;
-    bool virtual_hid_keyboard_enabled_;
+    int virtual_hid_keyboard_client_generation_id_{0};
+    bool virtual_hid_keyboard_enabled_{false};
     pqrs::karabiner::driverkit::virtual_hid_device_service::virtual_hid_keyboard_parameters virtual_hid_keyboard_parameters_;
 
     // virtual_hid_pointing
-    int virtual_hid_pointing_client_generation_id_;
-    bool virtual_hid_pointing_enabled_;
+    int virtual_hid_pointing_client_generation_id_{0};
+    bool virtual_hid_pointing_enabled_{false};
 
     // Construct after potentially throwing members; destruction requires detach.
-    pqrs::dispatcher::extra::timer ready_timer_;
+    pqrs::dispatcher::extra::timer ready_timer_{*this};
   };
 
   template <typename GetIoServiceClient>

@@ -12,7 +12,7 @@ namespace pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report {
 
 class __attribute__((packed)) keys final {
 public:
-  keys() : keys_{} {}
+  keys() = default;
 
   const uint16_t (&get_raw_value() const)[32] {
     return keys_;
@@ -74,6 +74,6 @@ public:
   bool operator!=(const keys& other) const { return !(*this == other); }
 
 private:
-  uint16_t keys_[32];
+  uint16_t keys_[32]{};
 };
 } // namespace pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report

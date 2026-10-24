@@ -10,11 +10,7 @@
 namespace pqrs::karabiner::driverkit::virtual_hid_device_service {
 class virtual_hid_keyboard_parameters final {
 public:
-  virtual_hid_keyboard_parameters()
-      : virtual_hid_keyboard_parameters(pqrs::hid::vendor_id::value_t(0x16c0),
-                                        pqrs::hid::product_id::value_t(0x27db),
-                                        pqrs::hid::country_code::not_supported) {
-  }
+  virtual_hid_keyboard_parameters() = default;
 
   virtual_hid_keyboard_parameters(pqrs::hid::vendor_id::value_t vendor_id,
                                   pqrs::hid::product_id::value_t product_id,
@@ -51,8 +47,8 @@ public:
   bool operator==(const virtual_hid_keyboard_parameters&) const = default;
 
 private:
-  pqrs::hid::vendor_id::value_t vendor_id_;
-  pqrs::hid::product_id::value_t product_id_;
-  pqrs::hid::country_code::value_t country_code_;
+  pqrs::hid::vendor_id::value_t vendor_id_{0x16c0};
+  pqrs::hid::product_id::value_t product_id_{0x27db};
+  pqrs::hid::country_code::value_t country_code_{pqrs::hid::country_code::not_supported};
 };
 } // namespace pqrs::karabiner::driverkit::virtual_hid_device_service

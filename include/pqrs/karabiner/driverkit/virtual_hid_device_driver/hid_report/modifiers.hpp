@@ -12,7 +12,7 @@ namespace pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report {
 
 class __attribute__((packed)) modifiers final {
 public:
-  modifiers() : modifiers_(0) {}
+  modifiers() = default;
 
   uint8_t get_raw_value() const {
     return modifiers_;
@@ -42,6 +42,6 @@ public:
   bool operator!=(const modifiers& other) const { return !(*this == other); }
 
 private:
-  uint8_t modifiers_;
+  uint8_t modifiers_{0};
 };
 } // namespace pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report

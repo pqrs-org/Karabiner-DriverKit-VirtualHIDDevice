@@ -11,7 +11,7 @@ namespace pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report {
 
 class __attribute__((packed)) buttons final {
 public:
-  buttons() : buttons_(0) {}
+  buttons() = default;
 
   uint32_t get_raw_value() const {
     return buttons_;
@@ -49,7 +49,7 @@ public:
   bool operator!=(const buttons& other) const { return !(*this == other); }
 
 private:
-  uint32_t buttons_; // 32 bits for each button (32 buttons)
+  uint32_t buttons_{0}; // 32 bits for each button (32 buttons)
 
   // (0x1 << 0) -> button 1
   // (0x1 << 1) -> button 2

@@ -19,8 +19,7 @@ private:
 public:
   virtual_hid_device_service_server(pqrs::not_null_shared_ptr_t<pqrs::cf::run_loop_thread> run_loop_thread)
       : dispatcher_client(),
-        run_loop_thread_(run_loop_thread),
-        create_server_retry_timer_(*this) {
+        run_loop_thread_(run_loop_thread) {
     dispatcher_client_constructor_exception_guard_.initialize(
         [&] {
           //
@@ -411,5 +410,5 @@ private:
   std::unique_ptr<pqrs::unix_domain_stream::server> server_;
 
   // Construct after potentially throwing members; destruction requires detach.
-  pqrs::dispatcher::extra::timer create_server_retry_timer_;
+  pqrs::dispatcher::extra::timer create_server_retry_timer_{*this};
 };

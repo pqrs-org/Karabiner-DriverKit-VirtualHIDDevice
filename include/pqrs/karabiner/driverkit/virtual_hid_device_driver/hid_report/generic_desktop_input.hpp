@@ -12,12 +12,12 @@ namespace pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report {
 
 class __attribute__((packed)) generic_desktop_input final {
 public:
-  generic_desktop_input() : report_id_(7) {}
+  generic_desktop_input() = default;
   bool operator==(const generic_desktop_input& other) const { return (memcmp(this, &other, sizeof(*this)) == 0); }
   bool operator!=(const generic_desktop_input& other) const { return !(*this == other); }
 
 private:
-  uint8_t report_id_ __attribute__((unused));
+  uint8_t report_id_ __attribute__((unused)){7};
 
 public:
   keys keys;

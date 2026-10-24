@@ -12,12 +12,12 @@ namespace pqrs::karabiner::driverkit::virtual_hid_device_driver::hid_report {
 
 class __attribute__((packed)) apple_vendor_top_case_input final {
 public:
-  apple_vendor_top_case_input() : report_id_(3) {}
+  apple_vendor_top_case_input() = default;
   bool operator==(const apple_vendor_top_case_input& other) const { return (memcmp(this, &other, sizeof(*this)) == 0); }
   bool operator!=(const apple_vendor_top_case_input& other) const { return !(*this == other); }
 
 private:
-  uint8_t report_id_ __attribute__((unused));
+  uint8_t report_id_ __attribute__((unused)){3};
 
 public:
   keys keys;

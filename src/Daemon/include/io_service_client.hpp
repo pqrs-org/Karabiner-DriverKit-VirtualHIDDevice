@@ -40,8 +40,7 @@ public:
                     const std::string& log_label)
       : dispatcher_client(weak_dispatcher),
         run_loop_thread_(run_loop_thread),
-        log_label_(log_label),
-        service_name_("org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceRoot") {
+        log_label_(log_label) {
     dispatcher_client_constructor_exception_guard_.initialize();
   }
 
@@ -275,9 +274,7 @@ private:
     matched_service(pqrs::osx::iokit_registry_entry_id::value_t registry_entry_id,
                     pqrs::osx::iokit_object_ptr service)
         : registry_entry_id_(registry_entry_id),
-          service_(service),
-          opened_(false),
-          invalidated_(false) {
+          service_(service) {
     }
 
     pqrs::osx::iokit_registry_entry_id::value_t get_registry_entry_id() const {
@@ -307,9 +304,9 @@ private:
   private:
     pqrs::osx::iokit_registry_entry_id::value_t registry_entry_id_;
     pqrs::osx::iokit_object_ptr service_;
-    bool opened_;
+    bool opened_{false};
     // `invalidated_` is set to true if the driver version cannot be retrieved.
-    bool invalidated_;
+    bool invalidated_{false};
   };
 
   class matched_services final {
@@ -619,7 +616,7 @@ private:
 
   pqrs::not_null_shared_ptr_t<pqrs::cf::run_loop_thread> run_loop_thread_;
   std::string log_label_;
-  std::string service_name_;
+  std::string service_name_{"org_pqrs_Karabiner_DriverKit_VirtualHIDDeviceRoot"};
   std::unique_ptr<pqrs::osx::iokit_service_monitor> service_monitor_;
   matched_services matched_services_;
   pqrs::osx::iokit_object_ptr connection_;
