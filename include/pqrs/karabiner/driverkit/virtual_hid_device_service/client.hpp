@@ -67,6 +67,7 @@ public:
 
   void async_stop() {
     enqueue_to_dispatcher([this] {
+      connected_ = false;
       client_ = nullptr;
 
       clear_state();
@@ -120,35 +121,46 @@ public:
 
   void async_post_report(const virtual_hid_device_driver::hid_report::keyboard_input& report) {
     async_request(make_request_buffer(request::post_keyboard_input_report,
-                                      report));
+                                      report),
+                  request_error_handling::discard);
   }
 
   void async_post_report(const virtual_hid_device_driver::hid_report::consumer_input& report) {
     async_request(make_request_buffer(request::post_consumer_input_report,
-                                      report));
+                                      report),
+                  request_error_handling::discard);
   }
 
   void async_post_report(const virtual_hid_device_driver::hid_report::apple_vendor_keyboard_input& report) {
     async_request(make_request_buffer(request::post_apple_vendor_keyboard_input_report,
-                                      report));
+                                      report),
+                  request_error_handling::discard);
   }
 
   void async_post_report(const virtual_hid_device_driver::hid_report::apple_vendor_top_case_input& report) {
     async_request(make_request_buffer(request::post_apple_vendor_top_case_input_report,
-                                      report));
+                                      report),
+                  request_error_handling::discard);
   }
 
   void async_post_report(const virtual_hid_device_driver::hid_report::generic_desktop_input& report) {
     async_request(make_request_buffer(request::post_generic_desktop_input_report,
-                                      report));
+                                      report),
+                  request_error_handling::discard);
   }
 
   void async_post_report(const virtual_hid_device_driver::hid_report::pointing_input& report) {
     async_request(make_request_buffer(request::post_pointing_input_report,
-                                      report));
+                                      report),
+                  request_error_handling::discard);
   }
 
 private:
+  enum class request_error_handling {
+    report_error,
+    discard,
+  };
+
   // This method is executed in the dispatcher thread.
   void clear_state() {
     last_virtual_hid_keyboard_ready_ = std::nullopt;
@@ -179,18 +191,21 @@ private:
 
     client_->connected.connect([this](auto&&) {
       enqueue_to_dispatcher([this] {
+        connected_ = true;
         connected();
       });
     });
 
     client_->connect_failed.connect([this](auto&& error_code) {
       enqueue_to_dispatcher([this, error_code] {
+        connected_ = false;
         connect_failed(error_code);
       });
     });
 
     client_->closed.connect([this] {
       enqueue_to_dispatcher([this] {
+        connected_ = false;
         closed();
 
         clear_state();
@@ -274,14 +289,27 @@ private:
     }
   }
 
-  void async_request(pqrs::not_null_shared_ptr_t<std::vector<uint8_t>> request_buffer) {
-    enqueue_to_dispatcher([this, request_buffer] {
+  void async_request(pqrs::not_null_shared_ptr_t<std::vector<uint8_t>> request_buffer,
+                     request_error_handling error_handling = request_error_handling::report_error) {
+    enqueue_to_dispatcher([this, request_buffer, error_handling] {
+      // Input reports describe transient state and must not be replayed after
+      // reconnection. Discard them while there is no server connection rather
+      // than reporting one not_connected error for every input event.
+      if (error_handling == request_error_handling::discard &&
+          !connected_) {
+        return;
+      }
+
       if (client_) {
         client_->async_request(
             *request_buffer,
-            [this](auto&& error_code, auto&& response_buffer) {
-              enqueue_to_dispatcher([this, error_code, response_buffer] {
+            [this, error_handling](auto&& error_code, auto&& response_buffer) {
+              enqueue_to_dispatcher([this, error_code, response_buffer, error_handling] {
                 if (error_code) {
+                  if (error_handling == request_error_handling::discard) {
+                    return;
+                  }
+
                   error_occurred(error_code);
                   return;
                 }
@@ -323,6 +351,7 @@ private:
   }
 
   std::unique_ptr<unix_domain_stream::client> client_;
+  bool connected_{false};
 
   std::optional<bool> last_virtual_hid_keyboard_ready_;
   std::optional<bool> last_virtual_hid_pointing_ready_;
