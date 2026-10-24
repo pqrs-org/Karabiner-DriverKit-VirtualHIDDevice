@@ -1,5 +1,22 @@
 # Changelog
 
+## Karabiner-DriverKit-VirtualHIDDevice 8.7.0
+
+- 📅 Release date
+    - Oct 24, 2026
+- ⚡️ Improvements
+    - Improved client behavior during service disconnections by discarding transient input reports and suppressing per-report connection errors.
+    - Simplified C++ member initialization by using default member initializers.
+    - Updated dependent vendor code:
+        - pqrs::cf::cf_ptr v2.4.0
+        - pqrs::dispatcher v2.22.0
+        - pqrs::hid v3.4.0
+        - pqrs::osx::iokit_iterator v1.3.0
+        - pqrs::osx::iokit_registry_entry v3.2.0
+        - pqrs::osx::iokit_service_monitor v6.5.0
+        - pqrs::spdlog v3.4.0
+        - pqrs::unix_domain_stream v5.2.0
+
 ## Karabiner-DriverKit-VirtualHIDDevice 8.6.0
 
 - 📅 Release date
