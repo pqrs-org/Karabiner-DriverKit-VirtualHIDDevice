@@ -1,5 +1,19 @@
 # Changelog
 
+## Karabiner-DriverKit-VirtualHIDDevice 8.8.0
+
+- 📅 Release date
+    - Nov 8, 2026
+- ⚡️ Improvements
+    - Improved autorelease pool handling in the virtual HID device service daemon.
+    - Migrated the app icon to the Icon Composer format.
+    - Updated dependent vendor code:
+        - asio 1.39.0
+        - pqrs::cf::run_loop_thread v4.0.0
+        - pqrs::dispatcher v2.23.0
+        - pqrs::hash v2.2.0
+        - pqrs::osx::autorelease_pool v1.1.0
+
 ## Karabiner-DriverKit-VirtualHIDDevice 8.7.0
 
 - 📅 Release date
