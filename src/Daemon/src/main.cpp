@@ -5,6 +5,7 @@
 #include <iostream>
 #include <memory>
 #include <pqrs/hid.hpp>
+#include <pqrs/osx/autorelease_pool.hpp>
 #include <pqrs/osx/iokit_return.hpp>
 #include <pqrs/osx/process_info.hpp>
 
@@ -18,10 +19,13 @@ int main() {
 
   pqrs::osx::process_info::enable_sudden_termination();
 
-  pqrs::dispatcher::extra::initialize_shared_dispatcher();
+  pqrs::dispatcher::extra::initialize_shared_dispatcher(
+      pqrs::osx::autorelease_pool::execute_with_autorelease_pool);
 
   // If the CFRunLoop can no longer start properly, exit and let launchd restart it.
-  pqrs::cf::run_loop_thread::extra::initialize_shared_run_loop_thread(pqrs::cf::run_loop_thread::failure_policy::exit);
+  pqrs::cf::run_loop_thread::extra::initialize_shared_run_loop_thread(
+      pqrs::cf::run_loop_thread::failure_policy::exit,
+      pqrs::osx::autorelease_pool::execute_with_autorelease_pool);
 
   logger::set_async_rotating_logger("virtual_hid_device_service",
                                     "/var/log/karabiner/virtual_hid_device_service.log",

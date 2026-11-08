@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <future>
 #include <new>
+#include <pqrs/osx/autorelease_pool.hpp>
 
 namespace {
 // Fail one allocation on the constructing thread only. Cleanup and background
@@ -60,9 +61,12 @@ bool check_constructor(const char* name, Factory factory) {
 } // namespace
 
 int main() {
-  pqrs::dispatcher::extra::initialize_shared_dispatcher();
+  pqrs::dispatcher::extra::initialize_shared_dispatcher(
+      pqrs::osx::autorelease_pool::execute_with_autorelease_pool);
   auto dispatcher = pqrs::dispatcher::extra::get_shared_dispatcher();
-  auto run_loop_thread = std::make_shared<pqrs::cf::run_loop_thread>();
+  auto run_loop_thread = std::make_shared<pqrs::cf::run_loop_thread>(
+      pqrs::cf::run_loop_thread::failure_policy::abort,
+      pqrs::osx::autorelease_pool::execute_with_autorelease_pool);
   const std::string log_label(128, 'x');
   // Initialize the logger before injecting allocation failures.
   static_cast<void>(logger::get_logger());

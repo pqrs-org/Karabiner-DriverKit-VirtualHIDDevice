@@ -3,6 +3,7 @@
 #include <iostream>
 #include <pqrs/karabiner/driverkit/virtual_hid_device_driver.hpp>
 #include <pqrs/karabiner/driverkit/virtual_hid_device_service.hpp>
+#include <pqrs/osx/autorelease_pool.hpp>
 #include <thread>
 
 namespace {
@@ -15,7 +16,8 @@ int main() {
   });
 
   // Needed before using `pqrs::karabiner::driverkit::virtual_hid_device_service::client`.
-  pqrs::dispatcher::extra::initialize_shared_dispatcher();
+  pqrs::dispatcher::extra::initialize_shared_dispatcher(
+      pqrs::osx::autorelease_pool::execute_with_autorelease_pool);
 
   std::mutex client_mutex;
   auto client1 = std::make_unique<pqrs::karabiner::driverkit::virtual_hid_device_service::client>();

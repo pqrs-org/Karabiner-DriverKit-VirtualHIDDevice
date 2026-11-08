@@ -27,10 +27,16 @@ targets:
           - -Werror
           - -DSPDLOG_COMPILED_LIB
           - '-std=c++23'
+      - path: ../../vendor/vendor/src/pqrs/osx/autorelease_pool/PQRSOSXAutoreleasePoolImpl.m
+        compilerFlags:
+          - -Wall
+          - -Werror
+          - -fno-objc-arc
       - path: ../../vendor/vendor/src/pqrs/osx/process_info
       - path: Resources
         excludes:
           - Info.plist.in
     dependencies:
       - sdk: CoreFoundation.framework
+      - sdk: Foundation.framework
       - sdk: IOKit.framework
