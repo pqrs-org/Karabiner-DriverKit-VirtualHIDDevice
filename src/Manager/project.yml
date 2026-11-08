@@ -4,6 +4,7 @@ targets:
   Karabiner-VirtualHIDDevice-Manager:
     settings:
       PRODUCT_BUNDLE_IDENTIFIER: org.pqrs.Karabiner-VirtualHIDDevice-Manager
+      ASSETCATALOG_COMPILER_APPICON_NAME: VirtualDeviceManager
       CODE_SIGN_ENTITLEMENTS: ''
       CODE_SIGN_IDENTITY: '-'
       CODE_SIGN_STYLE: Manual
@@ -21,3 +22,4 @@ targets:
       - path: Resources
         excludes:
           - Info.plist.in
+      - path: ../../files/icons/v2/VirtualDeviceManager.icon

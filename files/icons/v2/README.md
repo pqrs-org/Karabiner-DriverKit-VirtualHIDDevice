@@ -1,6 +1,7 @@
 # icon
 
-## How to update icns
+## How to update the app icon
 
-1.  Open `VirtualDeviceManager.icon` in `Icon Composer.app`, then export the image to `exported/VirtualDeviceManager.png`.
-2.  Run `make` command in Terminal.
+Open `VirtualDeviceManager.icon` in Icon Composer.
+
+The Manager target uses this file directly as its app icon.
