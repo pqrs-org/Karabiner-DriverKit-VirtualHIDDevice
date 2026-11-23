@@ -73,7 +73,7 @@ The daemon rejects requests with a different protocol version.
     ```shell
     bash '/Library/Application Support/org.pqrs/Karabiner-DriverKit-VirtualHIDDevice/scripts/uninstall/deactivate_driver.sh'
     sudo bash '/Library/Application Support/org.pqrs/Karabiner-DriverKit-VirtualHIDDevice/scripts/uninstall/remove_files.sh'
-    sudo killall Karabiner-VirtualHIDDevice-Daemon
+    sudo killall -KILL Karabiner-VirtualHIDDevice-Daemon
     ```
 
 ### Installed files

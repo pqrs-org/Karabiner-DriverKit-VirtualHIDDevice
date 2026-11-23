@@ -19,7 +19,7 @@ fi
 # Kill processes in previous versions
 #
 
-killall Karabiner-DriverKit-VirtualHIDDeviceClient
+killall -KILL Karabiner-DriverKit-VirtualHIDDeviceClient
 
 #
 # Remove files

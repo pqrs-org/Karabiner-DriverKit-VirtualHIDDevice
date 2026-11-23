@@ -5,8 +5,9 @@ export PATH
 
 #
 # Restart the process in environments where the daemon is managed by launchd
+# Use SIGKILL because SIGTERM may leave the daemon running on macOS 13.
 #
 
-killall Karabiner-VirtualHIDDevice-Daemon
+killall -KILL Karabiner-VirtualHIDDevice-Daemon
 
 exit 0
