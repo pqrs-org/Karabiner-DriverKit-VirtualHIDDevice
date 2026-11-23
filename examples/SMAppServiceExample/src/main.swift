@@ -23,7 +23,7 @@ func registerService(_ service: SMAppService) {
   // Even in this case, calling unregister will not have any negative impact.
 
   if service.status == .notFound {
-    unregisterService(service)
+    _ = unregisterService(service)
   }
 
   do {
@@ -38,12 +38,14 @@ func registerService(_ service: SMAppService) {
   }
 }
 
-func unregisterService(_ service: SMAppService) {
+func unregisterService(_ service: SMAppService) -> Bool {
   do {
     try service.unregister()
     print("Successfully unregistered \(service)")
+    return true
   } catch {
     print("Unable to unregister \(error)")
+    return false
   }
 }
 
@@ -64,10 +66,13 @@ RunLoop.main.perform {
       exit(0)
 
     case .unregister:
+      var succeeded = true
       for s in services {
-        unregisterService(s)
+        if !unregisterService(s) {
+          succeeded = false
+        }
       }
-      exit(0)
+      exit(succeeded ? 0 : 1)
 
     case .status:
       for s in services {
