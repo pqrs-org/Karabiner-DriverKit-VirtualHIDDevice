@@ -1,5 +1,12 @@
 # Changelog
 
+## Karabiner-DriverKit-VirtualHIDDevice 8.9.0
+
+- 📅 Release date
+    - Nov 23, 2026
+- ⚡️ Improvements
+    - Improved process cleanup during installation and uninstallation by using `SIGKILL`.
+
 ## Karabiner-DriverKit-VirtualHIDDevice 8.8.0
 
 - 📅 Release date
